@@ -1,5 +1,10 @@
 # Jupyter Notebooks
 *.ipynb_checkpoints
 
+# Visual Studio
+*.vs/
+Debug/
+
 # Miscellaneous
-Results.txt
+*.txt
+SEM Images/

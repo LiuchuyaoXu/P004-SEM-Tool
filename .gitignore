@@ -1,8 +1,9 @@
 # Jupyter Notebook
 *.ipynb_checkpoints
 
-# Visual Studio
-*.vs/
+# Visual Studio (Code)
+.vs/
+.vscode/
 Debug/
 
 # Miscellaneous

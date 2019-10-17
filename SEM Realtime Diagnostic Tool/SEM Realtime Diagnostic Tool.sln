@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SEM Realtime Diagnostic Tool", "SEM Realtime Diagnostic Tool.vcxproj", "{C20B4C44-AB21-44FE-A72B-9E305CC824A9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Image Analyser", "Image Analyser\Image Analyser.vcxproj", "{129FFB17-D1DB-45CB-9F19-06DC99BC5605}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +13,19 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Debug|x64.ActiveCfg = Debug|x64
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Debug|x64.Build.0 = Debug|x64
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Debug|x86.ActiveCfg = Debug|Win32
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Debug|x86.Build.0 = Debug|Win32
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Release|x64.ActiveCfg = Release|x64
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Release|x64.Build.0 = Release|x64
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Release|x86.ActiveCfg = Release|Win32
-		{C20B4C44-AB21-44FE-A72B-9E305CC824A9}.Release|x86.Build.0 = Release|Win32
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Debug|x64.ActiveCfg = Debug|x64
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Debug|x64.Build.0 = Debug|x64
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Debug|x86.ActiveCfg = Debug|Win32
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Debug|x86.Build.0 = Debug|Win32
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Release|x64.ActiveCfg = Release|x64
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Release|x64.Build.0 = Release|x64
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Release|x86.ActiveCfg = Release|Win32
+		{129FFB17-D1DB-45CB-9F19-06DC99BC5605}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {16917F1D-11EC-49F4-B2B5-6E3606E62C1B}
+		SolutionGuid = {9C6C2B70-1CEC-4CA9-B184-8ABFEDE72BC3}
 	EndGlobalSection
 EndGlobal

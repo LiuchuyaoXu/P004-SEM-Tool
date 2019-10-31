@@ -5,35 +5,57 @@
 #   Author: Liuchuyao Xu, 2019
 
 import sys
-import random
-from PySide2 import QtCore, QtWidgets, QtGui
 
-class MyWidget(QtWidgets.QWidget):
+import matplotlib.figure as mpl_fig
+import matplotlib.backends.backend_qt5agg as mpl_qt5agg
+
+from PySide2 import QtGui
+from PySide2 import QtCore
+from PySide2 import QtWidgets
+
+class SEMTool(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.hello = ["Hallo Welt", "Hei maailma", "Hola Mundo", "Привет мир"]
+        self.setWindowTitle("SEM Realtime Diagnostic Tool")
 
-        self.button = QtWidgets.QPushButton("Click me!")
-        self.text = QtWidgets.QLabel("Hello World")
-        self.text.setAlignment(QtCore.Qt.AlignCenter)
+        # self.initCanvas()
+        # self.setCentralWidget(self.canvas)
 
-        self.layout = QtWidgets.QVBoxLayout()
-        self.layout.addWidget(self.text)
-        self.layout.addWidget(self.button)
-        self.setLayout(self.layout)
+        self.initPlots()
+        self.setCentralWidget(self.image)
 
-        self.button.clicked.connect(self.magic)
+        # self.initPanel()
+        # self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.panel)
 
+    def initCanvas(self):
+        figure = mpl_fig.Figure()
+        self.canvas = mpl_qt5agg.FigureCanvas(figure)
+        self.canvas.plots = figure.subplots(nrows=2, ncols=2)
+        self.canvas.plots[0,0].set_title("Original Image")
+        self.canvas.plots[0,1].set_title("2D FFT")
+        self.canvas.plots[1,0].set_title("X-Axis FFT")
+        self.canvas.plots[1,1].set_title("Y-Axis FFT")
 
-    def magic(self):
-        self.text.setText(random.choice(self.hello))
+    def initPlots(self):
+        pixmap = QtGui.QPixmap("../SEM Images/Armin241.tif")
+
+        self.image = QtWidgets.QLabel()
+        self.image.setPixmap(pixmap)
+
+    def initPanel(self):
+        self.panel = QtWidgets.QDockWidget()
+        self.panel.setWindowTitle("Control Panel")
+        self.panel.setAllowedAreas(QtCore.Qt.RightDockWidgetArea | 
+                                   QtCore.Qt.LeftDockWidgetArea)
+
+        # slider = QtWidgets.QSlider(parent=self.panel, 
+        #                            orientation=QtCore.Qt.Orientation.Horizontal)
+        
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-
-    widget = MyWidget()
-    widget.resize(800, 600)
-    widget.show()
-
+    gui = SEMTool()
+    gui.show()
     sys.exit(app.exec_())
+    

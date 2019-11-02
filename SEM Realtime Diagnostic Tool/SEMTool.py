@@ -17,6 +17,8 @@ class SEMTool(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.canvas     = QtWidgets.QWidget()
+        self.layout     = QtWidgets.QGridLayout()
         self.PILImage   = Image.open("../SEM Images/Armin241.tif")
         self.image      = QtWidgets.QLabel()
         self.imageXFFT  = QtWidgets.QLabel()
@@ -31,8 +33,14 @@ class SEMTool(QtWidgets.QMainWindow):
         self.updateImageXYFFT()
         self.initPanel()
 
+        self.canvas.setLayout(self.layout)
+        self.layout.addWidget(self.image)
+        self.layout.addWidget(self.imageXYFFT)
+        # self.layout.addWidget(self.imageXFFT)
+        # self.layout.addWidget(self.imageYFFT)
+
         self.setWindowTitle("SEM Realtime Diagnostic Tool")
-        self.setCentralWidget(self.imageXYFFT)
+        self.setCentralWidget(self.canvas)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.panel)
 
         self.timer = QtCore.QTimer()

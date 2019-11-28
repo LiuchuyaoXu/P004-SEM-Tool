@@ -1,13 +1,5 @@
 # Python virtual environments
-.venv
+.venv/
 
-# Jupyter Notebook
-*.ipynb_checkpoints
-
-# Visual Studio (Code)
-.vs/
+# Visual Studio Code files
 .vscode/
-Debug/
-
-# Miscellaneous
-*.txt

@@ -1,4 +1,4 @@
-#   File:   SemTool.py
+#   File:   semTool.py
 #
 #   Brief:  Implement the SEM realtime diagnostic tool.
 # 
@@ -16,11 +16,11 @@ from matplotlib.colors import LogNorm
 from matplotlib.figure import Figure as MPLFigure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MPLCanvas
 
-class SemTool(QtWidgets.QMainWindow):
+class semTool(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.SemImage   = Image.Image()
+        self.semImage   = Image.Image()
         self.canvas     = MPLCanvas(MPLFigure(constrained_layout=True))
 
         self.initCanvas()
@@ -51,15 +51,15 @@ class SemTool(QtWidgets.QMainWindow):
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
 
-        self.SemImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
-        self.array      = np.asarray(self.SemImage)
+        self.semImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
+        self.array      = np.asarray(self.semImage)
         self.arrayXYFFT = np.fft.fft2(self.array)
         self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
         self.arrayXYFFT = np.abs(self.arrayXYFFT)
 
         self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
 
-        self.img        = self.image.imshow(self.SemImage, cmap = 'gray')
+        self.img        = self.image.imshow(self.semImage, cmap = 'gray')
         # self.imgXFFT    = self.imageXFFT.imshow(self.arrayXYFFT, norm = LogNorm())
         self.imgYFFT    = self.imageYFFT.imshow(self.arrayXYFFT, norm = LogNorm())
         self.imgXYFFT   = self.imageXYFFT.imshow(self.arrayXYFFT, norm = LogNorm())
@@ -74,9 +74,9 @@ class SemTool(QtWidgets.QMainWindow):
             self.frameReady = False
             begin = time.time()
 
-            self.SemImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
+            self.semImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
 
-            self.array      = np.asarray(self.SemImage)
+            self.array      = np.asarray(self.semImage)
             self.arrayXYFFT = np.fft.fft2(self.array)
             self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
             self.arrayXYFFT = np.abs(self.arrayXYFFT)
@@ -87,7 +87,7 @@ class SemTool(QtWidgets.QMainWindow):
             self.imageXFFT.clear()
             self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
 
-            self.img.set_data(self.SemImage)
+            self.img.set_data(self.semImage)
             # self.imgXFFT.set_data(self.arrayXYFFT)
             self.imgYFFT.set_data(self.arrayXYFFT)
             self.imgXYFFT.set_data(self.arrayXYFFT)
@@ -106,6 +106,6 @@ class SemTool(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-    gui = SemTool()
+    gui = semTool()
     gui.show()
     sys.exit(app.exec_())

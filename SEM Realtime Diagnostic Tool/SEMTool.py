@@ -1,4 +1,4 @@
-#   File:   SEMTool.py
+#   File:   SemTool.py
 #
 #   Brief:  Implement the SEM realtime diagnostic tool.
 # 
@@ -6,11 +6,9 @@
 
 import sys
 import time
-import SEM_API
 import numpy as np
 from PIL import Image
 from PIL import ImageQt
-from imageio import imread
 from PySide2 import QtGui
 from PySide2 import QtCore
 from PySide2 import QtWidgets
@@ -18,11 +16,11 @@ from matplotlib.colors import LogNorm
 from matplotlib.figure import Figure as MPLFigure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MPLCanvas
 
-class SEMTool(QtWidgets.QMainWindow):
+class SemTool(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.SEMImage   = Image.Image()
+        self.SemImage   = Image.Image()
         self.canvas     = MPLCanvas(MPLFigure(constrained_layout=True))
 
         self.initCanvas()
@@ -32,6 +30,7 @@ class SEMTool(QtWidgets.QMainWindow):
 
     def initCanvas(self):
         plots = self.canvas.figure.subplots(nrows=2, ncols=2)
+        # self.canvas.figure.subplots_adjust(hspace=0, wspace=0)
 
         self.image      = plots[0, 0]
         self.imageXYFFT = plots[0, 1]
@@ -43,23 +42,25 @@ class SEMTool(QtWidgets.QMainWindow):
         self.imageXFFT.axis('off')
         self.imageYFFT.axis('off')
 
+        # self.image.set_title("Original Image")
+        # self.imageXYFFT.set_title("2D FFT")
+        # self.imageXFFT.set_title("X-Axis FFT")
+        # self.imageYFFT.set_title("Y-Axis FFT")
+
         self.frameCount = 1
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
 
-        with SEM_API.SEM_API("remote") as sem:
-            sem.UpdateImage_Start()
-            time.sleep(1)
-            sem.UpdateImage_Pause()
-            self.array = np.asarray(sem.img_array)
-            
+        self.SemImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
+        self.array      = np.asarray(self.SemImage)
         self.arrayXYFFT = np.fft.fft2(self.array)
         self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
         self.arrayXYFFT = np.abs(self.arrayXYFFT)
 
         self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
 
-        self.img        = self.image.imshow(self.SEMImage, cmap = 'gray')
+        self.img        = self.image.imshow(self.SemImage, cmap = 'gray')
+        # self.imgXFFT    = self.imageXFFT.imshow(self.arrayXYFFT, norm = LogNorm())
         self.imgYFFT    = self.imageYFFT.imshow(self.arrayXYFFT, norm = LogNorm())
         self.imgXYFFT   = self.imageXYFFT.imshow(self.arrayXYFFT, norm = LogNorm())
 
@@ -73,21 +74,21 @@ class SEMTool(QtWidgets.QMainWindow):
             self.frameReady = False
             begin = time.time()
 
-            with SEM_API.SEM_API("remote") as sem:
-                sem.UpdateImage_Start()
-                time.sleep(1)
-                sem.UpdateImage_Pause()
-                self.array      = np.asarray(sem.img_array)
+            self.SemImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
 
-            self.array      = np.asarray(self.SEMImage)
+            self.array      = np.asarray(self.SemImage)
             self.arrayXYFFT = np.fft.fft2(self.array)
             self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
             self.arrayXYFFT = np.abs(self.arrayXYFFT)
 
+            # self.imageXYFFT.set_xlim(-1000, 1000)
+            # self.imageXYFFT.set_ylim(-1000, 1000)
+
             self.imageXFFT.clear()
             self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
 
-            self.img.set_data(self.SEMImage)
+            self.img.set_data(self.SemImage)
+            # self.imgXFFT.set_data(self.arrayXYFFT)
             self.imgYFFT.set_data(self.arrayXYFFT)
             self.imgXYFFT.set_data(self.arrayXYFFT)
 
@@ -105,6 +106,6 @@ class SEMTool(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-    gui = SEMTool()
+    gui = SemTool()
     gui.show()
     sys.exit(app.exec_())

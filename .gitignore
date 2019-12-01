@@ -1,5 +1,6 @@
-# Python virtual environments
+# Python
 .venv/
+__pycache__/
 
 # Visual Studio Code files
 .vscode/

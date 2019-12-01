@@ -8,4 +8,7 @@ if __name__ == "__main__":
         sem.UpdateImage_Start()
         time.sleep(1)
         sem.UpdateImage_Pause()
+        plt.imshow(sem.img_array, cmap="gray")
+        plt.show()
+        sem.__exit__()
         

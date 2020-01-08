@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2020.1.5)  8 JAN 2020 16:17
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2020.1.5)  8 JAN 2020 21:16
 entering extended mode
 **"./Technical Milestone Report.tex"
 ("Technical Milestone Report.tex"
@@ -132,6 +132,263 @@ Package: authblk 2001/02/27 1.3 (PWD)
 \c@authors=\count104
 \c@affil=\count105
 )
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex\biblatex.sty"
+Package: biblatex 2019/12/01 v3.14 programmable bibliographies (PK/MW)
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/pdftexcmds\pdftexcmds.sty"
+Package: pdftexcmds 2019/11/24 v0.31 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+("C:\Program Files\MiKTeX 2.9\tex/generic/infwarerr\infwarerr.sty"
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+("C:\Program Files\MiKTeX 2.9\tex/generic/ltxcmds\ltxcmds.sty"
+Package: ltxcmds 2019/12/15 v1.24 LaTeX kernel commands for general use (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/etoolbox\etoolbox.sty"
+Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count106
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/kvoptions\kvoptions.sty"
+Package: kvoptions 2019/11/29 v3.13 Key value format for package options (HO)
+
+("C:\Program Files\MiKTeX 2.9\tex/generic/kvsetkeys\kvsetkeys.sty"
+Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+))
+("C:\Program Files\MiKTeX 2.9\tex/latex/logreq\logreq.sty"
+Package: logreq 2010/08/04 v1.0 xml request logger
+\lrq@indent=\count107
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/logreq\logreq.def"
+File: logreq.def 2010/08/04 v1.0 logreq spec v1.0
+))
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\ifthen.sty"
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/url\url.sty"
+\Urlmuskip=\muskip11
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+\c@tabx@nest=\count108
+\c@listtotal=\count109
+\c@listcount=\count110
+\c@liststart=\count111
+\c@liststop=\count112
+\c@citecount=\count113
+\c@citetotal=\count114
+\c@multicitecount=\count115
+\c@multicitetotal=\count116
+\c@instcount=\count117
+\c@maxnames=\count118
+\c@minnames=\count119
+\c@maxitems=\count120
+\c@minitems=\count121
+\c@citecounter=\count122
+\c@maxcitecounter=\count123
+\c@savedcitecounter=\count124
+\c@uniquelist=\count125
+\c@uniquename=\count126
+\c@refsection=\count127
+\c@refsegment=\count128
+\c@maxextratitle=\count129
+\c@maxextratitleyear=\count130
+\c@maxextraname=\count131
+\c@maxextradate=\count132
+\c@maxextraalpha=\count133
+\c@abbrvpenalty=\count134
+\c@highnamepenalty=\count135
+\c@lownamepenalty=\count136
+\c@maxparens=\count137
+\c@parenlevel=\count138
+\blx@tempcnta=\count139
+\blx@tempcntb=\count140
+\blx@tempcntc=\count141
+\blx@maxsection=\count142
+\blx@maxsegment@0=\count143
+\blx@notetype=\count144
+\blx@parenlevel@text=\count145
+\blx@parenlevel@foot=\count146
+\blx@sectionciteorder@0=\count147
+\blx@entrysetcounter=\count148
+\labelnumberwidth=\skip48
+\labelalphawidth=\skip49
+\biblabelsep=\skip50
+\bibitemsep=\skip51
+\bibnamesep=\skip52
+\bibinitsep=\skip53
+\bibparsep=\skip54
+\bibhang=\skip55
+\blx@bcfin=\read1
+\blx@bcfout=\write3
+\blx@langwohyphens=\language78
+\c@mincomprange=\count149
+\c@maxcomprange=\count150
+\c@mincompwidth=\count151
+Package biblatex Info: Trying to load biblatex default data model...
+Package biblatex Info: ... file 'blx-dm.def' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex\blx-dm.def"
+File: blx-dm.def 2019/12/01 v3.14 biblatex localization (PK/MW)
+)
+Package biblatex Info: Trying to load biblatex custom data model...
+Package biblatex Info: ... file 'biblatex-dm.cfg' not found.
+\c@afterword=\count152
+\c@savedafterword=\count153
+\c@annotator=\count154
+\c@savedannotator=\count155
+\c@author=\count156
+\c@savedauthor=\count157
+\c@bookauthor=\count158
+\c@savedbookauthor=\count159
+\c@commentator=\count160
+\c@savedcommentator=\count161
+\c@editor=\count162
+\c@savededitor=\count163
+\c@editora=\count164
+\c@savededitora=\count165
+\c@editorb=\count166
+\c@savededitorb=\count167
+\c@editorc=\count168
+\c@savededitorc=\count169
+\c@foreword=\count170
+\c@savedforeword=\count171
+\c@holder=\count172
+\c@savedholder=\count173
+\c@introduction=\count174
+\c@savedintroduction=\count175
+\c@namea=\count176
+\c@savednamea=\count177
+\c@nameb=\count178
+\c@savednameb=\count179
+\c@namec=\count180
+\c@savednamec=\count181
+\c@translator=\count182
+\c@savedtranslator=\count183
+\c@shortauthor=\count184
+\c@savedshortauthor=\count185
+\c@shorteditor=\count186
+\c@savedshorteditor=\count187
+\c@labelname=\count188
+\c@savedlabelname=\count189
+\c@institution=\count190
+\c@savedinstitution=\count191
+\c@lista=\count192
+\c@savedlista=\count193
+\c@listb=\count194
+\c@savedlistb=\count195
+\c@listc=\count196
+\c@savedlistc=\count197
+\c@listd=\count198
+\c@savedlistd=\count199
+\c@liste=\count266
+\c@savedliste=\count267
+\c@listf=\count268
+\c@savedlistf=\count269
+\c@location=\count270
+\c@savedlocation=\count271
+\c@organization=\count272
+\c@savedorganization=\count273
+\c@origlocation=\count274
+\c@savedoriglocation=\count275
+\c@origpublisher=\count276
+\c@savedorigpublisher=\count277
+\c@publisher=\count278
+\c@savedpublisher=\count279
+\c@language=\count280
+\c@savedlanguage=\count281
+\c@origlanguage=\count282
+\c@savedoriglanguage=\count283
+\c@pageref=\count284
+\c@savedpageref=\count285
+\shorthandwidth=\skip56
+\shortjournalwidth=\skip57
+\shortserieswidth=\skip58
+\shorttitlewidth=\skip59
+\shortauthorwidth=\skip60
+\shorteditorwidth=\skip61
+\locallabelnumberwidth=\skip62
+\locallabelalphawidth=\skip63
+\localshorthandwidth=\skip64
+\localshortjournalwidth=\skip65
+\localshortserieswidth=\skip66
+\localshorttitlewidth=\skip67
+\localshortauthorwidth=\skip68
+\localshorteditorwidth=\skip69
+Package biblatex Info: Trying to load compatibility code...
+Package biblatex Info: ... file 'blx-compat.def' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex\blx-compat.def"
+File: blx-compat.def 2019/12/01 v3.14 biblatex compatibility (PK/MW)
+)
+Package biblatex Info: Trying to load BibTeX backend compatibility...
+Package biblatex Info: ... file 'blx-bibtex.def' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex\blx-bibtex.def"
+File: blx-bibtex.def 2019/12/01 v3.14 biblatex compatibility (PK/MW)
+
+
+Package biblatex Warning: Using fall-back BibTeX(8) backend:
+(biblatex)                functionality may be reduced/unavailable.
+
+)
+Package biblatex Info: Trying to load generic definitions...
+Package biblatex Info: ... file 'biblatex.def' found.
+ ("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex\biblatex.def"
+File: biblatex.def 2019/12/01 v3.14 biblatex compatibility (PK/MW)
+\c@textcitecount=\count286
+\c@textcitetotal=\count287
+\c@textcitemaxnames=\count288
+\c@biburlbigbreakpenalty=\count289
+\c@biburlbreakpenalty=\count290
+\c@biburlnumpenalty=\count291
+\c@biburlucpenalty=\count292
+\c@biburllcpenalty=\count293
+\biburlbigskip=\muskip12
+\biburlnumskip=\muskip13
+\biburlucskip=\muskip14
+\biburllcskip=\muskip15
+\c@smartand=\count294
+)
+Package biblatex Info: Trying to load bibliography style 'numeric'...
+Package biblatex Info: ... file 'numeric.bbx' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex/bbx\numeric.bbx"
+File: numeric.bbx 2019/12/01 v3.14 biblatex bibliography style (PK/MW)
+Package biblatex Info: Trying to load bibliography style 'standard'...
+Package biblatex Info: ... file 'standard.bbx' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex/bbx\standard.bbx"
+File: standard.bbx 2019/12/01 v3.14 biblatex bibliography style (PK/MW)
+\c@bbx:relatedcount=\count295
+\c@bbx:relatedtotal=\count296
+))
+Package biblatex Info: Trying to load citation style 'numeric'...
+Package biblatex Info: ... file 'numeric.cbx' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex/cbx\numeric.cbx"
+File: numeric.cbx 2019/12/01 v3.14 biblatex citation style (PK/MW)
+Package biblatex Info: Redefining '\cite'.
+Package biblatex Info: Redefining '\parencite'.
+Package biblatex Info: Redefining '\footcite'.
+Package biblatex Info: Redefining '\footcitetext'.
+Package biblatex Info: Redefining '\smartcite'.
+Package biblatex Info: Redefining '\supercite'.
+Package biblatex Info: Redefining '\textcite'.
+Package biblatex Info: Redefining '\textcites'.
+Package biblatex Info: Redefining '\cites'.
+Package biblatex Info: Redefining '\parencites'.
+Package biblatex Info: Redefining '\smartcites'.
+)
+Package biblatex Info: Trying to load configuration file...
+Package biblatex Info: ... file 'biblatex.cfg' found.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex\biblatex.cfg"
+File: biblatex.cfg 
+))
 ("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\graphicx.sty"
 Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
 
@@ -152,21 +409,24 @@ File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 \Gin@req@height=\dimen120
 \Gin@req@width=\dimen121
 )
+\@quotelevel=\count297
+\@quotereset=\count298
+
 ("Technical Milestone Report.aux")
 \openout1 = `"Technical Milestone Report.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 18.
+LaTeX Font Info:    ... okay on input line 18.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -202,54 +462,94 @@ LaTeX Font Info:    ... okay on input line 16.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
+Package biblatex Info: Trying to load language 'english'...
+Package biblatex Info: ... file 'english.lbx' found.
+("C:\Program Files\MiKTeX 2.9\tex/latex/biblatex/lbx\english.lbx"
+File: english.lbx 2019/12/01 v3.14 biblatex localization (PK/MW)
+)
+Package biblatex Info: Input encoding 'utf8' detected.
+Package biblatex Info: Automatic encoding selection.
+(biblatex)             Assuming data encoding 'utf8'.
+Package biblatex Info: Input encoding 'utf8' specified.
+Package biblatex Info: Data encoding 'utf8' specified.
+(biblatex)             No need to reencode data.
+\openout3 = `Technical_Milestone_Report-blx.bib'.
+
+Package biblatex Info: Trying to load bibliographic data...
+Package biblatex Info: ... file '"Technical Milestone Report".bbl' found.
+
+("Technical Milestone Report.bbl")
+Package biblatex Info: Reference section=0 on input line 18.
+Package biblatex Info: Reference segment=0 on input line 18.
+
 ("C:\Program Files\MiKTeX 2.9\tex/context/base/mkii\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count106
+\scratchcounter=\count299
 \scratchdimen=\dimen122
 \scratchbox=\box29
-\nofMPsegments=\count107
-\nofMParguments=\count108
+\nofMPsegments=\count300
+\nofMParguments=\count301
 \everyMPshowfont=\toks23
-\MPscratchCnt=\count109
+\MPscratchCnt=\count302
 \MPscratchDim=\dimen123
-\MPnumerator=\count110
-\makeMPintoPDFobject=\count111
+\MPnumerator=\count303
+\makeMPintoPDFobject=\count304
 \everyMPtoPDFconversion=\toks24
 ) ("C:\Program Files\MiKTeX 2.9\tex/latex/epstopdf-pkg\epstopdf-base.sty"
 Package: epstopdf-base 2019-12-09 v2.10 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 85.
 )
-<./Images/GUI Screenshot.png, id=1, 484.81125pt x 388.45125pt>
-File: ./Images/GUI Screenshot.png Graphic file (type png)
-<use ./Images/GUI Screenshot.png>
-Package pdftex.def Info: ./Images/GUI Screenshot.png  used on input line 48.
+<./Images/GUI.png, id=1, 484.81125pt x 388.45125pt>
+File: ./Images/GUI.png Graphic file (type png)
+<use ./Images/GUI.png>
+Package pdftex.def Info: ./Images/GUI.png  used on input line 49.
 (pdftex.def)             Requested size: 387.84952pt x 310.76141pt.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [1
 
 {C:/Users/lx242/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2 <./Image
-s/GUI Screenshot.png>] ("Technical Milestone Report.aux") ) 
+s/GUI.png>]
+<./Images/Gantt.png, id=17, 831.85782pt x 295.85532pt>
+File: ./Images/Gantt.png Graphic file (type png)
+<use ./Images/Gantt.png>
+Package pdftex.def Info: ./Images/Gantt.png  used on input line 75.
+(pdftex.def)             Requested size: 415.92789pt x 147.92729pt.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 83.
+
+ ("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsa.fd"
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 83.
+
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsb.fd"
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [3 <./Images/Gantt.png>] ("Technical Milestone Report.aux")
+Package logreq Info: Writing requests to '"Technical Milestone Report".run.xml'
+.
+\openout1 = `"Technical Milestone Report.run.xml"'.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2759 strings out of 492483
- 34741 string characters out of 3131040
- 105251 words of memory out of 3000000
- 7106 multiletter control sequences out of 15000+200000
- 6056 words of font info for 22 fonts, out of 3000000 for 9000
+ 10233 strings out of 492483
+ 177442 string characters out of 3131040
+ 444924 words of memory out of 3000000
+ 14477 multiletter control sequences out of 15000+200000
+ 11220 words of font info for 42 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 30i,6n,34p,561b,227s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/Mi
-KTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9
-/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publ
-ic/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfon
-ts/cm/cmr17.pfb>
-Output written on "Technical Milestone Report.pdf" (2 pages, 297797 bytes).
+ 36i,6n,45p,854b,1262s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Program Files/MiK
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
+1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmti12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmtt12.pfb>
+Output written on "Technical Milestone Report.pdf" (3 pages, 530080 bytes).
 PDF statistics:
- 32 PDF objects out of 1000 (max. 8388607)
+ 49 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

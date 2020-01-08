@@ -6,6 +6,8 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{authblk}
+\usepackage[backend=bibtex]{biblatex}
+  \addbibresource{Bibliography.bib}
 \usepackage{graphicx}
 \graphicspath{{./Images/}}
 
@@ -30,7 +32,7 @@ RESERVED LINE.
 
 \section{Introduction}
 \paragraph{}
-The Scanning Electron Microscope (SEM) is an important technology for micro-surface observation. Conventional optical microscopes have resolutions limited to the wavelength of light (\textasciitilde 200 nm), whereas SEMs offer greater resolutions (\textasciitilde 0.5 nm).
+The Scanning Electron Microscope (SEM) is an important technology for micro-surface observation. Conventional optical microscopes have resolutions limited to the wavelength of light (\textasciitilde 200 nm), whereas SEMs offer greater resolutions (\textasciitilde 0.5 nm) \cite{JEOL}.
 
 \paragraph{}
 SEMs work in a similar manner as optical microscopes. An electron beam is first generated and then shone onto the specimen. The reflected electrons are captured and used to produce an image. The resolution depend on the wavelength of the electrons, which in turn depends on the voltage used for accelerating the electrons.
@@ -39,18 +41,44 @@ SEMs work in a similar manner as optical microscopes. An electron beam is first 
 The images produced by SEMs often have a variety of disturbances, such as lack of sharpness, low image quality, noises and image distortion and deformation. Sources of the disturbances could be interaction between the specimen and the electron beam, selection of observation conditions, specimen preparation or problems with the instrument itself.
 
 \paragraph{}
-Because of the disturbances, it is often not straightforward for an SEM operator to judge whether an image is good. The aim of the project is to develop a GUI-based software, which aids operators by providing real-time diagnostic information of the images. The initial requirement for the software is that it must produce results of Fast Fourier Transform (FFT) on the images at a minimum of 10 Hz. An SEM operator will constantly review the software, give feedback and come up with new features to be added.
+Because of the disturbances, it is often not straightforward for an SEM operator to judge whether an image is good. The aim of the project is to develop a GUI-based software, which aids operators by providing real-time diagnostic information of the images. The initial requirement for the software is that it must display results of Fast Fourier Transform (FFT) on the images at a minimum of 10 frames per second. An SEM operator will constantly review the software, give feedback and come up with new features to be added. So far, the additional features added are displaying the histograms of the images and the results of histogram equalization on the images.
 
 \section{Progress}
-\paragraph{}
 \begin{figure}[h!]
   \centering
-  \includegraphics[scale=0.8]{"GUI Screenshot"}
-  \label{fig:GUI Screenshot}
+  \includegraphics[scale=0.8]{"GUI"}
   \caption{Preliminary GUI}
+  \label{fig:GUI}
 \end{figure}
-Figure \ref{fig:GUI Screenshot} shows the preliminary GUI. The top left image is grabbed from the SEM and the bottom left figure shows the histogram of it. The two figures on the right are the same and show the result of FFT on the image.
+
+\paragraph{}
+Figure \ref{fig:GUI} shows the preliminary GUI. The top left plot shows the image grabbed from the SEM and the bottom left plot shows the histogram of it. The top right plot shows the result of histogram equalization on the image and the bottom right plot shows the result of FFT on the image.
+
+\paragraph{}
+The software is developed using Python and Qt5, a GUI framework. Both of them are widely used in the industry and well-supported. This ensures that the dependencies of the software will not easily go out-of-date, and it is straightforward for others to continue developing the software in future.
+
+\paragraph{}
+The SEM images are grabbed by calling an Application Programming Interface (API), provided by Carl Zeiss, the manufacturer of the SEM being used. The API converts the images into Python \textit{numpy} arrays, which are then plotted using Python \textit{matplotlib} and displayed using Qt. Both of the Python packages are highly optimized and the whole process takes less than 1 millisecond to complete on the test PC.
+
+\paragraph{}
+The histograms are calculated from the Python \textit{numpy} arrays, and plotted in a similar manner as the SEM images. This process does not take a long time either.
+
+\paragraph{}
+Histogram equalization is the latest feature added to the software, and is used for improving the contrast and brightness of the images. The algorithm is adapted from torywalker's work on Github \cite{torywalker}. The algorithm takes 2 seconds to complete on the test PC, which prevents the software from being real-time. Methods for improving the performance should be investigated.
+
+\paragraph{}
+Performing FFT is the main feature of the software. Originally it was done using the Python package \textit{numpy}, and it took about 0.3 seconds to update each frame on the test PC. Various methods for improving the performance were investigated and the final solution is to utilise the Nvidia CUDA Toolkit, which can take advantage of the parallel processing capability of the GPU to perform the FFT. On the test PC, a speed boost of about 5 times was  achieved, which mean it takes only about 0.06 seconds to update each frame. This makes it possible to meet the requirement of 10 frames per second.
 
 \section{Next Steps}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=0.5]{"Gantt"}
+  \caption{Next Steps}
+  \label{fig:Next Steps}
+\end{figure}
 
+\paragraph{}
+Figure \ref{fig:Next Steps} shows the time-line of the rest of the project. The most important step now is to evaluate the features with an SEM operator, to assess whether the features are useful and determine how they can be improved. Then time should be spent on improving the aesthetic aspects of the GUI and the user experience.
+
+\printbibliography
 \end{document}

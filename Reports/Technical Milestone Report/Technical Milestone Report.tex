@@ -35,7 +35,14 @@ RESERVED LINE.
 The Scanning Electron Microscope (SEM) is an important technology for micro-surface observation. Conventional optical microscopes have resolutions limited to the wavelength of light (\textasciitilde 200 nm), whereas SEMs offer greater resolutions (\textasciitilde 0.5 nm) \cite{JEOL}.
 
 \paragraph{}
-SEMs work in a similar manner as optical microscopes. An electron beam is first generated and then shone onto the specimen. The reflected electrons are captured and used to produce an image. The resolution depend on the wavelength of the electrons, which in turn depends on the voltage used for accelerating the electrons.
+SEMs work by scanning an electron probe across the specimen and forming an image by converting the strength of the reflected secondary electrons to brightness. Firstly, an electron beam is generated using an electron gun. The most widely used type of electron guns is the thermionic emission gun, where thermoelectrons are emitted from a heated filament (cathode), accelerated towards the anode under the effect of an accelerating voltage and finely focused at the crossover point by the action of a Wehnelt electrode. Other types of electron guns include field-emission guns and Schottky-emission guns. The resulted electron beam is then passed through magnetic lenses to produce a fine electron probe. There are typically a condenser lens and an objective lens, as shown in Figure \ref{fig:Lenses}. The focal length of the condenser lens determines the angle at which the electron beam passes through the objective lens aperture. When the excitation of the condenser lens is strong, its focal length is short and a thinner electron beam arrives at the objective lens, resulting in a finer electron probe. However, this is at the cost of a weaker probe, since the amount of electrons reaching the objective lens is decreased. Finally, the electron probe is scanned across the specimen, and the secondary electrons collected.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=0.5]{"Lenses"}
+  \caption{Formation of the Electron Probe by the Lenses \cite{SEMAToZ}}
+  \label{fig:Lenses}
+\end{figure}
 
 \paragraph{}
 The images produced by SEMs often have a variety of disturbances, such as lack of sharpness, low image quality, noises and image distortion and deformation. Sources of the disturbances could be interaction between the specimen and the electron beam, selection of observation conditions, specimen preparation or problems with the instrument itself.

@@ -37,6 +37,26 @@
     \field{year}{2019}
   \endentry
 
+  \entry{SEMAToZ}{online}{}
+    \name{author}{1}{}{%
+      {{hash=J}{%
+         family={JEOL},
+         familyi={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{J1}
+    \strng{fullhash}{J1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{J}
+    \field{sortinithash}{J}
+    \field{title}{Scanning Electron Microscopes A To Z}
+    \verb{url}
+    \verb https://www.jeol.co.jp/en/applications/pdf/sm/sem_atoz_all.pdf
+    \endverb
+    \field{year}{2019}
+  \endentry
+
   \entry{torywalker}{online}{}
     \name{author}{1}{}{%
       {{hash=t}{%

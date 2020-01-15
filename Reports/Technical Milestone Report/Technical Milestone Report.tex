@@ -19,15 +19,7 @@
 \maketitle
 
 \begin{abstract}
-RESERVED LINE.
-
-RESERVED LINE.
-
-RESERVED LINE.
-
-RESERVED LINE.
-
-RESERVED LINE.
+The quality of images produced by Scanning Electron Microscopes are affected by many factors, and it is therefore often hard for operators to assess the quality of the images. A tool has been developed to help operators with that, by providing real-time diagnostic information of images. So far, the tool is capable of performing FFT and grey-level histogram equalization on the images. More features will be added in the following term.
 \end{abstract}
 
 \section{Introduction}
@@ -35,7 +27,7 @@ RESERVED LINE.
 The Scanning Electron Microscope (SEM) is an important technology for micro-surface observation. Conventional optical microscopes have resolutions limited to the wavelength of light (\textasciitilde 200 nm), whereas SEMs offer greater resolutions (\textasciitilde 0.5 nm) \cite{JEOL}.
 
 \paragraph{}
-SEMs work by scanning an electron probe across the specimen and forming an image by converting the strength of the reflected secondary electrons to brightness. Firstly, an electron beam is generated using an electron gun. The most widely used type of electron guns is the thermionic emission gun, where thermoelectrons are emitted from a heated filament (cathode), accelerated towards the anode under the effect of an accelerating voltage and finely focused at the crossover point by the action of a Wehnelt electrode. Other types of electron guns include field-emission guns and Schottky-emission guns. The resulted electron beam is then passed through magnetic lenses to produce a fine electron probe. There are typically a condenser lens and an objective lens, as shown in Figure \ref{fig:Lenses}. The focal length of the condenser lens determines the angle at which the electron beam passes through the objective lens aperture. When the excitation of the condenser lens is strong, its focal length is short and a thinner electron beam arrives at the objective lens, resulting in a finer electron probe. However, this is at the cost of a weaker probe, since the amount of electrons reaching the objective lens is decreased. Finally, the electron probe is scanned across the specimen, and the secondary electrons collected.
+SEMs work by scanning an electron probe across the specimen and forming an image by converting the strength of the secondary electrons emitted to brightness. Firstly, an electron beam is generated using an electron gun. The most widely used type of electron guns is the thermionic emission gun, where thermoelectrons are emitted from a heated filament (cathode), accelerated towards the anode under the effect of an accelerating voltage and finely focused at the crossover point by the action of a Wehnelt electrode. Other types of electron guns include field-emission guns and Schottky-emission guns. The resulted electron beam is then passed through magnetic lenses to produce a fine electron probe. There are typically a condenser lens and an objective lens, as shown in Figure \ref{fig:Lenses}. The focal length of the condenser lens determines the angle at which the electron beam passes through the objective lens aperture. When the excitation of the condenser lens is strong, its focal length is short and a thinner electron beam arrives at the objective lens, resulting in a finer electron probe. However, this is at the cost of a weaker probe, since the amount of electrons reaching the objective lens is decreased. Finally, the electron probe is scanned across the specimen. Depending on the surface structure of the area being scanned, different amount of secondary electrons are emitted and collected.
 
 \begin{figure}[h!]
   \centering
@@ -45,10 +37,10 @@ SEMs work by scanning an electron probe across the specimen and forming an image
 \end{figure}
 
 \paragraph{}
-The images produced by SEMs often have a variety of disturbances, such as lack of sharpness, low image quality, noises and image distortion and deformation. Sources of the disturbances could be interaction between the specimen and the electron beam, selection of observation conditions, specimen preparation or problems with the instrument itself.
+Due to the complexity in the way SEMs operate, images produced by SEMs often have a variety of aberrations. For example, the emission of secondary electrons is not a simple process of reflection, but a result of interaction between the incident electrons and the specimen, which depends the incident angle, the atomic structure of the specimen, whether the specimen is charged, etc. Apart from secondary electrons, backscattered electrons and Auger electrons also contribute to image brightness. A change in any of these factors will affect how the final image looks like and may even create artefacts, which can be seen in the image despite not actually being there.
 
 \paragraph{}
-Because of the disturbances, it is often not straightforward for an SEM operator to judge whether an image is good. The aim of the project is to develop a GUI-based software, which aids operators by providing real-time diagnostic information of the images. The initial requirement for the software is that it must display results of Fast Fourier Transform (FFT) on the images at a minimum of 10 frames per second. An SEM operator will constantly review the software, give feedback and come up with new features to be added. So far, the additional features added are displaying the histograms of the images and the results of histogram equalization on the images.
+The existence of aberrations makes it not straightforward for an SEM operator to assess the quality of an image. Therefore, the aim of the project is to develop a GUI-based tool, which aids operators by providing real-time diagnostic information of the images. The initial requirement for the software is that it must display results of Fast Fourier Transform (FFT) on the images at a minimum of 10 frames per second. An SEM operator will constantly review the software, give feedback and come up with new features to be added. So far, the additional features added are displaying the histograms of the images and the results of grey-level histogram equalization on the images.
 
 \section{Progress}
 \begin{figure}[h!]
@@ -59,33 +51,33 @@ Because of the disturbances, it is often not straightforward for an SEM operator
 \end{figure}
 
 \paragraph{}
-Figure \ref{fig:GUI} shows the preliminary GUI. The top left plot shows the image grabbed from the SEM and the bottom left plot shows the histogram of it. The top right plot shows the result of histogram equalization on the image and the bottom right plot shows the result of FFT on the image.
+Figure \ref{fig:GUI} shows a screenshot of the preliminary GUI. The top left plot shows the image grabbed from the SEM and the bottom left plot shows the histogram of it. The top right plot shows the result of grey-level histogram equalization \cite{torywalker} on the image and the bottom right plot shows the result of performing FFT on the image.
 
 \paragraph{}
 The software is developed using Python and Qt5, a GUI framework. Both of them are widely used in the industry and well-supported. This ensures that the dependencies of the software will not easily go out-of-date, and it is straightforward for others to continue developing the software in future.
 
 \paragraph{}
-The SEM images are grabbed by calling an Application Programming Interface (API), provided by Carl Zeiss, the manufacturer of the SEM being used. The API converts the images into Python \textit{numpy} arrays, which are then plotted using Python \textit{matplotlib} and displayed using Qt. Both of the Python packages are highly optimized and the whole process takes less than 1 millisecond to complete on the test PC.
+The SEM images are grabbed by calling an Application Programming Interface (API), provided by Carl Zeiss, the manufacturer of the SEM being used. The API converts the images into Python \textit{numpy} arrays, which are then plotted using Python \textit{matplotlib} and displayed using Qt. Both of the Python packages are highly optimised and the whole process takes less than 1 millisecond per frame (1024$\times$768 pixels ) to complete on the test PC.
 
 \paragraph{}
-The histograms are calculated from the Python \textit{numpy} arrays, and plotted in a similar manner as the SEM images. This process does not take a long time either.
+The histograms are calculated from the Python \textit{numpy} arrays, and plotted in a similar manner as the SEM images. The whole process takes about 50 millisecond pre frame (1024$\times$768 pixels ) to complete on the test PC.
 
 \paragraph{}
-Histogram equalization is the latest feature added to the software, and is used for improving the contrast and brightness of the images. The algorithm is adapted from torywalker's work on Github \cite{torywalker}. The algorithm takes 2 seconds to complete on the test PC, which prevents the software from being real-time. Methods for improving the performance should be investigated.
+Grey-level histogram equalization is the latest feature added to the software, and is used for improving the contrast and brightness of the images. The algorithm is adapted from torywalker's work on Github. The algorithm takes 2 seconds to complete on the test PC, which prevents the software from being real-time. Methods for improving the performance should be investigated.
 
 \paragraph{}
-Performing FFT is the main feature of the software. Originally it was done using the Python package \textit{numpy}, and it took about 0.3 seconds to update each frame on the test PC. Various methods for improving the performance were investigated and the final solution is to utilise the Nvidia CUDA Toolkit, which can take advantage of the parallel processing capability of the GPU to perform the FFT. On the test PC, a speed boost of about 5 times was  achieved, which mean it takes only about 0.06 seconds to update each frame. This makes it possible to meet the requirement of 10 frames per second.
+Performing the FFT is the main feature of the software. Originally it was done using the Python package \textit{numpy}, and it took about 0.3 seconds to compute for each frame on the test PC. Various methods for improving the performance were investigated and the final solution is to utilise the Nvidia CUDA Toolkit, which can take advantage of the parallel processing capability of the GPU to perform the FFT. On the test PC, a speed boost of about 5 times was  achieved, which mean it takes only about 60 milliseconds to compute for each frame. This makes it possible to meet the requirement of 10 frames per second. This is important for the live display of the diagnostic information.
 
 \section{Next Steps}
 \begin{figure}[h!]
   \centering
   \includegraphics[scale=0.5]{"Gantt"}
-  \caption{Next Steps}
+  \caption{Proposed Timeline for the Rest of the Project}
   \label{fig:Next Steps}
 \end{figure}
 
 \paragraph{}
-Figure \ref{fig:Next Steps} shows the time-line of the rest of the project. The most important step now is to evaluate the features with an SEM operator, to assess whether the features are useful and determine how they can be improved. Then time should be spent on improving the aesthetic aspects of the GUI and the user experience.
+Figure \ref{fig:Next Steps} shows the proposed timeline for the rest of the project. The Lent term will mainly be used for investigating in and adding other features that are considered useful. So far, it has been decided that the most important one to add is Fourier-domain filtering, for eliminating noise in the images. Other FT-based operations will also be looked at. All the features will be evaluated and improved towards the end of Lent term.
 
 \printbibliography
 \end{document}

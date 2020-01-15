@@ -114,8 +114,11 @@ class semTool(QtWidgets.QMainWindow):
             # self.imageXYFFT.set_xlim(-1000, 1000)
             # self.imageXYFFT.set_ylim(-1000, 1000)
 
+            begin = time.time()
             self.imageXFFT.clear()
             self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
+            end = time.time()
+            print(end - begin)
 
             self.img.set_data(self.array)
             # self.imgXFFT.set_data(self.arrayXYFFT)

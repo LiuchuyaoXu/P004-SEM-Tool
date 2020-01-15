@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2020.1.5)  14 JAN 2020 17:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2020.1.5)  15 JAN 2020 17:57
 entering extended mode
 **"./Technical Milestone Report.tex"
 ("Technical Milestone Report.tex"
@@ -503,7 +503,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 <./Images/Lenses.png, id=1, 560.8453pt x 622.57594pt>
 File: ./Images/Lenses.png Graphic file (type png)
 <use ./Images/Lenses.png>
-Package pdftex.def Info: ./Images/Lenses.png  used on input line 42.
+Package pdftex.def Info: ./Images/Lenses.png  used on input line 34.
 (pdftex.def)             Requested size: 280.42197pt x 311.2872pt.
 
 
@@ -515,31 +515,36 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <./Images/GUI.png, id=12, 484.81125pt x 388.45125pt>
 File: ./Images/GUI.png Graphic file (type png)
 <use ./Images/GUI.png>
-Package pdftex.def Info: ./Images/GUI.png  used on input line 56.
+Package pdftex.def Info: ./Images/GUI.png  used on input line 48.
 (pdftex.def)             Requested size: 387.84952pt x 310.76141pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [2 <./Images/Lenses.png>]
-<./Images/Gantt.png, id=17, 831.85782pt x 295.85532pt>
-File: ./Images/Gantt.png Graphic file (type png)
-<use ./Images/Gantt.png>
-Package pdftex.def Info: ./Images/Gantt.png  used on input line 82.
-(pdftex.def)             Requested size: 415.92789pt x 147.92729pt.
- [3 <./Images/GUI.png>]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 90.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 60.
 
 
 ("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 90.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 60.
 
 
 ("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [4 <./Images/Gantt.png>] ("Technical Milestone Report.aux")
+) [3 <./Images/GUI.png>]
+<./Images/Gantt.png, id=23, 957.5775pt x 362.10281pt>
+File: ./Images/Gantt.png Graphic file (type png)
+<use ./Images/Gantt.png>
+Package pdftex.def Info: ./Images/Gantt.png  used on input line 74.
+(pdftex.def)             Requested size: 478.78758pt x 181.05095pt.
+
+Overfull \hbox (25.81969pt too wide) in paragraph at lines 74--75
+ [][] 
+ []
+
+[4 <./Images/Gantt.png>] ("Technical Milestone Report.aux")
 Package logreq Info: Writing requests to '"Technical Milestone Report".run.xml'
 .
 \openout1 = `"Technical Milestone Report.run.xml"'.
@@ -552,18 +557,19 @@ Here is how much of TeX's memory you used:
  14488 multiletter control sequences out of 15000+200000
  11220 words of font info for 42 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,6n,45p,1378b,1287s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 36i,6n,45p,1466b,1287s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Program Files/MiK
 TeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
 1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmti12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
-/cm/cmtt12.pfb>
-Output written on "Technical Milestone Report.pdf" (4 pages, 600480 bytes).
+amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmti12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt
+12.pfb>
+Output written on "Technical Milestone Report.pdf" (4 pages, 430165 bytes).
 PDF statistics:
- 54 PDF objects out of 1000 (max. 8388607)
+ 58 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

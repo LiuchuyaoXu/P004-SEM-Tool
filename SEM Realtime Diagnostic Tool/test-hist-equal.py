@@ -2,6 +2,34 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
+from numba import jit
+
+@jit(nopython=True)
+def getHistEqualized(image):
+        hist = np.zeros(256)
+        for i in range(0, image.shape[0]):
+            for j in range(0, image.shape[1]):
+                hist[image[i, j]] += 1
+                
+        histTrans   = np.zeros(256)
+        numPixels   = np.sum(hist)
+
+        summ = 0
+        for i in range(0, 256):
+            summ += hist[i]
+            histTrans[i] = summ
+        histTrans /= numPixels
+        histTrans *= 255 / max(histTrans)
+
+        shape       = image.shape
+        newHist     = np.zeros(256)
+        newImage    = np.zeros(shape)
+        for i in range(0, shape[0]):
+            for j in range(0, shape[1]):
+                newImage[i, j] = histTrans[image[i, j]]
+                newHist[int(newImage[i, j])] += 1
+
+        return newImage, newHist
 
 class semImage(np.ndarray):
     def __init__(self):
@@ -17,7 +45,6 @@ class semImage(np.ndarray):
         return hist
 
     def getHistEqualized(self):
-        start = time.time()
         hist        = self.getHist()
         histTrans   = np.zeros(256)
         numPixels   = np.sum(hist)
@@ -30,17 +57,13 @@ class semImage(np.ndarray):
         histTrans *= 255 / max(histTrans)
         histTrans = histTrans.astype(int)
 
-        shape = self.shape
-        newImage = np.zeros(shape).astype(int)
-        for i in range(0, shape[0]):
-            for j in range(0, shape[1]):
+        newHist     = np.zeros(256)
+        newImage    = np.zeros(self.shape).astype(int)
+        for i in range(0, self.shape[0]):
+            for j in range(0, self.shape[1]):
                 newImage[i, j] = histTrans[self[i, j]]
+                newHist[newImage[i, j]] += 1
 
-        newHist = np.zeros(256)
-        for pixel in np.matrix.flatten(newImage):
-            newHist[pixel] += 1
-        end = time.time()
-        print(end - start)
         return newImage, newHist
 
 if __name__ == "__main__":
@@ -49,7 +72,11 @@ if __name__ == "__main__":
     image = image.view(semImage)
 
     imageHist               = image.getHist()
-    newImage, newImageHist  = image.getHistEqualized()
+    start = time.time()
+    # newImage, newImageHist  = image.getHistEqualized()
+    newImage, newImageHist  = getHistEqualized(image)
+    end = time.time()
+    print(end - start)
 
     fig, a = plt.subplots(2, 2)
     a[0][0].imshow(image, cmap="gray")

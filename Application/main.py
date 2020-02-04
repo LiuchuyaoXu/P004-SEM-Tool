@@ -1,4 +1,4 @@
-#   File:   sem-tool.py
+#   File:   main.py
 #
 #   Brief:  Implement the SEM real-time diagnostic tool.
 # 

@@ -29,39 +29,39 @@ class masker:
                     if y == 0:
                         pass
                     elif y > 0:
-                        self.r2[i][j] = 1
-                    else:
-                        self.r4[i][j] = 1
-                elif x > 0:
-                    if y == 0:
                         self.r1[i][j] = 1
                     else:
-                        angle = np.arctan(y/x)
-                        if angle < (- 3 * np.pi / 8):
-                            self.r4[i][j] = 1
-                        elif angle < (- np.pi / 8):
-                            self.s4[i][j] = 1
-                        elif angle < (np.pi / 8):
-                            self.r1[i][j] = 1
-                        elif angle < (3 * np.pi / 8):
-                            self.s1[i][j] = 1
-                        else:
-                            self.r2[i][j] = 1
-                else:
-                    if y == 0:
                         self.r3[i][j] = 1
+                elif x > 0:
+                    if y == 0:
+                        self.r4[i][j] = 1
                     else:
                         angle = np.arctan(y/x)
                         if angle < (- 3 * np.pi / 8):
-                            self.r2[i][j] = 1
-                        elif angle < (- np.pi / 8):
-                            self.s2[i][j] = 1
-                        elif angle < (np.pi / 8):
                             self.r3[i][j] = 1
-                        elif angle < (3 * np.pi / 8):
+                        elif angle < (- np.pi / 8):
                             self.s3[i][j] = 1
-                        else:
+                        elif angle < (np.pi / 8):
                             self.r4[i][j] = 1
+                        elif angle < (3 * np.pi / 8):
+                            self.s4[i][j] = 1
+                        else:
+                            self.r1[i][j] = 1
+                else:
+                    if y == 0:
+                        self.r2[i][j] = 1
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r1[i][j] = 1
+                        elif angle < (- np.pi / 8):
+                            self.s1[i][j] = 1
+                        elif angle < (np.pi / 8):
+                            self.r2[i][j] = 1
+                        elif angle < (3 * np.pi / 8):
+                            self.s2[i][j] = 1
+                        else:
+                            self.r3[i][j] = 1
 
 class semImage(np.ndarray):
     def __new__(cls, *args, **kwargs):

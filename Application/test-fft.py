@@ -5,6 +5,64 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from matplotlib.colors import LogNorm
 
+class masker:
+    def __init__(self, shape):
+        xLen    = shape[0]
+        yLen    = shape[1]
+        origin  = np.array([xLen / 2, yLen / 2])
+        origin  = origin.astype(int)
+
+        self.r1 = np.zeros(shape)
+        self.r2 = np.zeros(shape)
+        self.r3 = np.zeros(shape)
+        self.r4 = np.zeros(shape)
+        self.s1 = np.zeros(shape)
+        self.s2 = np.zeros(shape)
+        self.s3 = np.zeros(shape)
+        self.s4 = np.zeros(shape)
+
+        for i in range(0, xLen):
+            for j in range(0, yLen):
+                x = i - origin[0]
+                y = j - origin[1]
+                if x == 0:
+                    if y == 0:
+                        pass
+                    elif y > 0:
+                        self.r2[i][j] = 1
+                    else:
+                        self.r4[i][j] = 1
+                elif x > 0:
+                    if y == 0:
+                        self.r1[i][j] = 1
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r4[i][j] = 1
+                        elif angle < (- np.pi / 8):
+                            self.s4[i][j] = 1
+                        elif angle < (np.pi / 8):
+                            self.r1[i][j] = 1
+                        elif angle < (3 * np.pi / 8):
+                            self.s1[i][j] = 1
+                        else:
+                            self.r2[i][j] = 1
+                else:
+                    if y == 0:
+                        self.r3[i][j] = 1
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r2[i][j] = 1
+                        elif angle < (- np.pi / 8):
+                            self.s2[i][j] = 1
+                        elif angle < (np.pi / 8):
+                            self.r3[i][j] = 1
+                        elif angle < (3 * np.pi / 8):
+                            self.s3[i][j] = 1
+                        else:
+                            self.r4[i][j] = 1
+
 class semImage(np.ndarray):
     def __new__(cls, *args, **kwargs):
         return super(semImage, cls).__new__(cls, *args, **kwargs)
@@ -65,13 +123,13 @@ class semImage(np.ndarray):
                         r2 += value
                     else:
                         angle = np.arctan(y/x)
-                        if angle < (- 3 * np.pi / 8):
+                        if angle <= (- 3 * np.pi / 8):
                             r4 += value
-                        elif angle < (- np.pi / 8):
+                        elif angle <= (- np.pi / 8):
                             s2 += value
-                        elif angle < (np.pi / 8):
+                        elif angle <= (np.pi / 8):
                             r2 += value
-                        elif angle < (3 * np.pi / 8):
+                        elif angle <= (3 * np.pi / 8):
                             s3 += value
                         else:
                             r3 += value
@@ -106,16 +164,38 @@ if __name__ == "__main__":
 
     # print(image1Fft)
     # print(image1Fft.sum())
-    print(image1.segmentFft())
-    print(image2.segmentFft())
+    # print(image1.segmentFft())
+    # print(image2.segmentFft())
     # print(image1.segmentFft().sum())
 
-    fig, axis = plt.subplots(2, 2)
-    axis[0][0].imshow(image1, cmap="gray")
-    # axis[1][0].imshow(image1Fft, cmap="gray")
-    axis[1][0].imshow(image1Fft, cmap="gray", norm=LogNorm())
-    axis[0][1].imshow(image2, cmap="gray")
-    # axis[1][1].imshow(image2Fft, cmap="gray")
-    axis[1][1].imshow(image2Fft, cmap="gray", norm=LogNorm())
-    plt.tight_layout()
+    # fig, axis = plt.subplots(2, 2)
+    # axis[0][0].imshow(image1, cmap="gray")
+    # # axis[1][0].imshow(image1Fft, cmap="gray")
+    # axis[1][0].imshow(image1Fft, cmap="gray", norm=LogNorm())
+    # axis[0][1].imshow(image2, cmap="gray")
+    # # axis[1][1].imshow(image2Fft, cmap="gray")
+    # axis[1][1].imshow(image2Fft, cmap="gray", norm=LogNorm())
+    # plt.tight_layout()
+    # plt.show()
+
+
+    mask = masker(image1.shape)
+    # mask = masker([20, 20])
+    # print(mask.r1)
+    # print(mask.r2)
+    # print(mask.r3)
+    # print(mask.r4)
+    # print(mask.s1)
+    # print(mask.s2)
+    # print(mask.s3)
+    # print(mask.s4)
+    fig, axis = plt.subplots(8)
+    axis[0].imshow(mask.r1 * 255, cmap="gray")
+    axis[1].imshow(mask.r2 * 255, cmap="gray")
+    axis[2].imshow(mask.r3 * 255, cmap="gray")
+    axis[3].imshow(mask.r4 * 255, cmap="gray")
+    axis[4].imshow(mask.s1 * 255, cmap="gray")
+    axis[5].imshow(mask.s2 * 255, cmap="gray")
+    axis[6].imshow(mask.s3 * 255, cmap="gray")
+    axis[7].imshow(mask.s4 * 255, cmap="gray")
     plt.show()

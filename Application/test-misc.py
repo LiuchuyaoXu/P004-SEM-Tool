@@ -15,11 +15,20 @@ def createTestImage():
 
     im = Image.fromarray(image)
     im = im.convert("L")
-    im.save("Test Images/xy5.tif")
+    im.save("Images for FFT Testing/xy5.tif")
 
     # plt.axis("off")
     # plt.imshow(image, cmap="gray")
     # plt.show()
 
+def createTestImage2():
+    image = np.array([0, 0, 0, 0, 0, 255, 255, 255, 255, 255])
+    image = np.tile(image, (1000, 100))
+    image = np.rot90(image)
+
+    image = Image.fromarray(image)
+    image = image.convert("L")
+    image.save("Images for FFT Testing/V3.tif")
+
 if __name__ == "__main__":
-    createTestImage()
+    createTestImage2()

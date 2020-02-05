@@ -1,72 +1,68 @@
 import sys
 import time
 import numpy as np
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 from PIL import Image
 from matplotlib.colors import LogNorm
 
-class masker:
+class Masker:
     def __init__(self, shape):
-        xLen    = shape[0]
-        yLen    = shape[1]
-        origin  = np.array([xLen / 2, yLen / 2])
-        origin  = origin.astype(int)
-
-        self.r1 = np.zeros(shape)
-        self.r2 = np.zeros(shape)
-        self.r3 = np.zeros(shape)
-        self.r4 = np.zeros(shape)
-        self.s1 = np.zeros(shape)
-        self.s2 = np.zeros(shape)
-        self.s3 = np.zeros(shape)
-        self.s4 = np.zeros(shape)
-
+        self.r1 = np.ones(shape)
+        self.r2 = np.ones(shape)
+        self.r3 = np.ones(shape)
+        self.r4 = np.ones(shape)
+        self.s1 = np.ones(shape)
+        self.s2 = np.ones(shape)
+        self.s3 = np.ones(shape)
+        self.s4 = np.ones(shape)
+        xLen = shape[0]
+        yLen = shape[1]
+        xOri = np.floor(xLen / 2)
+        yOri = np.floor(yLen / 2)
         for i in range(0, xLen):
             for j in range(0, yLen):
-                x = i - origin[0]
-                y = j - origin[1]
+                x = i - xOri
+                y = j - yOri
                 if x == 0:
                     if y == 0:
                         pass
                     elif y > 0:
-                        self.r1[i][j] = 1
+                        self.r1[i][j] = 0
                     else:
-                        self.r3[i][j] = 1
+                        self.r3[i][j] = 0
                 elif x > 0:
                     if y == 0:
-                        self.r4[i][j] = 1
+                        self.r4[i][j] = 0
                     else:
                         angle = np.arctan(y/x)
                         if angle < (- 3 * np.pi / 8):
-                            self.r3[i][j] = 1
+                            self.r3[i][j] = 0
                         elif angle < (- np.pi / 8):
-                            self.s3[i][j] = 1
+                            self.s3[i][j] = 0
                         elif angle < (np.pi / 8):
-                            self.r4[i][j] = 1
+                            self.r4[i][j] = 0
                         elif angle < (3 * np.pi / 8):
-                            self.s4[i][j] = 1
+                            self.s4[i][j] = 0
                         else:
-                            self.r1[i][j] = 1
+                            self.r1[i][j] = 0
                 else:
                     if y == 0:
-                        self.r2[i][j] = 1
+                        self.r2[i][j] = 0
                     else:
                         angle = np.arctan(y/x)
                         if angle < (- 3 * np.pi / 8):
-                            self.r1[i][j] = 1
+                            self.r1[i][j] = 0
                         elif angle < (- np.pi / 8):
-                            self.s1[i][j] = 1
+                            self.s1[i][j] = 0
                         elif angle < (np.pi / 8):
-                            self.r2[i][j] = 1
+                            self.r2[i][j] = 0
                         elif angle < (3 * np.pi / 8):
-                            self.s2[i][j] = 1
+                            self.s2[i][j] = 0
                         else:
-                            self.r3[i][j] = 1
+                            self.r3[i][j] = 0
 
 class semImage(np.ndarray):
-    def __new__(cls, *args, **kwargs):
-        return super(semImage, cls).__new__(cls, *args, **kwargs)
-
     def __array_finalize__(self, obj):
         self.fft = np.array([])
         self.fftSegments = np.array([])
@@ -78,62 +74,19 @@ class semImage(np.ndarray):
         self.fft = fft
         return self.fft
 
-    def segmentFft(self):
-        if self.fftSegments.size:
+    def segmentFft(self, masker):
+        if self.fftSegments.size != 0:
             return self.fftSegments
-
-        if not self.fft.size:
+        if self.fft.size == 0:
             self.getFft()
-
-        xLen    = self.fft.shape[0]
-        yLen    = self.fft.shape[1]
-        origin  = np.array([xLen / 2, yLen / 2])
-        origin  = origin.astype(int)
-
-        r1 = r2 = r3 = r4 = s1 = s2 = s3 = s4 = 0
-        for i in range(0, xLen):
-            for j in range(0, yLen):
-                value = self.fft[i][j]
-                x = i - origin[0]
-                y = j - origin[1]
-                if x == 0:
-                    if y == 0:
-                        pass
-                    elif y > 0:
-                        r3 += value
-                    else:
-                        r4 += value
-                elif x > 0:
-                    if y == 0:
-                        r1 += value
-                    else:
-                        angle = np.arctan(y/x)
-                        if angle < (- 3 * np.pi / 8):
-                            r4 += value
-                        elif angle < (- np.pi / 8):
-                            s4 += value
-                        elif angle < (np.pi / 8):
-                            r1 += value
-                        elif angle < (3 * np.pi / 8):
-                            s1 += value
-                        else:
-                            r3 += value
-                else:
-                    if y == 0:
-                        r2 += value
-                    else:
-                        angle = np.arctan(y/x)
-                        if angle <= (- 3 * np.pi / 8):
-                            r4 += value
-                        elif angle <= (- np.pi / 8):
-                            s2 += value
-                        elif angle <= (np.pi / 8):
-                            r2 += value
-                        elif angle <= (3 * np.pi / 8):
-                            s3 += value
-                        else:
-                            r3 += value
-
+        r1 = ma.array(self.fft, mask=masker.r1).sum()
+        r2 = ma.array(self.fft, mask=masker.r2).sum()
+        r3 = ma.array(self.fft, mask=masker.r3).sum()
+        r4 = ma.array(self.fft, mask=masker.r4).sum()
+        s1 = ma.array(self.fft, mask=masker.s1).sum()
+        s2 = ma.array(self.fft, mask=masker.s2).sum()
+        s3 = ma.array(self.fft, mask=masker.s3).sum()
+        s4 = ma.array(self.fft, mask=masker.s4).sum()
         self.fftSegments = np.array([r1, r2, r3, r4, s1, s2, s3, s4])
         return self.fftSegments
 
@@ -164,38 +117,43 @@ if __name__ == "__main__":
 
     # print(image1Fft)
     # print(image1Fft.sum())
-    # print(image1.segmentFft())
-    # print(image2.segmentFft())
+    # start = time.time()
+    masker = Masker(image1.shape)
+    # mid = time.time()
+    print("Image 1 sums of FFT segments: ", image1.segmentFft(masker).astype(int))
+    print("Image 2 sums of FFT segments: ", image2.segmentFft(masker).astype(int))
+    # end = time.time()
+    # print(mid - start)
+    # print(end - mid)
     # print(image1.segmentFft().sum())
 
-    # fig, axis = plt.subplots(2, 2)
-    # axis[0][0].imshow(image1, cmap="gray")
-    # # axis[1][0].imshow(image1Fft, cmap="gray")
-    # axis[1][0].imshow(image1Fft, cmap="gray", norm=LogNorm())
-    # axis[0][1].imshow(image2, cmap="gray")
-    # # axis[1][1].imshow(image2Fft, cmap="gray")
-    # axis[1][1].imshow(image2Fft, cmap="gray", norm=LogNorm())
-    # plt.tight_layout()
-    # plt.show()
-
-
-    mask = masker(image1.shape)
-    # mask = masker([20, 20])
-    # print(mask.r1)
-    # print(mask.r2)
-    # print(mask.r3)
-    # print(mask.r4)
-    # print(mask.s1)
-    # print(mask.s2)
-    # print(mask.s3)
-    # print(mask.s4)
-    fig, axis = plt.subplots(8)
-    axis[0].imshow(mask.r1 * 255, cmap="gray")
-    axis[1].imshow(mask.r2 * 255, cmap="gray")
-    axis[2].imshow(mask.r3 * 255, cmap="gray")
-    axis[3].imshow(mask.r4 * 255, cmap="gray")
-    axis[4].imshow(mask.s1 * 255, cmap="gray")
-    axis[5].imshow(mask.s2 * 255, cmap="gray")
-    axis[6].imshow(mask.s3 * 255, cmap="gray")
-    axis[7].imshow(mask.s4 * 255, cmap="gray")
+    fig, axis = plt.subplots(2, 2)
+    axis[0][0].imshow(image1, cmap="gray")
+    # axis[1][0].imshow(image1Fft, cmap="gray")
+    axis[1][0].imshow(image1Fft, cmap="gray", norm=LogNorm())
+    axis[0][1].imshow(image2, cmap="gray")
+    # axis[1][1].imshow(image2Fft, cmap="gray")
+    axis[1][1].imshow(image2Fft, cmap="gray", norm=LogNorm())
+    plt.tight_layout()
     plt.show()
+
+    # masker = Masker(image1.shape)
+    # masker = Masker([20, 20])
+    # print(masker.r1)
+    # print(masker.r2)
+    # print(masker.r3)
+    # print(masker.r4)
+    # print(masker.s1)
+    # print(masker.s2)
+    # print(masker.s3)
+    # print(masker.s4)
+    # fig, axis = plt.subplots(8)
+    # axis[0].imshow(masker.r1 * 255, cmap="gray")
+    # axis[1].imshow(masker.r2 * 255, cmap="gray")
+    # axis[2].imshow(masker.r3 * 255, cmap="gray")
+    # axis[3].imshow(masker.r4 * 255, cmap="gray")
+    # axis[4].imshow(masker.s1 * 255, cmap="gray")
+    # axis[5].imshow(masker.s2 * 255, cmap="gray")
+    # axis[6].imshow(masker.s3 * 255, cmap="gray")
+    # axis[7].imshow(masker.s4 * 255, cmap="gray")
+    # plt.show()

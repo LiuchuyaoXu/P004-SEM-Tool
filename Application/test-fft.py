@@ -91,15 +91,20 @@ class semImage(np.ndarray):
         return self.fftSegments
 
 if __name__ == "__main__":
-    image1 = Image.open("./Images for FFT Testing/xy2.tif").convert('L')
-    # image1 = Image.open("./Images from SEM/Armin241.tif").convert('L')
+    # image1 = Image.open("./Images for FFT Testing/xy2.tif").convert('L')
+    image1 = Image.open("./Images from SEM/astig1.tif").convert('L')
     image1 = np.asarray(image1)
     image1 = image1.view(semImage)
 
-    image2 = Image.open("./Images for FFT Testing/xy3.tif").convert('L')
-    # image2 = Image.open("./Images from SEM/Armin241b.tif").convert('L')
+    # image2 = Image.open("./Images for FFT Testing/xy3.tif").convert('L')
+    image2 = Image.open("./Images from SEM/astig2.tif").convert('L')
     image2 = np.asarray(image2)
     image2 = image2.view(semImage)
+
+    # image3 = Image.open("./Images for FFT Testing/xy3.tif").convert('L')
+    image3 = Image.open("./Images from SEM/astig3.tif").convert('L')
+    image3 = np.asarray(image3)
+    image3 = image3.view(semImage)
 
     image1Fft = image1.getFft()
     # image1Fft = image1Fft / image1Fft.max()
@@ -109,6 +114,7 @@ if __name__ == "__main__":
     # image2Fft = image2Fft / image2Fft.max()
     # image2Fft = image2Fft * 255
     # image2Fft = image2Fft.astype(int)
+    image3Fft = image3.getFft()
 
     # print("The maximum value in image1Fft is: ", image1Fft.max())
     # print("The maximum value in image2Fft is: ", image2Fft.max())
@@ -122,18 +128,19 @@ if __name__ == "__main__":
     # mid = time.time()
     print("Image 1 sums of FFT segments: ", image1.segmentFft(masker).astype(int))
     print("Image 2 sums of FFT segments: ", image2.segmentFft(masker).astype(int))
+    print("Image 3 sums of FFT segments: ", image3.segmentFft(masker).astype(int))
     # end = time.time()
     # print(mid - start)
     # print(end - mid)
     # print(image1.segmentFft().sum())
 
-    fig, axis = plt.subplots(2, 2)
+    fig, axis = plt.subplots(3, 2)
     axis[0][0].imshow(image1, cmap="gray")
-    # axis[1][0].imshow(image1Fft, cmap="gray")
-    axis[1][0].imshow(image1Fft, cmap="gray", norm=LogNorm())
-    axis[0][1].imshow(image2, cmap="gray")
-    # axis[1][1].imshow(image2Fft, cmap="gray")
+    axis[0][1].imshow(image1Fft, cmap="gray", norm=LogNorm())
+    axis[1][0].imshow(image2, cmap="gray")
     axis[1][1].imshow(image2Fft, cmap="gray", norm=LogNorm())
+    axis[2][0].imshow(image3, cmap="gray")
+    axis[2][1].imshow(image3Fft, cmap="gray", norm=LogNorm())
     plt.tight_layout()
     plt.show()
 

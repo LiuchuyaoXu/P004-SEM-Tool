@@ -1,5 +1,6 @@
 import sys
 import time
+import cupy as cp
 import numpy as np
 import numpy.ma as ma
 from PIL import Image
@@ -80,11 +81,12 @@ class SemImage(np.ndarray):
         if self.fft is not None:
             return self.fft
 
-        fft = np.fft.fft2(self)
-        fft = np.fft.fftshift(fft)
-        fft = np.abs(fft)
+        image = cp.asarray(self)
+        fft = cp.fft.fft2(image)
+        fft = cp.fft.fftshift(fft)
+        fft = cp.abs(fft)
 
-        self.fft = fft
+        self.fft = cp.asnumpy(fft)
         return self.fft
 
     def getFftSegments(self, masker):
@@ -109,7 +111,8 @@ class SemImage(np.ndarray):
         if self.hist is not None:
             return self.hist
 
-        self.hist = np.histogram(self, bins=np.arange(257))
+        hist = cp.histogram(cp.asarray(self), bins=cp.arange(257))
+        self.hist = ([cp.asnumpy(hist[0]), cp.asnumpy(hist[1])])
         return self.hist
 
     def getHistEqualised(self):

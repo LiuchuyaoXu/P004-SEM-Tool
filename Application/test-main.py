@@ -139,13 +139,12 @@ class SemTool(QtWidgets.QMainWindow):
         super().__init__()
 
         self.image  = None
+        self.table  = QtWidgets.QTableWidget(9, 3)
         self.canvas = MplCanvas(MplFigure())
 
-        self.plots = self.canvas.figure.subplots(2, 3)
-        for row in self.plots:
-            for plot in row:
-                plot.axis("off")
+        self.dock1 = QtWidgets.QDockWidget()
 
+        self.plots = self.canvas.figure.subplots(2, 3)
         self.imagePlot = None
         self.imageFftPlot = None
         self.imageHistPlot = None
@@ -153,20 +152,46 @@ class SemTool(QtWidgets.QMainWindow):
         self.imageHistEqualisedFftPlot = None
         self.imageHistEqualisedHistPlot = None
 
+        self.masker = None
+
+        self.dock1.setWidget(self.table)
+
         self.setCentralWidget(self.canvas)
+        self.addDockWidget(QtCore.Qt.DockWidgetArea.LeftDockWidgetArea, self.dock1)
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
-        self.initPlots()
+
+        self.initTable()
+        self.initCanvas()
 
         self.frameCount = 1
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
-        self.frameTimer.timeout.connect(self.updatePlots)
+        self.frameTimer.timeout.connect(self.updateCanvas)
         self.frameTimer.start(2000)
 
-    def initPlots(self):
+    def initTable(self):
+        for i in range(0, self.table.rowCount()):
+            for j in range(1, self.table.columnCount()):
+                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(""))
+        self.table.setItem(1, 0, QtWidgets.QTableWidgetItem("r1"))
+        self.table.setItem(2, 0, QtWidgets.QTableWidgetItem("r2"))
+        self.table.setItem(3, 0, QtWidgets.QTableWidgetItem("r3"))
+        self.table.setItem(4, 0, QtWidgets.QTableWidgetItem("r4"))
+        self.table.setItem(5, 0, QtWidgets.QTableWidgetItem("s1"))
+        self.table.setItem(6, 0, QtWidgets.QTableWidgetItem("s2"))
+        self.table.setItem(7, 0, QtWidgets.QTableWidgetItem("s3"))
+        self.table.setItem(8, 0, QtWidgets.QTableWidgetItem("s4"))
+
+    def initCanvas(self):
+        for row in self.plots:
+            for plot in row:
+                plot.axis("off")
+
         self.image = Image.open("Images from SEM/Armin241.tif")
         self.image = np.asarray(self.image)
         self.image = self.image.view(SemImage)
+
+        self.masker = Masker(self.image.shape)
 
         self.imagePlot = self.plots[0][0].imshow(self.image, cmap="gray")
         self.imageFftPlot = self.plots[0][1].imshow(self.image.getFft(), cmap="gray", norm=MplLogNorm())
@@ -177,7 +202,15 @@ class SemTool(QtWidgets.QMainWindow):
 
         self.canvas.figure.canvas.draw()
 
-    def updatePlots(self):
+        self.image.getFftSegments(self.masker)
+        self.image.getHistEqualised().getFftSegments(self.masker)
+
+    def updateTable(self):
+        for i in range(1, 9):
+            self.table.item(i, 1).setText(str(int(self.image.fftSegments[i-1])))
+            self.table.item(i, 2).setText(str(int(self.image.histEqualised.fftSegments[i-1])))
+
+    def updateCanvas(self):
         if self.frameReady:
             self.frameReady = False
             begin = time.time()
@@ -197,6 +230,11 @@ class SemTool(QtWidgets.QMainWindow):
 
             self.canvas.figure.canvas.draw()
 
+            self.image.getFftSegments(self.masker)
+            self.image.getHistEqualised().getFftSegments(self.masker)
+
+            self.updateTable()
+
             self.frameCount += 1
             if self.frameCount == 7:
                 self.frameCount = 1
@@ -211,4 +249,3 @@ if __name__ == "__main__":
     gui = SemTool()
     gui.show()
     sys.exit(app.exec_())
-    

@@ -138,134 +138,68 @@ class SemTool(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        
+        self.image  = None
+        self.canvas = MplCanvas(MplFigure())
 
+        self.plots = self.canvas.figure.subplots(2, 3)
+        for row in self.plots:
+            for plot in row:
+                plot.axis("off")
 
-
-
-
-class semTool(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        self.semImage   = Image.Image()
-        self.canvas     = MplCanvas(MplFigure(constrained_layout=True))
-
-        self.initCanvas()
+        self.imagePlot = None
+        self.imageFftPlot = None
+        self.imageHistPlot = None
+        self.imageHistEqualisedPlot = None
+        self.imageHistEqualisedFftPlot = None
+        self.imageHistEqualisedHistPlot = None
 
         self.setCentralWidget(self.canvas)
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
-
-    def get_histogram(self, image, bins):
-        # array with size of bins, set to zeros
-        histogram = np.zeros(bins)
-        
-        # loop through pixels and sum up counts of pixels
-        for pixel in image:
-            histogram[pixel] += 1
-        
-        # return our final result
-        return histogram
-
-    def cumsum(self, a):
-        a = iter(a)
-        b = [next(a)]
-        for i in a:
-            b.append(b[-1] + i)
-        return np.array(b)
-
-    def initCanvas(self):
-        plots = self.canvas.figure.subplots(nrows=2, ncols=2)
-        # self.canvas.figure.subplots_adjust(hspace=0, wspace=0)
-
-        self.image      = plots[0, 0]
-        self.imageXYFFT = plots[0, 1]
-        self.imageXFFT  = plots[1, 0]
-        self.imageYFFT  = plots[1, 1]
-
-        self.image.axis('off')
-        self.imageXYFFT.axis('off')
-        self.imageXFFT.axis('off')
-        self.imageYFFT.axis('off')
-
-        # self.image.set_title("Original Image")
-        # self.imageXYFFT.set_title("2D FFT")
-        # self.imageXFFT.set_title("X-Axis FFT")
-        # self.imageYFFT.set_title("Y-Axis FFT")
+        self.initPlots()
 
         self.frameCount = 1
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
+        self.frameTimer.timeout.connect(self.updatePlots)
+        self.frameTimer.start(2000)
 
-        self.semImage   = Image.open("Images from SEM/Armin24%d.tif" % self.frameCount)
-        self.array      = np.asarray(self.semImage)
-        self.arrayXYFFT = np.fft.fft2(self.array)
-        self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
-        self.arrayXYFFT = np.abs(self.arrayXYFFT)
+    def initPlots(self):
+        self.image = Image.open("Images from SEM/Armin241.tif")
+        self.image = np.asarray(self.image)
+        self.image = self.image.view(SemImage)
 
-        self.arrayFlat  = self.array.flatten()
-        hist            = self.get_histogram(self.arrayFlat, 256)
-        cs              = self.cumsum(hist)
-        nj              = (cs - cs.min()) * 255
-        N               = cs.max() - cs.min()
-        cs              = nj / N
-        cs              = cs.astype('uint8')
-        self.arrayNew   = cs[self.arrayFlat]
-        self.arrayNew   = np.reshape(self.arrayNew, self.array.shape)
+        self.imagePlot = self.plots[0][0].imshow(self.image, cmap="gray")
+        self.imageFftPlot = self.plots[0][1].imshow(self.image.getFft(), cmap="gray", norm=MplLogNorm())
+        self.imageHistPlot = self.plots[0][2].bar(self.image.getHist()[1][:-1], self.image.getHist()[0], width=1)
+        self.imageHistEqualisedPlot = self.plots[1][0].imshow(self.image.getHistEqualised(), cmap="gray")
+        self.imageHistEqualisedFftPlot = self.plots[1][1].imshow(self.image.getHistEqualised().getFft(), cmap="gray", norm=MplLogNorm())
+        self.imageHistEqualisedHistPlot = self.plots[1][2].bar(self.image.getHistEqualised().getHist()[1][:-1], self.image.getHistEqualised().getHist()[0], width=1)
 
-        self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
+        self.canvas.figure.canvas.draw()
 
-        self.img        = self.image.imshow(self.array, cmap = 'gray')
-        # self.imgXFFT    = self.imageXFFT.imshow(self.arrayXYFFT, norm = MplLogNorm())
-        self.imgYFFT   = self.imageYFFT.imshow(self.arrayXYFFT, norm = MplLogNorm())
-        self.imgXYFFT    = self.imageXYFFT.imshow(self.arrayNew, cmap='gray')
-
-        self.updateImage()
-
-        self.frameTimer.timeout.connect(self.updateImage)
-        self.frameTimer.start(100)
-
-    def updateImage(self):
+    def updatePlots(self):
         if self.frameReady:
             self.frameReady = False
             begin = time.time()
 
-            self.semImage   = Image.open("Images from SEM/Armin24%d.tif" % self.frameCount)
-            self.array      = np.asarray(self.semImage)
-            self.arrayXYFFT = np.fft.fft2(self.array)
-            self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
-            self.arrayXYFFT = np.abs(self.arrayXYFFT)
+            self.image = Image.open("Images from SEM/Armin24%d.tif" % self.frameCount)
+            self.image = np.asarray(self.image)
+            self.image = self.image.view(SemImage)
 
-            self.arrayFlat  = self.array.flatten()
-            hist            = self.get_histogram(self.arrayFlat, 256)
-            cs              = self.cumsum(hist)
-            nj              = (cs - cs.min()) * 255
-            N               = cs.max() - cs.min()
-            cs              = nj / N
-            cs              = cs.astype('uint8')
-            self.arrayNew   = cs[self.arrayFlat]
-            self.arrayNew   = np.reshape(self.arrayNew, self.array.shape)
-
-            # self.imageXYFFT.set_xlim(-1000, 1000)
-            # self.imageXYFFT.set_ylim(-1000, 1000)
-
-            begin = time.time()
-            self.imageXFFT.clear()
-            self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
-            end = time.time()
-            print(end - begin)
-
-            self.img.set_data(self.array)
-            # self.imgXFFT.set_data(self.arrayXYFFT)
-            self.imgYFFT.set_data(self.arrayXYFFT)
-            self.imgXYFFT.set_data(self.arrayNew)
+            self.imagePlot.set_data(self.image)
+            self.imageFftPlot.set_data(self.image.getFft())
+            for bar, h in zip(self.imageHistPlot, self.image.getHist()[0]):
+                bar.set_height(h)
+            self.imageHistEqualisedPlot.set_data(self.image.getHistEqualised())
+            self.imageHistEqualisedFftPlot.set_data(self.image.getHistEqualised().getFft())
+            for bar, h in zip(self.imageHistEqualisedHistPlot, self.image.getHistEqualised().getHist()[0]):
+                bar.set_height(h)
 
             self.canvas.figure.canvas.draw()
 
             self.frameCount += 1
             if self.frameCount == 7:
                 self.frameCount = 1
-
             end = time.time()
             print(end - begin)
             self.frameReady = True
@@ -274,6 +208,7 @@ class semTool(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-    gui = semTool()
+    gui = SemTool()
     gui.show()
     sys.exit(app.exec_())
+    

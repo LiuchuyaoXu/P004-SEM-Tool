@@ -1,6 +1,7 @@
 import sys
 import time
 import numpy as np
+import numpy.ma as ma
 from PIL import Image
 from PySide2 import QtGui
 from PySide2 import QtCore
@@ -8,6 +9,145 @@ from PySide2 import QtWidgets
 from matplotlib.figure import Figure as MplFigure
 from matplotlib.colors import LogNorm as MplLogNorm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MplCanvas
+
+# Divides the 2d shape into 8 non-overlapping regions by angle.
+class Masker:
+    def __init__(self, shape):
+        self.r1 = np.ones(shape)
+        self.r2 = np.ones(shape)
+        self.r3 = np.ones(shape)
+        self.r4 = np.ones(shape)
+        self.s1 = np.ones(shape)
+        self.s2 = np.ones(shape)
+        self.s3 = np.ones(shape)
+        self.s4 = np.ones(shape)
+
+        xLen = shape[0]
+        yLen = shape[1]
+        xOri = np.floor(xLen / 2)
+        yOri = np.floor(yLen / 2)
+        for i in range(0, xLen):
+            for j in range(0, yLen):
+                x = i - xOri
+                y = j - yOri
+                if x == 0:
+                    if y == 0:
+                        pass
+                    elif y > 0:
+                        self.r1[i][j] = 0
+                    else:
+                        self.r3[i][j] = 0
+                elif x > 0:
+                    if y == 0:
+                        self.r4[i][j] = 0
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r3[i][j] = 0
+                        elif angle < (- np.pi / 8):
+                            self.s3[i][j] = 0
+                        elif angle < (np.pi / 8):
+                            self.r4[i][j] = 0
+                        elif angle < (3 * np.pi / 8):
+                            self.s4[i][j] = 0
+                        else:
+                            self.r1[i][j] = 0
+                else:
+                    if y == 0:
+                        self.r2[i][j] = 0
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r1[i][j] = 0
+                        elif angle < (- np.pi / 8):
+                            self.s1[i][j] = 0
+                        elif angle < (np.pi / 8):
+                            self.r2[i][j] = 0
+                        elif angle < (3 * np.pi / 8):
+                            self.s2[i][j] = 0
+                        else:
+                            self.r3[i][j] = 0
+
+# Each SemImage represents a 8-bit grey-level image.
+class SemImage(np.ndarray):
+    def __array_finalize__(self, obj):
+        self.fft            = None
+        self.fftSegments    = None
+        self.hist           = None
+        self.histEqualised  = None
+
+    def getFft(self):
+        if self.fft is not None:
+            return self.fft
+
+        fft = np.fft.fft2(self)
+        fft = np.fft.fftshift(fft)
+        fft = np.abs(fft)
+
+        self.fft = fft
+        return self.fft
+
+    def getFftSegments(self, masker):
+        if self.fftSegments is not None:
+            return self.fftSegments
+        if self.fft is None:
+            self.getFft()
+
+        r1 = ma.array(self.fft, mask=masker.r1).sum()
+        r2 = ma.array(self.fft, mask=masker.r2).sum()
+        r3 = ma.array(self.fft, mask=masker.r3).sum()
+        r4 = ma.array(self.fft, mask=masker.r4).sum()
+        s1 = ma.array(self.fft, mask=masker.s1).sum()
+        s2 = ma.array(self.fft, mask=masker.s2).sum()
+        s3 = ma.array(self.fft, mask=masker.s3).sum()
+        s4 = ma.array(self.fft, mask=masker.s4).sum()
+
+        self.fftSegments = np.array([r1, r2, r3, r4, s1, s2, s3, s4])
+        return self.fftSegments
+
+    def getHist(self):
+        if self.hist is not None:
+            return self.hist
+
+        self.hist = np.histogram(self, bins=np.arange(257))
+        return self.hist
+
+    def getHistEqualised(self):
+        if self.histEqualised is not None:
+            return self.histEqualised
+        if self.hist is None:
+            self.getHist()
+
+        hist        = self.hist[0] 
+        histTrans   = np.zeros(256)
+        numPixels   = np.sum(hist)
+
+        total = 0
+        for i in range(0, 256):
+            total += hist[i]
+            histTrans[i] = total
+        histTrans /= numPixels
+        histTrans *= 255 / histTrans.max()
+        histTrans = histTrans.astype(int)    
+
+        newImage = np.zeros(self.shape)
+        newImage = newImage.astype(int)
+        for i in range(0, self.shape[0]):
+            for j in range(0, self.shape[1]):
+                newImage[i, j] = histTrans[self[i, j]]
+
+        self.histEqualised = newImage.view(SemImage)
+        return self.histEqualised
+
+class SemTool(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        
+
+
+
+
 
 class semTool(QtWidgets.QMainWindow):
     def __init__(self):
@@ -62,7 +202,7 @@ class semTool(QtWidgets.QMainWindow):
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
 
-        self.semImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
+        self.semImage   = Image.open("Images from SEM/Armin24%d.tif" % self.frameCount)
         self.array      = np.asarray(self.semImage)
         self.arrayXYFFT = np.fft.fft2(self.array)
         self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
@@ -95,7 +235,7 @@ class semTool(QtWidgets.QMainWindow):
             self.frameReady = False
             begin = time.time()
 
-            self.semImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
+            self.semImage   = Image.open("Images from SEM/Armin24%d.tif" % self.frameCount)
             self.array      = np.asarray(self.semImage)
             self.arrayXYFFT = np.fft.fft2(self.array)
             self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)

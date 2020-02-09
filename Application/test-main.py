@@ -129,12 +129,7 @@ class SemImage(np.ndarray):
         histTrans /= numPixels
         histTrans *= 255 / histTrans.max()
         histTrans = histTrans.astype(int)    
-
-        newImage = np.zeros(self.shape)
-        newImage = newImage.astype(int)
-        for i in range(0, self.shape[0]):
-            for j in range(0, self.shape[1]):
-                newImage[i, j] = histTrans[self[i, j]]
+        newImage  = np.array(list(map(lambda x: histTrans[x], self)))
 
         self.histEqualised = newImage.view(SemImage)
         return self.histEqualised

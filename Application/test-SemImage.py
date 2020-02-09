@@ -4,6 +4,7 @@ import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
 from PIL import Image
+from PIL import ImagePalette
 from matplotlib.colors import LogNorm
 
 # Divides the 2d shape into 8 non-overlapping regions by angle.
@@ -125,12 +126,7 @@ class SemImage(np.ndarray):
         histTrans /= numPixels
         histTrans *= 255 / histTrans.max()
         histTrans = histTrans.astype(int)    
-
-        newImage = np.zeros(self.shape)
-        newImage = newImage.astype(int)
-        for i in range(0, self.shape[0]):
-            for j in range(0, self.shape[1]):
-                newImage[i, j] = histTrans[self[i, j]]
+        newImage  = np.array(list(map(lambda x: histTrans[x], self)))
 
         self.histEqualised = newImage.view(SemImage)
         return self.histEqualised
@@ -153,16 +149,16 @@ if __name__ == "__main__":
 
     masker = Masker(image1.shape)
 
-    start = time.time()
     image1.getFft()
     image1.getFftSegments(masker)
     image1.getHist()
+    start = time.time()
     image1.getHistEqualised()
+    end = time.time()
+    print(end - start)
     image1.histEqualised.getFft()
     image1.histEqualised.getFftSegments(masker)
     image1.histEqualised.getHist()
-    end = time.time()
-    print(end - start)
 
     # print("Image 1 sums of FFT segments: ", image1.getFftSegments(masker).astype(int))
     # print("Image 2 sums of FFT segments: ", image2.getFftSegments(masker).astype(int))
@@ -171,10 +167,10 @@ if __name__ == "__main__":
     fig, axis = plt.subplots(2, 3)
     axis[0][0].imshow(image1, cmap="gray")
     axis[0][1].imshow(image1.fft, cmap="gray", norm=LogNorm())
-    axis[0][2].bar(image1.hist[1][:-1], image1.hist[0])
+    axis[0][2].bar(image1.hist[1][:-1], image1.hist[0], width=1)
     axis[1][0].imshow(image1.histEqualised, cmap="gray")
     axis[1][1].imshow(image1.histEqualised.fft, cmap="gray", norm=LogNorm())
-    axis[1][2].bar(image1.histEqualised.hist[1][:-1], image1.histEqualised.hist[0])
+    axis[1][2].bar(image1.histEqualised.hist[1][:-1], image1.histEqualised.hist[0], width=1)
     plt.tight_layout()
     plt.show()
 

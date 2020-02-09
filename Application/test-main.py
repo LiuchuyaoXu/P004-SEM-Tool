@@ -166,8 +166,12 @@ class SemTool(QtWidgets.QMainWindow):
         self.frameCount = 1
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
-        self.frameTimer.timeout.connect(self.updateCanvas)
+        self.frameTimer.timeout.connect(self.mainLoop)
         self.frameTimer.start(2000)
+
+    def mainLoop(self):
+        self.updateCanvas()
+        self.updateTable()
 
     def initTable(self):
         for i in range(0, self.table.rowCount()):
@@ -232,8 +236,6 @@ class SemTool(QtWidgets.QMainWindow):
 
             self.image.getFftSegments(self.masker)
             self.image.getHistEqualised().getFftSegments(self.masker)
-
-            self.updateTable()
 
             self.frameCount += 1
             if self.frameCount == 7:

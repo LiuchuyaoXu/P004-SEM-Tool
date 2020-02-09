@@ -8,6 +8,7 @@ import sys
 import time
 import SEM_API
 import numpy as np
+import numpy.ma as ma
 from PIL import Image
 from PIL import ImageQt
 from imageio import imread
@@ -17,94 +18,235 @@ from imageio import imread
 from qtpy import QtGui
 from qtpy import QtCore
 from qtpy import QtWidgets
-from matplotlib.colors import LogNorm 
-from matplotlib.figure import Figure as MPLFigure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MPLCanvas
+from matplotlib.figure import Figure as MplFigure
+from matplotlib.colors import LogNorm as MplFigure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MplCanvas
 
-class semTool(QtWidgets.QMainWindow):
+# Divides the 2d shape into 8 non-overlapping regions by angle.
+class Masker:
+    def __init__(self, shape):
+        self.r1 = np.ones(shape)
+        self.r2 = np.ones(shape)
+        self.r3 = np.ones(shape)
+        self.r4 = np.ones(shape)
+        self.s1 = np.ones(shape)
+        self.s2 = np.ones(shape)
+        self.s3 = np.ones(shape)
+        self.s4 = np.ones(shape)
+
+        xLen = shape[0]
+        yLen = shape[1]
+        xOri = np.floor(xLen / 2)
+        yOri = np.floor(yLen / 2)
+        for i in range(0, xLen):
+            for j in range(0, yLen):
+                x = i - xOri
+                y = j - yOri
+                if x == 0:
+                    if y == 0:
+                        pass
+                    elif y > 0:
+                        self.r1[i][j] = 0
+                    else:
+                        self.r3[i][j] = 0
+                elif x > 0:
+                    if y == 0:
+                        self.r4[i][j] = 0
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r3[i][j] = 0
+                        elif angle < (- np.pi / 8):
+                            self.s3[i][j] = 0
+                        elif angle < (np.pi / 8):
+                            self.r4[i][j] = 0
+                        elif angle < (3 * np.pi / 8):
+                            self.s4[i][j] = 0
+                        else:
+                            self.r1[i][j] = 0
+                else:
+                    if y == 0:
+                        self.r2[i][j] = 0
+                    else:
+                        angle = np.arctan(y/x)
+                        if angle < (- 3 * np.pi / 8):
+                            self.r1[i][j] = 0
+                        elif angle < (- np.pi / 8):
+                            self.s1[i][j] = 0
+                        elif angle < (np.pi / 8):
+                            self.r2[i][j] = 0
+                        elif angle < (3 * np.pi / 8):
+                            self.s2[i][j] = 0
+                        else:
+                            self.r3[i][j] = 0
+
+# Each SemImage represents a 8-bit grey-level image.
+class SemImage(np.ndarray):
+    def __array_finalize__(self, obj):
+        self.fft            = None
+        self.fftSegments    = None
+        self.hist           = None
+        self.histEqualised  = None
+
+    def getFft(self):
+        if self.fft is not None:
+            return self.fft
+
+        fft = np.fft.fft2(self)
+        fft = np.fft.fftshift(fft)
+        fft = np.abs(fft)
+
+        self.fft = fft
+        return self.fft
+
+    def getFftSegments(self, masker):
+        if self.fftSegments is not None:
+            return self.fftSegments
+        if self.fft is None:
+            self.getFft()
+
+        r1 = ma.array(self.fft, mask=masker.r1).sum()
+        r2 = ma.array(self.fft, mask=masker.r2).sum()
+        r3 = ma.array(self.fft, mask=masker.r3).sum()
+        r4 = ma.array(self.fft, mask=masker.r4).sum()
+        s1 = ma.array(self.fft, mask=masker.s1).sum()
+        s2 = ma.array(self.fft, mask=masker.s2).sum()
+        s3 = ma.array(self.fft, mask=masker.s3).sum()
+        s4 = ma.array(self.fft, mask=masker.s4).sum()
+
+        self.fftSegments = np.array([r1, r2, r3, r4, s1, s2, s3, s4])
+        return self.fftSegments
+
+    def getHist(self):
+        if self.hist is not None:
+            return self.hist
+
+        self.hist = np.histogram(self, bins=np.arange(257))
+        return self.hist
+
+    def getHistEqualised(self):
+        if self.histEqualised is not None:
+            return self.histEqualised
+        if self.hist is None:
+            self.getHist()
+
+        hist        = self.hist[0] 
+        histTrans   = np.zeros(256)
+        numPixels   = np.sum(hist)
+
+        total = 0
+        for i in range(0, 256):
+            total += hist[i]
+            histTrans[i] = total
+        histTrans /= numPixels
+        histTrans *= 255 / histTrans.max()
+        histTrans = histTrans.astype(int)    
+        newImage  = np.array(list(map(lambda x: histTrans[x], self)))
+
+        self.histEqualised = newImage.view(SemImage)
+        return self.histEqualised
+
+class SemTool(QtWidgets.QMainWindow):
     def __init__(self, sem):
         super().__init__()
 
         sem.UpdateImage_Start()
 
-        self.semImage   = Image.Image()
-        self.canvas     = MPLCanvas(MPLFigure(constrained_layout=True))
+        self.image  = None
+        self.table  = QtWidgets.QTableWidget(9, 3)
+        self.canvas = MplCanvas(MplFigure())
 
-        self.initCanvas()
+        self.dock1 = QtWidgets.QDockWidget()
+
+        self.plots = self.canvas.figure.subplots(2, 3)
+        self.imagePlot = None
+        self.imageFftPlot = None
+        self.imageHistPlot = None
+        self.imageHistEqualisedPlot = None
+        self.imageHistEqualisedFftPlot = None
+        self.imageHistEqualisedHistPlot = None
+
+        self.masker = None
+
+        self.dock1.setWidget(self.table)
 
         self.setCentralWidget(self.canvas)
-        self.setWindowTitle("SEM Realtime Diagnostic Tool")
+        self.addDockWidget(QtCore.Qt.DockWidgetArea.LeftDockWidgetArea, self.dock1)
+        self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
-    def initCanvas(self):
-        plots = self.canvas.figure.subplots(nrows=2, ncols=2)
-        # self.canvas.figure.subplots_adjust(hspace=0, wspace=0)
+        self.initTable()
+        self.initCanvas()
 
-        self.image      = plots[0, 0]
-        self.imageXYFFT = plots[0, 1]
-        self.imageXFFT  = plots[1, 0]
-        self.imageYFFT  = plots[1, 1]
-
-        self.image.axis('off')
-        self.imageXYFFT.axis('off')
-        self.imageXFFT.axis('off')
-        self.imageYFFT.axis('off')
-
-        # self.image.set_title("Original Image")
-        # self.imageXYFFT.set_title("2D FFT")
-        # self.imageXFFT.set_title("X-Axis FFT")
-        # self.imageYFFT.set_title("Y-Axis FFT")
-
-        self.frameCount = 1
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
+        self.frameTimer.timeout.connect(self.mainLoop)
+        self.frameTimer.start(2000)
 
-        # self.semImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
-        # self.array      = np.asarray(self.semImage)
-        self.array = np.asarray(sem.img_array)
-        self.arrayXYFFT = np.fft.fft2(self.array)
-        self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
-        self.arrayXYFFT = np.abs(self.arrayXYFFT)
+    def mainLoop(self):
+        self.updateCanvas()
+        self.updateTable()
 
-        self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
+    def initTable(self):
+        for i in range(0, self.table.rowCount()):
+            for j in range(1, self.table.columnCount()):
+                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(""))
+        self.table.setItem(1, 0, QtWidgets.QTableWidgetItem("r1"))
+        self.table.setItem(2, 0, QtWidgets.QTableWidgetItem("r2"))
+        self.table.setItem(3, 0, QtWidgets.QTableWidgetItem("r3"))
+        self.table.setItem(4, 0, QtWidgets.QTableWidgetItem("r4"))
+        self.table.setItem(5, 0, QtWidgets.QTableWidgetItem("s1"))
+        self.table.setItem(6, 0, QtWidgets.QTableWidgetItem("s2"))
+        self.table.setItem(7, 0, QtWidgets.QTableWidgetItem("s3"))
+        self.table.setItem(8, 0, QtWidgets.QTableWidgetItem("s4"))
 
-        self.img        = self.image.imshow(self.array, cmap = 'gray')
-        # self.imgXFFT    = self.imageXFFT.imshow(self.arrayXYFFT, norm = LogNorm())
-        self.imgYFFT    = self.imageYFFT.imshow(self.arrayXYFFT, norm = LogNorm())
-        self.imgXYFFT   = self.imageXYFFT.imshow(self.arrayXYFFT, norm = LogNorm())
+    def initCanvas(self):
+        for row in self.plots:
+            for plot in row:
+                plot.axis("off")
 
-        self.updateImage()
+        self.image = np.asarray(sem.img_array)
+        self.image = self.image.view(SemImage)
 
-        self.frameTimer.timeout.connect(self.updateImage)
-        self.frameTimer.start(100)
+        self.masker = Masker(self.image.shape)
 
-    def updateImage(self):
+        self.imagePlot = self.plots[0][0].imshow(self.image, cmap="gray")
+        self.imageFftPlot = self.plots[0][1].imshow(self.image.getFft(), cmap="gray", norm=MplLogNorm())
+        self.imageHistPlot = self.plots[0][2].bar(self.image.getHist()[1][:-1], self.image.getHist()[0], width=1)
+        self.imageHistEqualisedPlot = self.plots[1][0].imshow(self.image.getHistEqualised(), cmap="gray")
+        self.imageHistEqualisedFftPlot = self.plots[1][1].imshow(self.image.getHistEqualised().getFft(), cmap="gray", norm=MplLogNorm())
+        self.imageHistEqualisedHistPlot = self.plots[1][2].bar(self.image.getHistEqualised().getHist()[1][:-1], self.image.getHistEqualised().getHist()[0], width=1)
+
+        self.canvas.figure.canvas.draw()
+
+        self.image.getFftSegments(self.masker)
+        self.image.getHistEqualised().getFftSegments(self.masker)
+
+    def updateTable(self):
+        for i in range(1, 9):
+            self.table.item(i, 1).setText(str(int(self.image.fftSegments[i-1])))
+            self.table.item(i, 2).setText(str(int(self.image.histEqualised.fftSegments[i-1])))
+
+    def updateCanvas(self):
         if self.frameReady:
             self.frameReady = False
             begin = time.time()
 
-            # self.semImage   = Image.open("../SEM Images/Armin24%d.tif" % self.frameCount)
-            # self.array      = np.asarray(self.semImage)
-            self.array = np.asarray(sem.img_array)
-            self.arrayXYFFT = np.fft.fft2(self.array)
-            self.arrayXYFFT = np.fft.fftshift(self.arrayXYFFT)
-            self.arrayXYFFT = np.abs(self.arrayXYFFT)
+            self.image = np.asarray(sem.img_array)
+            self.image = self.image.view(SemImage)
 
-            # self.imageXYFFT.set_xlim(-1000, 1000)
-            # self.imageXYFFT.set_ylim(-1000, 1000)
-
-            self.imageXFFT.clear()
-            self.imageXFFT.hist(np.matrix.flatten(self.array), bins=10)
-
-            self.img.set_data(self.array)
-            # self.imgXFFT.set_data(self.arrayXYFFT)
-            self.imgYFFT.set_data(self.arrayXYFFT)
-            self.imgXYFFT.set_data(self.arrayXYFFT)
+            self.imagePlot.set_data(self.image)
+            self.imageFftPlot.set_data(self.image.getFft())
+            for bar, h in zip(self.imageHistPlot, self.image.getHist()[0]):
+                bar.set_height(h)
+            self.imageHistEqualisedPlot.set_data(self.image.getHistEqualised())
+            self.imageHistEqualisedFftPlot.set_data(self.image.getHistEqualised().getFft())
+            for bar, h in zip(self.imageHistEqualisedHistPlot, self.image.getHistEqualised().getHist()[0]):
+                bar.set_height(h)
 
             self.canvas.figure.canvas.draw()
 
-            self.frameCount += 1
-            if self.frameCount == 7:
-                self.frameCount = 1
+            self.image.getFftSegments(self.masker)
+            self.image.getHistEqualised().getFftSegments(self.masker)
 
             end = time.time()
             print(end - begin)
@@ -115,6 +257,6 @@ class semTool(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     with SEM_API.SEM_API("remote") as sem:
         app = QtWidgets.QApplication([])
-        gui = semTool(sem)
+        gui = SemTool(sem)
         gui.show()
         sys.exit(app.exec_())

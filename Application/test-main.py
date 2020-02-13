@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import cupy as cp
@@ -163,10 +164,13 @@ class SemTool(QtWidgets.QMainWindow):
         self.addDockWidget(QtCore.Qt.DockWidgetArea.LeftDockWidgetArea, self.dock1)
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
+        self.imagesIndex = 1
+        self.imagesFolder = "./Images for Testing Correction Algorithm"
+        self.images = os.listdir(self.imagesFolder)
+        
         self.initTable()
         self.initCanvas()
 
-        self.frameCount = 1
         self.frameReady = True
         self.frameTimer = QtCore.QTimer()
         self.frameTimer.timeout.connect(self.mainLoop)
@@ -194,7 +198,7 @@ class SemTool(QtWidgets.QMainWindow):
             for plot in row:
                 plot.axis("off")
 
-        self.image = Image.open("Images from SEM/Armin241.tif")
+        self.image = Image.open(os.path.join(self.imagesFolder, self.images[self.imagesIndex]))
         self.image = np.asarray(self.image)
         self.image = self.image.view(SemImage)
 
@@ -222,9 +226,10 @@ class SemTool(QtWidgets.QMainWindow):
             self.frameReady = False
             begin = time.time()
 
-            self.image = Image.open("Images from SEM/Armin24%d.tif" % self.frameCount)
+            self.image = Image.open(os.path.join(self.imagesFolder, self.images[self.imagesIndex]))
             self.image = np.asarray(self.image)
             self.image = self.image.view(SemImage)
+            self.imagesIndex += 1
 
             self.imagePlot.set_data(self.image)
             self.imageFftPlot.set_data(self.image.getFft())
@@ -240,9 +245,6 @@ class SemTool(QtWidgets.QMainWindow):
             self.image.getFftSegments(self.masker)
             self.image.getHistEqualised().getFftSegments(self.masker)
 
-            self.frameCount += 1
-            if self.frameCount == 7:
-                self.frameCount = 1
             end = time.time()
             print(end - begin)
             self.frameReady = True

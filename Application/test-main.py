@@ -204,12 +204,18 @@ class SemTool(QtWidgets.QMainWindow):
 
         self.masker = Masker(self.image.shape)
 
+        self.image.getFft()
+        self.image.getHist()
+        self.image.getHistEqualised()
+        self.image.histEqualised.getFft()
+        self.image.histEqualised.getHist()
+
         self.imagePlot = self.plots[0][0].imshow(self.image, cmap="gray")
-        self.imageFftPlot = self.plots[0][1].imshow(self.image.getFft(), cmap="gray", norm=MplLogNorm())
-        self.imageHistPlot = self.plots[0][2].bar(self.image.getHist()[1][:-1], self.image.getHist()[0], width=1)
-        self.imageHistEqualisedPlot = self.plots[1][0].imshow(self.image.getHistEqualised(), cmap="gray")
-        self.imageHistEqualisedFftPlot = self.plots[1][1].imshow(self.image.getHistEqualised().getFft(), cmap="gray", norm=MplLogNorm())
-        self.imageHistEqualisedHistPlot = self.plots[1][2].bar(self.image.getHistEqualised().getHist()[1][:-1], self.image.getHistEqualised().getHist()[0], width=1)
+        self.imageFftPlot = self.plots[0][1].imshow(np.log(self.image.fft))
+        self.imageHistPlot = self.plots[0][2].bar(self.image.hist[1][:-1], self.image.hist[0], width=1)
+        self.imageHistEqualisedPlot = self.plots[1][0].imshow(self.image.histEqualised, cmap="gray")
+        self.imageHistEqualisedFftPlot = self.plots[1][1].imshow(np.log(self.image.histEqualised.fft))
+        self.imageHistEqualisedHistPlot = self.plots[1][2].bar(self.image.histEqualised.hist[1][:-1], self.image.histEqualised.hist[0], width=1)
 
         self.canvas.figure.canvas.draw()
 
@@ -232,11 +238,11 @@ class SemTool(QtWidgets.QMainWindow):
             self.imagesIndex += 1
 
             self.imagePlot.set_data(self.image)
-            self.imageFftPlot.set_data(self.image.getFft())
+            self.imageFftPlot.set_data(np.log(self.image.getFft()))
             for bar, h in zip(self.imageHistPlot, self.image.getHist()[0]):
                 bar.set_height(h)
             self.imageHistEqualisedPlot.set_data(self.image.getHistEqualised())
-            self.imageHistEqualisedFftPlot.set_data(self.image.getHistEqualised().getFft())
+            self.imageHistEqualisedFftPlot.set_data(np.log(self.image.getHistEqualised().getFft()))
             for bar, h in zip(self.imageHistEqualisedHistPlot, self.image.getHistEqualised().getHist()[0]):
                 bar.set_height(h)
 

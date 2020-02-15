@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import numpy as np
@@ -132,47 +133,91 @@ class SemImage(np.ndarray):
         return self.histEqualised
 
 if __name__ == "__main__":
-    # image1 = Image.open("./Images for FFT Testing/xy2.tif").convert('L')
-    image1 = Image.open("./Images from SEM/Armin241.tif").convert('L')
+    imageFolder = "./Images for Testing Correction Algorithm/"
+
+    image1 = Image.open(imageFolder + "richard1.tif").convert('L')
+    # image1 = Image.open("./Images from SEM/Armin241.tif").convert('L')
     image1 = np.asarray(image1)
     image1 = image1.view(SemImage)
 
-    # image2 = Image.open("./Images for FFT Testing/xy3.tif").convert('L')
+    image2 = Image.open(imageFolder + "richard2.tif").convert('L')
     # image2 = Image.open("./Images from SEM/novstig2.tif").convert('L')
-    # image2 = np.asarray(image2)
-    # image2 = image2.view(SemImage)
+    image2 = np.asarray(image2)
+    image2 = image2.view(SemImage)
 
-    # image3 = Image.open("./Images for FFT Testing/xy3.tif").convert('L')
+    image3 = Image.open(imageFolder + "richard3.tif").convert('L')
     # image3 = Image.open("./Images from SEM/novstig3.tif").convert('L')
-    # image3 = np.asarray(image3)
-    # image3 = image3.view(SemImage)
+    image3 = np.asarray(image3)
+    image3 = image3.view(SemImage)
+
+    image4 = Image.open(imageFolder + "richard4.tif").convert('L')
+    # image4 = Image.open("./Images from SEM/novstig3.tif").convert('L')
+    image4 = np.asarray(image4)
+    image4 = image3.view(SemImage)
+
+    image5 = Image.open(imageFolder + "richard5.tif").convert('L')
+    # image5 = Image.open("./Images from SEM/novstig3.tif").convert('L')
+    image5 = np.asarray(image5)
+    image5 = image3.view(SemImage)
 
     masker = Masker(image1.shape)
 
     image1.getFft()
-    image1.getFftSegments(masker)
-    image1.getHist()
-    start = time.time()
-    image1.getHistEqualised()
-    end = time.time()
-    print(end - start)
-    image1.histEqualised.getFft()
-    image1.histEqualised.getFftSegments(masker)
-    image1.histEqualised.getHist()
+    image2.getFft()
+    image3.getFft()
+    image4.getFft()
+    image5.getFft()
+    # image1.getFftSegments(masker)
+    # image1.getHist()
+    # start = time.time()
+    # image1.getHistEqualised()
+    # end = time.time()
+    # print(end - start)
+    # image1.histEqualised.getFft()
+    # image1.histEqualised.getFftSegments(masker)
+    # image1.histEqualised.getHist()
+
+    fig, axis = plt.subplots(2, 5, constrained_layout=True)
+    axis[0][0].imshow(image1, cmap="gray")
+    axis[1][0].imshow(image1.fft, cmap="gray", norm=LogNorm())
+    axis[1][0].set_xlim(400, 600)
+    axis[1][0].set_ylim(300, 500)
+
+    axis[0][1].imshow(image2, cmap="gray")
+    axis[1][1].imshow(image2.fft, cmap="gray", norm=LogNorm())
+    axis[1][1].set_xlim(400, 600)
+    axis[1][1].set_ylim(300, 500)
+
+    axis[0][2].imshow(image3, cmap="gray")
+    axis[1][2].imshow(image3.fft, cmap="gray", norm=LogNorm())
+    axis[1][2].set_xlim(400, 600)
+    axis[1][2].set_ylim(300, 500)
+
+    axis[0][3].imshow(image4, cmap="gray")
+    axis[1][3].imshow(image4.fft, cmap="gray", norm=LogNorm())
+    axis[1][3].set_xlim(400, 600)
+    axis[1][3].set_ylim(300, 500)
+
+    axis[0][4].imshow(image5, cmap="gray")
+    axis[1][4].imshow(image5.fft, cmap="gray", norm=LogNorm())
+    axis[1][4].set_xlim(400, 600)
+    axis[1][4].set_ylim(300, 500)
+    plt.tight_layout()
+    plt.show()
 
     # print("Image 1 sums of FFT segments: ", image1.getFftSegments(masker).astype(int))
     # print("Image 2 sums of FFT segments: ", image2.getFftSegments(masker).astype(int))
     # print("Image 3 sums of FFT segments: ", image3.getFftSegments(masker).astype(int))
 
-    fig, axis = plt.subplots(2, 3)
-    axis[0][0].imshow(image1, cmap="gray")
-    axis[0][1].imshow(image1.fft, cmap="gray", norm=LogNorm())
-    axis[0][2].bar(image1.hist[1][:-1], image1.hist[0], width=1)
-    axis[1][0].imshow(image1.histEqualised, cmap="gray")
-    axis[1][1].imshow(image1.histEqualised.fft, cmap="gray", norm=LogNorm())
-    axis[1][2].bar(image1.histEqualised.hist[1][:-1], image1.histEqualised.hist[0], width=1)
-    plt.tight_layout()
-    plt.show()
+    # fig, axis = plt.subplots(3, 2)
+    # axis[0][0].imshow(image1, cmap="gray")
+    # axis[0][1].imshow(image1.fft, cmap="gray", norm=LogNorm())
+    # axis[0][2].bar(image1.hist[1][:-1], image1.hist[0], width=1)
+    # axis[1][0].imshow(image1.histEqualised, cmap="gray")
+    # axis[1][1].imshow(image1.histEqualised.fft, cmap="gray", norm=LogNorm())
+    # axis[1][2].bar(image1.histEqualised.hist[1][:-1], image1.histEqualised.hist[0], width=1)
+    # plt.tight_layout()
+    # plt.show()
 
     # masker = Masker(image1.shape)
     # masker = Masker([20, 20])
@@ -186,3 +231,17 @@ if __name__ == "__main__":
     # axis[6].imshow(masker.s3 * 255, cmap="gray")
     # axis[7].imshow(masker.s4 * 255, cmap="gray")
     # plt.show()
+
+    # imageFolder = "./Images for Testing Correction Algorithm/"
+    # for imageName in os.listdir(imageFolder):
+    #     image = Image.open(os.path.join(imageFolder, imageName))
+    #     image = np.asarray(image)
+    #     image = image.view(SemImage)
+
+    #     fig, axis = plt.subplots(1, 2)
+    #     axis[0].imshow(image, cmap="gray")
+    #     axis[1].imshow(image.getFft(), cmap="gray", norm=LogNorm())
+    #     plt.tight_layout()
+    #     plt.savefig(os.path.join("./Test Outputs/", os.path.splitext(imageName)[0]))
+
+    #     print(imageName)

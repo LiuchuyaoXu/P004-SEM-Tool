@@ -41,7 +41,7 @@ class SemImage:
     def histogram(self):
         return self._histogram
 
-    def applyHamming(self, updateAll=False):
+    def applyHamming(self, updateAll=True):
         try:
             col = cp.hamming(self.array.shape[0])
             row = cp.hamming(self.array.shape[1])
@@ -58,7 +58,7 @@ class SemImage:
             if updateAll:
                 self.updateAll()
 
-    def applyHanning(self, updateAll=False):
+    def applyHanning(self, updateAll=True):
         try:
             col = cp.hanning(self.array.shape[0])
             row = cp.hanning(self.array.shape[1])
@@ -75,7 +75,7 @@ class SemImage:
             if updateAll:
                 self.updateAll()
 
-    def applyHistogramEqualisation(self, updateAll=False):
+    def applyHistogramEqualisation(self, updateAll=True):
         hist = self.histogram
         histTrans = np.zeros(256)
         numPixels = np.sum(hist)

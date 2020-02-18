@@ -18,6 +18,7 @@ class SemImage:
         self._histogram = None
 
         self.array = arr
+        self.updateAll()
 
     @property
     def array(self):
@@ -31,8 +32,6 @@ class SemImage:
         if arr.max() > 255 or arr.min() < 0:
             raise TypeError("SemImage was not initialised with a grey-level image.")
         self._array = arr
-        self._calcFft()
-        self._calcHist()
 
     @property
     def fft(self):
@@ -42,7 +41,7 @@ class SemImage:
     def histogram(self):
         return self._histogram
 
-    def applyHamming(self):
+    def applyHamming(self, updateAll=False):
         try:
             col = cp.hamming(self.array.shape[0])
             row = cp.hamming(self.array.shape[1])
@@ -55,8 +54,11 @@ class SemImage:
             window = np.sqrt(np.outer(col, row))
             arr = np.multiply(window, self.array)
             self.array = arr
+        finally:
+            if updateAll:
+                self.updateAll()
 
-    def applyHanning(self):
+    def applyHanning(self, updateAll=False):
         try:
             col = cp.hanning(self.array.shape[0])
             row = cp.hanning(self.array.shape[1])
@@ -69,8 +71,11 @@ class SemImage:
             window = np.sqrt(np.outer(col, row))
             arr = np.multiply(window, self.array)
             self.array = arr
+        finally:
+            if updateAll:
+                self.updateAll()
 
-    def applyHistogramEqualisation(self):
+    def applyHistogramEqualisation(self, updateAll=False):
         hist = self.histogram
         histTrans = np.zeros(256)
         numPixels = np.sum(hist)
@@ -84,8 +89,11 @@ class SemImage:
         histTrans = histTrans.astype(int)    
         arr = np.array(list(map(lambda x: histTrans[x], self.array)))
         self.array = arr
+        
+        if updateAll:
+            self.updateAll()
 
-    def _calcFft(self):
+    def updateFft(self):
         try:
             arr = cp.asarray(self.array)
             fft = cp.fft.fft2(arr)
@@ -98,7 +106,7 @@ class SemImage:
             fft = np.abs(fft)
             self._fft = fft
 
-    def _calcHist(self):
+    def updateHistogram(self):
         try:
             arr = cp.asarray(self.array)
             hist = cp.histogram(arr, bins=cp.arange(257))
@@ -106,3 +114,7 @@ class SemImage:
         except:
             hist = np.histogram(self.array, bins=np.arange(257))
             self._histogram = hist[0]
+
+    def updateAll(self):
+        self.updateFft()
+        self.updateHistogram()

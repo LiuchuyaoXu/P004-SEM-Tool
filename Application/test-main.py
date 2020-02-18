@@ -82,7 +82,11 @@ class SemImage(np.ndarray):
         if self.fft is not None:
             return self.fft
 
-        image = cp.asarray(self)
+        h = np.hanning(self.shape[0])
+        v = np.hanning(self.shape[1])
+        w = np.sqrt(np.outer(h, v))
+
+        image = cp.asarray(np.multiply(w, self))
         fft = cp.fft.fft2(image)
         fft = cp.fft.fftshift(fft)
         fft = cp.abs(fft)
@@ -253,6 +257,8 @@ class SemTool(QtWidgets.QMainWindow):
 
             end = time.time()
             print(end - begin)
+            if self.imagesIndex == len(self.images):
+                self.imagesIndex = 0
             self.frameReady = True
         else:
             pass

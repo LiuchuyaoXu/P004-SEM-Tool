@@ -1,9 +1,3 @@
-#   File:   main.py
-#
-#   Brief:  Implement the SEM real-time diagnostic tool.
-# 
-#   Author: Liuchuyao Xu, 2019
-
 import sys
 import time
 import SEM_API

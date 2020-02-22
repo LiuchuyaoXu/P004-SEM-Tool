@@ -67,7 +67,19 @@ class SemTool(QtWidgets.QMainWindow):
     def initControlPanel(self):
         panel = QtWidgets.QDockWidget("Control Panel", self)
         panel.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
+
+        self.zoom = QtWidgets.QSlider(QtCore.Qt.Horizontal, panel)
+        self.zoom.setTickPosition(QtWidgets.QSlider.TicksBothSides)
+        self.zoom.setTickInterval(10)
+        self.zoom.setSingleStep(1)
+        self.zoom.setMinimum(1)
+        self.zoom.setMaximum(100)
+        self.zoom.valueChanged.connect(self.updateZoom)
+
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, panel)
+
+    def updateZoom(self, value):
+        self.zoom.setValue(value)
 
     def updateCanvas(self):
         start = time.time()

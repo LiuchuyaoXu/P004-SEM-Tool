@@ -94,6 +94,7 @@ class SemTool(QtWidgets.QMainWindow):
                 self.imageIndex = 0
 
         self.imagePlot.set_data(image.array)
+        image.applyHanning()
         self.imageFftPlot.set_data(np.log(image.fft))
         for bar, h in zip(self.imageHistPlot, image.histogram):
             bar.set_height(h)

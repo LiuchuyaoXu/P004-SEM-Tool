@@ -54,7 +54,7 @@ class SemTool(QtWidgets.QMainWindow):
             plot.axis("off")
 
         try:
-            image = semImage(np.asarray(sem.img_array))
+            image = SemImage(np.asarray(sem.img_array))
         except:
             image = Image.open(os.path.join(self.imageDir, self.images[self.imageIndex]))
             image = SemImage(np.asarray(image))
@@ -85,7 +85,7 @@ class SemTool(QtWidgets.QMainWindow):
         start = time.time()
 
         try:
-            image = semImage(np.asarray(sem.img_array))
+            image = SemImage(np.asarray(sem.img_array))
         except:
             image = Image.open(os.path.join(self.imageDir, self.images[self.imageIndex]))
             image = SemImage(np.asarray(image))

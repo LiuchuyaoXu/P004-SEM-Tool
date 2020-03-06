@@ -1,6 +1,6 @@
 # Author:   Liuchuyao Xu, 2020
 #
-# Brief:    Implement the Masker class, which Provides 8 masks dividing a 2d shape into 8 non-overlapping regions, as specified in K.H. ONG, J.C.H. PHANG, J.T.L. THONG, 1997, A Robust Focusing and Astigmatism Correction Method for the Scanning Electron Microscope.
+# Brief:    Implement the Masker class, each Masker instance provides 8 masks dividing a 2d shape into 8 non-overlapping regions, as specified in K.H. ONG, J.C.H. PHANG, J.T.L. THONG, 1997, A Robust Focusing and Astigmatism Correction Method for the Scanning Electron Microscope.
 
 import numpy as np
 

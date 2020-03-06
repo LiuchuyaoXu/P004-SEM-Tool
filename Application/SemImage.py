@@ -1,6 +1,6 @@
 #   Author: Liuchuyao Xu, 2020
 # 
-#   Brief:  Implement the SemImage class. Each SemImage object represents an 8-bit grey-level image.
+#   Brief:  Implement the SemImage class, each SemImage instance represents an 8-bit grey-level image.
 
 import numpy as np
 

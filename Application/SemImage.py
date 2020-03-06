@@ -1,8 +1,6 @@
-#   File:   SemImage.py
-#
-#   Brief:  Implement a class for properties and methods related to SEM images.
-# 
 #   Author: Liuchuyao Xu, 2020
+# 
+#   Brief:  Implement the SemImage class. Each SemImage object represents an 8-bit grey-level image.
 
 import numpy as np
 
@@ -11,13 +9,12 @@ try:
 except:
     print("Warning, could not import cupy, CUDA acceleration will be disabled.")
 
-# Each SemImage represents an 8-bit grey-level image.
 class SemImage:
-    def __init__(self, arr):
+    def __init__(self, array):
         self._fft = None
         self._histogram = None
 
-        self.array = arr
+        self.array = array
         self.updateAll()
 
     @property
@@ -25,13 +22,13 @@ class SemImage:
         return self._array
 
     @array.setter
-    def array(self, arr):
-        arr = np.asarray(arr, int)
-        if len(arr.shape) != 2:
+    def array(self, array):
+        array = np.asarray(array, int)
+        if len(array.shape) != 2:
             raise TypeError("SemImage was not initialised with a 2d array.")
-        if arr.max() > 255 or arr.min() < 0:
+        if array.max() > 255 or array.min() < 0:
             raise TypeError("SemImage was not initialised with a grey-level image.")
-        self._array = arr
+        self._array = array
 
     @property
     def fft(self):
@@ -46,14 +43,14 @@ class SemImage:
             col = cp.hamming(self.array.shape[0])
             row = cp.hamming(self.array.shape[1])
             window = cp.sqrt(cp.outer(col, row))
-            arr = cp.multiply(window, cp.asarray(self.array))
-            self.array = cp.asnumpy(arr)
+            array = cp.multiply(window, cp.asarray(self.array))
+            self.array = cp.asnumpy(array)
         except:
             col = np.hamming(self.array.shape[0])
             row = np.hamming(self.array.shape[1])
             window = np.sqrt(np.outer(col, row))
-            arr = np.multiply(window, self.array)
-            self.array = arr
+            array = np.multiply(window, self.array)
+            self.array = array
         finally:
             if updateAll:
                 self.updateAll()
@@ -63,14 +60,14 @@ class SemImage:
             col = cp.hanning(self.array.shape[0])
             row = cp.hanning(self.array.shape[1])
             window = cp.sqrt(cp.outer(col, row))
-            arr = cp.multiply(window, cp.asarray(self.array))
-            self.array = cp.asnumpy(arr)
+            array = cp.multiply(window, cp.asarray(self.array))
+            self.array = cp.asnumpy(array)
         except:
             col = np.hanning(self.array.shape[0])
             row = np.hanning(self.array.shape[1])
             window = np.sqrt(np.outer(col, row))
-            arr = np.multiply(window, self.array)
-            self.array = arr
+            array = np.multiply(window, self.array)
+            self.array = array
         finally:
             if updateAll:
                 self.updateAll()
@@ -87,16 +84,16 @@ class SemImage:
         histTrans /= numPixels
         histTrans *= 255 / histTrans.max()
         histTrans = histTrans.astype(int)    
-        arr = np.array(list(map(lambda x: histTrans[x], self.array)))
-        self.array = arr
+        array = np.array(list(map(lambda x: histTrans[x], self.array)))
+        self.array = array
         
         if updateAll:
             self.updateAll()
 
     def updateFft(self):
         try:
-            arr = cp.asarray(self.array)
-            fft = cp.fft.fft2(arr)
+            array = cp.asarray(self.array)
+            fft = cp.fft.fft2(array)
             fft = cp.fft.fftshift(fft)
             fft = cp.abs(fft)
             self._fft = cp.asnumpy(fft)
@@ -108,8 +105,8 @@ class SemImage:
 
     def updateHistogram(self):
         try:
-            arr = cp.asarray(self.array)
-            hist = cp.histogram(arr, bins=cp.arange(257))
+            array = cp.asarray(self.array)
+            hist = cp.histogram(array, bins=cp.arange(257))
             self._histogram = cp.asnumpy(hist[0])
         except:
             hist = np.histogram(self.array, bins=np.arange(257))

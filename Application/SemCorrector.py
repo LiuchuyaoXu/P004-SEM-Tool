@@ -29,7 +29,7 @@ class SemCorrector:
         self.finished = False
 
     def correct(self):
-        while not self.finished:
+        for i in range(0, 10):
             self.start()
 
     def start(self):
@@ -126,6 +126,6 @@ if __name__ == "__main__":
     with SEM_API.SEM_API("remote") as sem:
         semCorrector = SemCorrector(sem)
         start = time.time()
-        semCorrector.start()
+        semCorrector.correct()
         end = time.time()
         print("Execution time: ", end - start, "s")

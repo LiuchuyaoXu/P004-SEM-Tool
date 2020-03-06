@@ -38,14 +38,14 @@ class Masker:
         return self._s4
 
     def __init__(self, shape):
-        self._r1 = np.ones(shape)
-        self._r2 = np.ones(shape)
-        self._r3 = np.ones(shape)
-        self._r4 = np.ones(shape)
-        self._s1 = np.ones(shape)
-        self._s2 = np.ones(shape)
-        self._s3 = np.ones(shape)
-        self._s4 = np.ones(shape)
+        self._r1 = np.ones(shape=shape, dtype=int)
+        self._r2 = np.ones(shape=shape, dtype=int)
+        self._r3 = np.ones(shape=shape, dtype=int)
+        self._r4 = np.ones(shape=shape, dtype=int)
+        self._s1 = np.ones(shape=shape, dtype=int)
+        self._s2 = np.ones(shape=shape, dtype=int)
+        self._s3 = np.ones(shape=shape, dtype=int)
+        self._s4 = np.ones(shape=shape, dtype=int)
 
         xLen = shape[0]
         yLen = shape[1]
@@ -95,11 +95,19 @@ class Masker:
 
 if __name__ == "__main__":
     masker = Masker([5, 7])
+    print("Region r1:")
     print(masker.r1)
+    print("Region r2:")
     print(masker.r2)
+    print("Region r3:")
     print(masker.r3)
+    print("Region r4:")
     print(masker.r4)
+    print("Region s1:")
     print(masker.s1)
+    print("Region s2:")
     print(masker.s2)
+    print("Region s3:")
     print(masker.s3)
+    print("Region s4:")
     print(masker.s4)

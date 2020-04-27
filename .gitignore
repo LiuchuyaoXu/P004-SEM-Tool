@@ -1,5 +1,5 @@
-# Visual Studio Code
+# VS Code
 .vscode/
 
 # Python
-__pycache__
+__pycache__/

@@ -1,3 +1,1 @@
-# Instructions for using/developing the software in Windows.
-
-To be completed...
+# Diagnostic Tool for the Scanning Electron Microscope

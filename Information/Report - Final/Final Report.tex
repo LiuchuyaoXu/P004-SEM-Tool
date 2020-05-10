@@ -18,10 +18,28 @@
 The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. Higher resolution can be achieved compared to the traditional optical microscope, since electrons have much lower wavelength than light. An SEM can have resolution lower than one nanometre, whereas that of an optical microscope is often limited to a few hundred nanometres \cite{SEM wiki}. This has benefited a variety of fields. For example, scientists have been using the SEM to analyse the doping density in semiconductor \cite{SEM for semiconductor}. The goal of the project is to develop software tools in Python to support diagnosis of SEM images for the purpose of assisting the operator or automating procedures.
 
 \subsection{Theory of the SEM}
-TMR and additional explanation.
+Figure \ref{SEM basic construction} shows the basic construction of an SEM. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons are emitted from the specimen. These are called secondary electrons and are collected by the detector, which generates signals whose magnitude depend on the strength of the secondary electrons. The display unit produces one frame after each complete scan of the specimen.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/SEM basic construction.jpg}
+    \caption{Basic construction of an SEM \cite{SEM A to Z}}
+    \label{SEM basic construction}
+\end{figure}
 
 \subsection{How Fast Computing Can Aid SEM Operators}
-The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be completely eliminated by adjusting relevant parameters. Two important ones are focus and stigmatism, which directly affect the resolution and astigmatism of the image, respectively, as shown in Figure \ref{Sample SEM images}.
+The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be completely eliminated by adjusting relevant settings. Two important ones are focus and stigmation, which directly affect the resolution and astigmatism of the image, respectively. Figure \ref{Sample SEM images} illustrates the effect of wrong focus and stigmation settings.
+
+Focus determines the focal point of the electron probe. When the focal point is far from the surface of the specimen, the incident electrons interact with the specimen in a larger area. As a result, spots near each other produce signals of closer magnitude. This makes the image appear blurry, as shown in Figure \ref{A out of focus}.
+
+Stigmation controls stigmators in the SEM, which are used to compensate for astigmatism. Astigmatism arises due to imperfections in components of the SEM, and describes uneven focus in the electron probe, as shown in Figure \ref{SEM uneven focus}. When the electron probe is out of focus, astigmatism makes the incident electrons interact with the specimen in an elliptical area, and thus makes the image appear stretched. When the electron probe is in focus, astigmatism makes the image appear blurry. Figure \ref{Sample astigmatic SEM images} gives some examples of distorted images.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.3\textwidth]{Images/SEM uneven focus.jpg}
+    \caption{Uneven focus of the SEM}
+    \label{SEM uneven focus}
+\end{figure}
 
 \begin{figure}
     \centering
@@ -47,7 +65,25 @@ The quality of an SEM image is affected by aberrations. While some exist because
     \label{Sample SEM images}
 \end{figure}
 
-Although experienced SEM operators can often find the right settings for focus and stigmatism in a short time, it may not be as straightforward for new users. Sometimes, the surface being observed may have a complex structure and makes adjusting even harder. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is rather subjective. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
+\begin{figure}
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{Images/B astigmatic a.jpeg}
+        \caption{Astigmatic images}
+        \label{B astigmatic a}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{Images/B astigmatic b.jpeg}
+        \caption{Astigmatic and non-astigmatic image}
+        \label{B astigmatic b}
+    \end{subfigure}
+    \caption{Sample astigmatic SEM images \cite{SEM astigmatism correction}}
+    \label{Sample astigmatic SEM images}
+\end{figure}
+
+Although experienced SEM operators can often find the right settings for focus and stigmation in a short time, it may not be as straightforward for new users. Sometimes, the surface being observed may have a complex structure and makes adjusting even harder. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is rather subjective. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
 
 Fast computing can aid the operators in a few ways. Firstly, a numerical evaluation of the quality of the image may be provided, which eliminates the subjectivity in using human eyes. Numbers are also easier to note down if any record is required. Two operators may have different views on the same image, but the numbers will not be different. Therefore, cooperation and communication between operators can be enhanced. The use of numbers also enable automatic procedures for adjusting settings of the SEM, which save time and may produce better results than doing it manually.
 
@@ -115,8 +151,14 @@ Next steps.
 
     \bibitem{SEM for semiconductor}
     T. Agemura and T. Sekiguchi, "Secondary electron spectroscopy for imaging semiconductor materials," 2018 International Symposium on Semiconductor Manufacturing (ISSM), Tokyo, Japan, 2018, pp. 1-3, doi: 10.1109/ISSM.2018.8651171.
+
+    \bibitem{SEM astigmatation correction algorithm}
+    K.H. Ong, J.C.H. Phang and J.T.L. Thong, "A robust focusing and astigmatism correction method for the scanning electron microscope," 1997, scanning 19: 553-563, doi: 10.1002/sca.4950190805.
     
     \bibitem{SEM wiki}
     "Scanning electron microscope." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Scanning_electron_microscope} (accessed May 9, 2020).
+
+    \bibitem{SEM astigmatism correction}
+    "Correcting Astigmatism in SEM Images." cambridge.org. \url{https://www.cambridge.org/core/journals/microscopy-today/article/correcting-astigmatism-in-sem-images/7ED43987C7916AAFBE1869522546AC84/core-reader} (accessed May 10, 2020).
 \end{thebibliography}
 \end{document}

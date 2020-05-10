@@ -6,6 +6,14 @@ INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\size10.clo
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption3.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\caption\caption3.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\caption\subcaption.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\caption\subcaption.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hyperref.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\hyperref.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\generic\ltxcmds\ltxcmds.sty
@@ -16,8 +24,6 @@ INPUT C:\Program Files\MiKTeX 2.9\tex\latex\pdftexcmds\pdftexcmds.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\pdftexcmds\pdftexcmds.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\generic\infwarerr\infwarerr.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\generic\infwarerr\infwarerr.sty
-INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty
-INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics\keyval.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\generic\kvsetkeys\kvsetkeys.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\generic\kvsetkeys\kvsetkeys.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\generic\kvdefinekeys\kvdefinekeys.sty
@@ -113,6 +119,23 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx10.tfm
 OUTPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.toc
 INPUT C:\Users\lx242\AppData\Local\MiKTeX\2.9\pdftex\config\pdftex.map
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx12.tfm
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A in focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A in focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A in focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A in focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A in focus.jpg
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmr9.tfm
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A out of focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A out of focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A out of focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A out of focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A out of focus.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A astigmatism.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A astigmatism.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A astigmatism.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A astigmatism.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\A astigmatism.jpg
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmti10.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmtt10.tfm
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.aux
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.out
@@ -127,5 +150,9 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr12.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr12.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr17.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr17.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr9.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmr9.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmti10.pfb
+INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmti10.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmtt10.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmtt10.pfb

@@ -6,13 +6,13 @@
 \contentsline {subsection}{\numberline {2.1}Histogram Equalisation}{2}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Fast Fourier Transform}{2}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Focusing and Astigmatism Correction}{2}{subsection.2.3}%
-\contentsline {section}{\numberline {3}The Software}{2}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Overview}{2}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}The SemImage Module}{2}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}The SemTool Module}{2}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}The SemCorrector Module}{3}{subsection.3.4}%
-\contentsline {section}{\numberline {4}Demonstrations}{3}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Real-time Histogram Equalisation}{3}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Real-time Fast Fourier Transform}{3}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Automatic Focusing and Astigmatism Correction}{3}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Next Steps}{3}{section.5}%
+\contentsline {section}{\numberline {3}The Software}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Overview}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}The SemImage Module}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}The SemTool Module}{4}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}The SemCorrector Module}{4}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Demonstrations}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Real-time Histogram Equalisation}{4}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Real-time Fast Fourier Transform}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Automatic Focusing and Astigmatism Correction}{4}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Next Steps}{4}{section.5}%

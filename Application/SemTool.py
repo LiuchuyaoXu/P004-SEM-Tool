@@ -112,6 +112,6 @@ if __name__ == "__main__":
             sys.exit(app.exec_())
     except:
             app = QtWidgets.QApplication(sys.argv)
-            gui = SemTool("./Images for Testing Correction Algorithm")
+            gui = SemTool("./Images - For Testing SemCorrector")
             gui.show()
             sys.exit(app.exec_())

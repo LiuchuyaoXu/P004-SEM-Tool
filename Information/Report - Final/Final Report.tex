@@ -141,13 +141,45 @@ The result is more noticeable when the image has a low contrast, such as the one
     \label{Histogram and histogram equalisation}
 \end{figure}
 
-\subsection{Fast Fourier Transform} 
-Idea of FT.
-Maths of FFT.
+\subsection{Fast Fourier Transform}
+The Fourier transform (FT) decomposes a function into its constituent frequencies, as illustrated in Figure \ref{FT}. The function in red is can be represented by a superposition of all the sinusoidal functions shown, each having a unique frequency and with magnitudes as indicated on the right panel. A function that changes more abruptly will have stronger high-frequency components than a smoother one. 
+
+In image processing, the discrete Fourier transform (DFT) is often preferred, which takes a finite sequence of equally-spaced values as input and is thus better suited than the FT. It is defined by
+\begin{equation}
+    X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-i2\pi kn/N}, \quad 0 \leq k \leq N-1
+    \label{DFT}
+\end{equation}
+where $x_0,x_1,...,x_{N-1}$ is the input sequence and $X_0,X_1,...,X_{N-1}$ is the output sequence. $X_k$ is effectively the result of the dot product between the vector $[x_0,x_1,...,x_{N-1}]$ and $[e^0,e^{-i2\pi k/N},...,,e^{-i2\pi k(N-1)/N}]$, and the latter is a finite sequence of frequency $2\pi k$. Therefore, the DFT computes the magnitude of the component of the input sequence with frequency $2\pi k$, for $0 \leq k \leq N-1$.
+
+Figure \ref{FFT on images} gives an example of FFT applied on a real image. The top row shows a set of images and the bottom row shows the corresponding transforms (amplitudes only). Points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.3\textwidth]{Images/FFT on images.jpg}
+    \caption{FFT and filtering on images \cite{Fourier transform lecture}}
+    \label{FFT on images}
+\end{figure}
+
+A drawback of using Equation \ref{DFT} is that it has a time complexity of $O(N^2)$. In image processing, where the inputs are 2D sequences, the time complexity quickly explodes and makes the equation practically impossible to use. A fast Fourier transform (FFT) is an algorithm that computes the DFT with smaller timer complexity. There are many feasible algorithms and all known ones have complexity $O(N\log N)$ \cite{Fast Fourier transform wiki}. Detailed discussion on FFT algorithms is beyond the scope of this report.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.3\textwidth]{Images/FT.jpg}
+    \caption{Fourier transform \cite{Fourier transform wiki}}
+    \label{FT}
+\end{figure}
 
 \subsection{Focusing and Astigmatism Correction}
-Idea.
-Algorithm and flow chart.
+The focusing and astigmatism of an SEM image can be evaluated using its FFT. Figure \ref{SEM astigmatism} provides a set of sample images that illustrate how different degrees of defocus and astigmatism affect the image and its FFT. An in-focus image contains more details, and its FFT will thus have stronger high-frequency components. As an astigmatic image goes from under-focus from over-focus, the elliptical incidence area of the electron probe rotates by 90 degrees and makes the image appear stretched in the new direction. As a result, its FFT also rotates by 90 degrees. K.H. Ong, J.C.H. Phang and J.T.L. Thong proposed an algorithm for automatic focusing and astigmatism correction \cite{SEM astigmatation correction algorithm}, which uses these properties.
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/SEM astigmatism.jpg}
+    \caption{Images of gold-on-carbon sample and their fast Fourier transforms (FFTs) for different degrees of defocus and astigmatism \cite{SEM astigmatation correction algorithm}}
+    \label{SEM astigmatism}
+\end{figure}
 
 \section{The Software}
 \subsection{Overview}
@@ -206,6 +238,15 @@ Next steps.
 
     \bibitem{Histogram equalisation wiki}
     "Histogram equalization." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Histogram_equalization} (accessed May 11, 2020).
+
+    \bibitem{Fourier transform wiki}
+    "Fourier transform." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Fourier_transform} (accessed May 12, 2020).
+
+    \bibitem{Fast Fourier transform wiki}
+    "Fast Fourier transform." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Fast_Fourier_transform} (accessed May 12, 2020).
+
+    \bibitem{Fourier transform lecture}
+    University of Oxford. (2014). 2D Fourier transforms and applications. [Online]. Available: \url{http://www.robots.ox.ac.uk/}
 
     \bibitem{SEM astigmatism correction}
     "Correcting Astigmatism in SEM Images." cambridge.org. \url{https://www.cambridge.org/core/journals/microscopy-today/article/correcting-astigmatism-in-sem-images/7ED43987C7916AAFBE1869522546AC84/core-reader} (accessed May 10, 2020).

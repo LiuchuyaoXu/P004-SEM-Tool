@@ -70,6 +70,16 @@ INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics-cfg\graphics.cfg
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics-cfg\graphics.cfg
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics-def\pdftex.def
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\graphics-def\pdftex.def
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amstext.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amstext.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty
+INPUT C:\Program Files\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\inputenc.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\base\inputenc.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\geometry\geometry.sty
@@ -111,11 +121,16 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmmi6.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmsy10.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmsy8.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmsy6.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmex10.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmr12.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx12.tfm
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.toc
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.toc
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx10.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 OUTPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.toc
 INPUT C:\Users\lx242\AppData\Local\MiKTeX\2.9\pdftex\config\pdftex.map
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmbx12.tfm
@@ -185,6 +200,17 @@ INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FT.jpg
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FT.jpg
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FT.jpg
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\jknappen\ec\tcrm1000.tfm
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\Correction algorithm flowchart.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\Correction algorithm flowchart.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\Correction algorithm flowchart.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\Correction algorithm flowchart.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\Correction algorithm flowchart.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FFT regions.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FFT regions.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FFT regions.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FFT regions.jpg
+INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\FFT regions.jpg
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\SEM astigmatism.jpg
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\SEM astigmatism.jpg
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Images\SEM astigmatism.jpg
@@ -195,6 +221,8 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmtt10.tfm
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.aux
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.out
 INPUT c:\Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.out
+INPUT C:\Users\lx242\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
+INPUT C:\Users\lx242\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\tcrm1000.pk
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx10.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx10.pfb
 INPUT C:\Program Files\MiKTeX 2.9\fonts\type1\public\amsfonts\cm\cmbx12.pfb

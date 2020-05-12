@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 2.9.7380 64-bit) (preloaded format=pdflatex 2020.4.11)  12 MAY 2020 18:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 2.9.7380 64-bit) (preloaded format=pdflatex 2020.4.11)  12 MAY 2020 21:54
 entering extended mode
 **"c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Final Report.tex"
 ("c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Final Report.tex"
@@ -155,55 +155,109 @@ File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen146
 \Gin@req@width=\dimen147
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsmath.sty"
+Package: amsmath 2020/01/20 v2.17e AMS math features
+\@mathmargin=\skip50
+
+For additional information on amsmath, use the `?' option.
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amstext.sty"
+Package: amstext 2000/06/29 v2.01 AMS text
+ ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsgen.sty"
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks16
+\ex@=\dimen148
+)) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsbsy.sty"
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen149
+) ("C:\Program Files\MiKTeX 2.9\tex/latex/amsmath\amsopn.sty"
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count189
+LaTeX Info: Redefining \frac on input line 227.
+\uproot@=\count190
+\leftroot@=\count191
+LaTeX Info: Redefining \overline on input line 389.
+\classnum@=\count192
+\DOTSCASE@=\count193
+LaTeX Info: Redefining \ldots on input line 486.
+LaTeX Info: Redefining \dots on input line 489.
+LaTeX Info: Redefining \cdots on input line 610.
+\Mathstrutbox@=\box45
+\strutbox@=\box46
+\big@size=\dimen150
+LaTeX Font Info:    Redeclaring font encoding OML on input line 733.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 734.
+\macc@depth=\count194
+\c@MaxMatrixCols=\count195
+\dotsspace@=\muskip17
+\c@parentequation=\count196
+\dspbrk@lvl=\count197
+\tag@help=\toks17
+\row@=\count198
+\column@=\count199
+\maxfields@=\count266
+\andhelp@=\toks18
+\eqnshift@=\dimen151
+\alignsep@=\dimen152
+\tagshift@=\dimen153
+\tagwidth@=\dimen154
+\totwidth@=\dimen155
+\lineht@=\dimen156
+\@envbody=\toks19
+\multlinegap=\skip51
+\multlinetaggap=\skip52
+\mathdisplay@stack=\toks20
+LaTeX Info: Redefining \[ on input line 2859.
+LaTeX Info: Redefining \] on input line 2860.
 ) ("C:\Program Files\MiKTeX 2.9\tex/latex/base\inputenc.sty"
 Package: inputenc 2018/08/11 v1.3c Input encoding file
-\inpenc@prehook=\toks16
-\inpenc@posthook=\toks17
+\inpenc@prehook=\toks21
+\inpenc@posthook=\toks22
 ) ("C:\Program Files\MiKTeX 2.9\tex/latex/geometry\geometry.sty"
 Package: geometry 2020/01/02 v5.9 Page Geometry
  ("C:\Program Files\MiKTeX 2.9\tex/generic/iftex\ifvtex.sty"
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 )
-\Gm@cnth=\count189
-\Gm@cntv=\count190
-\c@Gm@tempcnt=\count191
-\Gm@bindingoffset=\dimen148
-\Gm@wd@mp=\dimen149
-\Gm@odd@mp=\dimen150
-\Gm@even@mp=\dimen151
-\Gm@layoutwidth=\dimen152
-\Gm@layoutheight=\dimen153
-\Gm@layouthoffset=\dimen154
-\Gm@layoutvoffset=\dimen155
-\Gm@dimlist=\toks18
+\Gm@cnth=\count267
+\Gm@cntv=\count268
+\c@Gm@tempcnt=\count269
+\Gm@bindingoffset=\dimen157
+\Gm@wd@mp=\dimen158
+\Gm@odd@mp=\dimen159
+\Gm@even@mp=\dimen160
+\Gm@layoutwidth=\dimen161
+\Gm@layoutheight=\dimen162
+\Gm@layouthoffset=\dimen163
+\Gm@layoutvoffset=\dimen164
+\Gm@dimlist=\toks23
  ("C:\Program Files\MiKTeX 2.9\tex/latex/geometry\geometry.cfg")) ("C:\Program Files\MiKTeX 2.9\tex/latex/l3backend\l3backend-pdfmode.def"
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count192
-\l__pdf_internal_box=\box45
+\l__kernel_color_stack_int=\count270
+\l__pdf_internal_box=\box47
 ) ("c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.aux")
 \openout1 = `"Final Report.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 11.
-LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 12.
+LaTeX Font Info:    ... okay on input line 12.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: hyperref package is loaded.
 Package caption Info: End \AtBeginDocument code.
-\AtBeginShipoutBox=\box46
-Package hyperref Info: Link coloring OFF on input line 11.
+\AtBeginShipoutBox=\box48
+Package hyperref Info: Link coloring OFF on input line 12.
  ("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\nameref.sty"
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
  ("C:\Program Files\MiKTeX 2.9\tex/latex/refcount\refcount.sty"
@@ -211,28 +265,28 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ) ("C:\Program Files\MiKTeX 2.9\tex/generic/gettitlestring\gettitlestring.sty"
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count193
+\c@section@level=\count271
 )
-LaTeX Info: Redefining \ref on input line 11.
-LaTeX Info: Redefining \pageref on input line 11.
-LaTeX Info: Redefining \nameref on input line 11.
+LaTeX Info: Redefining \ref on input line 12.
+LaTeX Info: Redefining \pageref on input line 12.
+LaTeX Info: Redefining \nameref on input line 12.
  ("c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.out") ("c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.out")
 \@outlinefile=\write3
 \openout3 = `"Final Report.out"'.
 
  ("C:\Program Files\MiKTeX 2.9\tex/context/base/mkii\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count194
-\scratchdimen=\dimen156
-\scratchbox=\box47
-\nofMPsegments=\count195
-\nofMParguments=\count196
-\everyMPshowfont=\toks19
-\MPscratchCnt=\count197
-\MPscratchDim=\dimen157
-\MPnumerator=\count198
-\makeMPintoPDFobject=\count199
-\everyMPtoPDFconversion=\toks20
+\scratchcounter=\count272
+\scratchdimen=\dimen165
+\scratchbox=\box49
+\nofMPsegments=\count273
+\nofMParguments=\count274
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count275
+\MPscratchDim=\dimen166
+\MPnumerator=\count276
+\makeMPintoPDFobject=\count277
+\everyMPtoPDFconversion=\toks25
 ) ("C:\Program Files\MiKTeX 2.9\tex/latex/epstopdf-pkg\epstopdf-base.sty"
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
@@ -271,18 +325,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 13.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 13.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 13.
-("c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.toc"
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 2.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 2.
-)
+("c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.toc")
 \tf@toc=\write4
 \openout4 = `"Final Report.toc"'.
 
@@ -292,126 +335,137 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 <Images/SEM basic construction.jpg, id=107, 393.72093pt x 428.35031pt>
 File: Images/SEM basic construction.jpg Graphic file (type jpg)
 <use Images/SEM basic construction.jpg>
-Package pdftex.def Info: Images/SEM basic construction.jpg  used on input line 25.
+Package pdftex.def Info: Images/SEM basic construction.jpg  used on input line 26.
 (pdftex.def)             Requested size: 422.77664pt x 459.9578pt.
 <Images/SEM uneven focus.jpg, id=114, 367.3725pt x 485.56406pt>
 File: Images/SEM uneven focus.jpg Graphic file (type jpg)
 <use Images/SEM uneven focus.jpg>
-Package pdftex.def Info: Images/SEM uneven focus.jpg  used on input line 39.
+Package pdftex.def Info: Images/SEM uneven focus.jpg  used on input line 40.
 (pdftex.def)             Requested size: 140.92793pt x 186.27222pt.
 <Images/A in focus.jpg, id=115, 1027.84pt x 770.88pt>
 File: Images/A in focus.jpg Graphic file (type jpg)
 <use Images/A in focus.jpg>
-Package pdftex.def Info: Images/A in focus.jpg  used on input line 48.
+Package pdftex.def Info: Images/A in focus.jpg  used on input line 49.
 (pdftex.def)             Requested size: 140.92793pt x 105.68755pt.
 <Images/A out of focus.jpg, id=116, 1027.84pt x 770.88pt>
 File: Images/A out of focus.jpg Graphic file (type jpg)
 <use Images/A out of focus.jpg>
-Package pdftex.def Info: Images/A out of focus.jpg  used on input line 54.
+Package pdftex.def Info: Images/A out of focus.jpg  used on input line 55.
 (pdftex.def)             Requested size: 140.92793pt x 105.68755pt.
 <Images/A astigmatism.jpg, id=117, 1027.84pt x 770.88pt>
 File: Images/A astigmatism.jpg Graphic file (type jpg)
 <use Images/A astigmatism.jpg>
-Package pdftex.def Info: Images/A astigmatism.jpg  used on input line 60.
+Package pdftex.def Info: Images/A astigmatism.jpg  used on input line 61.
 (pdftex.def)             Requested size: 140.92793pt x 105.68755pt.
 <Images/B astigmatic a.jpeg, id=118, 505.89pt x 303.534pt>
 File: Images/B astigmatic a.jpeg Graphic file (type jpg)
 <use Images/B astigmatic a.jpeg>
-Package pdftex.def Info: Images/B astigmatic a.jpeg  used on input line 72.
+Package pdftex.def Info: Images/B astigmatic a.jpeg  used on input line 73.
 (pdftex.def)             Requested size: 140.92793pt x 84.5582pt.
 <Images/B astigmatic b.jpeg, id=119, 505.89pt x 350.87085pt>
 File: Images/B astigmatic b.jpeg Graphic file (type jpg)
 <use Images/B astigmatic b.jpeg>
-Package pdftex.def Info: Images/B astigmatic b.jpeg  used on input line 78.
+Package pdftex.def Info: Images/B astigmatic b.jpeg  used on input line 79.
 (pdftex.def)             Requested size: 140.92793pt x 97.74525pt.
  [2] [3 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/SEM basic construction.jpg>] [4 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/SEM uneven focus.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/A in focus.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/A out of focus.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/A astigmatism.jpg>] [5 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/B astigmatic a.jpeg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/B astigmatic b.jpeg>]
 <Images/C original.jpg, id=160, 301.125pt x 200.75pt>
 File: Images/C original.jpg Graphic file (type jpg)
 <use Images/C original.jpg>
-Package pdftex.def Info: Images/C original.jpg  used on input line 118.
+Package pdftex.def Info: Images/C original.jpg  used on input line 119.
 (pdftex.def)             Requested size: 140.92793pt x 93.95428pt.
 <Images/C original histogram.png, id=161, 301.125pt x 188.705pt>
 File: Images/C original histogram.png Graphic file (type png)
 <use Images/C original histogram.png>
-Package pdftex.def Info: Images/C original histogram.png  used on input line 124.
+Package pdftex.def Info: Images/C original histogram.png  used on input line 125.
 (pdftex.def)             Requested size: 140.92793pt x 88.31703pt.
 <Images/C equalised.jpg, id=162, 301.125pt x 200.75pt>
 File: Images/C equalised.jpg Graphic file (type jpg)
 <use Images/C equalised.jpg>
-Package pdftex.def Info: Images/C equalised.jpg  used on input line 130.
+Package pdftex.def Info: Images/C equalised.jpg  used on input line 131.
 (pdftex.def)             Requested size: 140.92793pt x 93.95428pt.
 <Images/C equalised histogram.png, id=163, 301.125pt x 198.7425pt>
 File: Images/C equalised histogram.png Graphic file (type png)
 <use Images/C equalised histogram.png>
-Package pdftex.def Info: Images/C equalised histogram.png  used on input line 136.
+Package pdftex.def Info: Images/C equalised histogram.png  used on input line 137.
 (pdftex.def)             Requested size: 140.92793pt x 93.01474pt.
 <Images/FFT on images.jpg, id=169, 758.835pt x 435.87843pt>
 File: Images/FFT on images.jpg Graphic file (type jpg)
 <use Images/FFT on images.jpg>
-Package pdftex.def Info: Images/FFT on images.jpg  used on input line 158.
+Package pdftex.def Info: Images/FFT on images.jpg  used on input line 159.
 (pdftex.def)             Requested size: 140.92793pt x 80.94884pt.
 <Images/FT.jpg, id=174, 226.59656pt x 179.92218pt>
 File: Images/FT.jpg Graphic file (type jpg)
 <use Images/FT.jpg>
-Package pdftex.def Info: Images/FT.jpg  used on input line 167.
+Package pdftex.def Info: Images/FT.jpg  used on input line 168.
 (pdftex.def)             Requested size: 140.92793pt x 111.89926pt.
-<Images/SEM astigmatism.jpg, id=179, 730.22812pt x 857.45343pt>
+ [6] [7 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C original.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C original histogram.png> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C equalised.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C equalised histogram.png> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/FFT on images.jpg>]
+<Images/Correction algorithm flowchart.jpg, id=202, 432.11438pt x 795.72281pt>
+File: Images/Correction algorithm flowchart.jpg Graphic file (type jpg)
+<use Images/Correction algorithm flowchart.jpg>
+Package pdftex.def Info: Images/Correction algorithm flowchart.jpg  used on input line 217.
+(pdftex.def)             Requested size: 328.82707pt x 605.54483pt.
+<Images/FFT regions.jpg, id=205, 335.00156pt x 333.49594pt>
+File: Images/FFT regions.jpg Graphic file (type jpg)
+<use Images/FFT regions.jpg>
+Package pdftex.def Info: Images/FFT regions.jpg  used on input line 224.
+(pdftex.def)             Requested size: 422.77664pt x 420.87372pt.
+<Images/SEM astigmatism.jpg, id=208, 730.22812pt x 857.45343pt>
 File: Images/SEM astigmatism.jpg Graphic file (type jpg)
 <use Images/SEM astigmatism.jpg>
-Package pdftex.def Info: Images/SEM astigmatism.jpg  used on input line 179.
+Package pdftex.def Info: Images/SEM astigmatism.jpg  used on input line 231.
 (pdftex.def)             Requested size: 422.77664pt x 496.43364pt.
- [6] [7 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C original.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C original histogram.png> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C equalised.jpg> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/C equalised histogram.png> <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/FFT on images.jpg>] [8 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/FT.jpg>] [9 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/SEM astigmatism.jpg>]
-Underfull \hbox (badness 6910) in paragraph at lines 237--238
+ [8 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/FT.jpg>] [9 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/Correction algorithm flowchart.jpg>] [10 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/FFT regions.jpg>] [11 <c:/Users/lx242/OneDrive/Extern - Projects/E006-SEM-Tool/Information/Report - Final/Images/SEM astigmatism.jpg>] [12]
+Underfull \hbox (badness 6910) in paragraph at lines 289--290
 []\OT1/cmr/m/n/10 "Scanning elec-tron mi-cro-scope." en.wikipedia.org. []$\OT1/cmtt/m/n/10 https : / / en . wikipedia . org / wiki / Scanning _
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 240--241
+Underfull \hbox (badness 10000) in paragraph at lines 292--293
 []\OT1/cmr/m/n/10 "Histogram equal-iza-tion." en.wikipedia.org. []$\OT1/cmtt/m/n/10 https : / / en . wikipedia . org / wiki / Histogram _
  []
 
 
-Underfull \hbox (badness 1609) in paragraph at lines 243--244
+Underfull \hbox (badness 1609) in paragraph at lines 295--296
 []\OT1/cmr/m/n/10 "Fourier trans-form." en.wikipedia.org. []$\OT1/cmtt/m/n/10 https : / / en . wikipedia . org / wiki / Fourier _ transform$[] \OT1/cmr/m/n/10 (ac-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 246--247
+Underfull \hbox (badness 10000) in paragraph at lines 298--299
 []\OT1/cmr/m/n/10 "Fast Fourier trans-form." en.wikipedia.org. []$\OT1/cmtt/m/n/10 https : / / en . wikipedia . org / wiki / Fast _ Fourier _
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 252--253
+Underfull \hbox (badness 10000) in paragraph at lines 304--305
 []\OT1/cmr/m/n/10 "Correcting Astig-ma-tism in SEM Im-ages." cam-bridge.org. []$\OT1/cmtt/m/n/10 https : / / www . cambridge . org /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 252--253
+Underfull \hbox (badness 10000) in paragraph at lines 304--305
 \OT1/cmtt/m/n/10 core / journals / microscopy-[]today / article / correcting-[]astigmatism-[]in-[]sem-[]images /
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 254.
-[10]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 254.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 306.
+[13]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 306.
  ("c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.aux")
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 254.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 254.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 306.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 306.
 Package rerunfilecheck Info: File `"Final Report".out' has not changed.
 (rerunfilecheck)             Checksum: 422C910B92DBEDC5C2C652DD5B207CBF;1214.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 254.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 306.
  ) 
 Here is how much of TeX's memory you used:
- 6989 strings out of 480930
- 113105 string characters out of 2909547
- 376275 words of memory out of 3000000
- 22701 multiletter control sequences out of 15000+200000
- 537406 words of font info for 41 fonts, out of 3000000 for 9000
+ 7619 strings out of 480930
+ 120532 string characters out of 2909547
+ 389580 words of memory out of 3000000
+ 23300 multiletter control sequences out of 15000+200000
+ 538869 words of font info for 47 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,7n,42p,930b,462s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on "c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.pdf" (10 pages, 2556498 bytes).
+ 41i,16n,42p,930b,466s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\lx242\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on "c:/Users\lx242\OneDrive\Extern - Projects\E006-SEM-Tool\Information\Report - Final\Final Report.pdf" (13 pages, 2691058 bytes).
 PDF statistics:
- 289 PDF objects out of 1000 (max. 8388607)
- 51 named destinations out of 1000 (max. 500000)
- 215 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 325 PDF objects out of 1000 (max. 8388607)
+ 61 named destinations out of 1000 (max. 500000)
+ 225 words of extra memory for PDF output out of 10000 (max. 10000000)
 

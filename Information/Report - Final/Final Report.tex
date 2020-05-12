@@ -91,22 +91,63 @@ The project focuses on developing tools that use Fast Fourier Transform (FFT) to
 
 \section{The Algorithms}
 \subsection{Histogram Equalisation}
-The idea of histogram.
-The maths of histogram.
-Demonstration of the algorithm.
-Speed test of the algorithm.
+There are many types of histograms in image processing. The grey level (brightness level) pixel intensity histogram, which plots the number of pixels of each grey value in the image, is the most relevant one for SEM images. This is because an SEM translates the energy of the secondary electrons directly into a grey level, colours do not exist in SEM images.
+
+The algorithm for obtaining the histogram of an SEM image is given by
+\begin{equation}
+    n_l = \frac{1}{P} \sum_{p} I(l_p=l)
+\end{equation}
+where $n_l$ is the normalised number of pixels of grey level $l$, $P$ is the total number of pixels in the image and $l_p$ is the grey level of the $p_{th}$ pixel. 
+
+Figure \ref{C original} shows an 8-bit grey-scale image, i.e. its depth of digitisation is 8-bit and it has 256 grey levels. Figure \ref{C original histogram} shows the histogram of the image and its integral. As can be seen in the histogram, most pixels are concentrated in the middle of the grey scale. This is reflected by the fact that the image is missing its highlights and shadows.
+
+Histogram equalisation is a method for adjusting the distribution of pixel intensities of an image, in order to improve its overall contrast. Effectively, it is achieved by spreading out the more frequent intensity values. To perform histogram equalisation, first obtain the integral of the histogram using
+\[s_l = \sum_{i=1}^{l} n_i\]
+where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and preform rounding to create the transform function
+\begin{equation}
+    f_l = \lfloor s_lL \rfloor
+\end{equation}
+If a pixel in the original image has grey level $l$, it will have grey level $f_l$ in the transformed image. For example, if all pixels in the original image are concentrated between grey level 100 to 200, the pixels of level 100 will become 0 in the new image while the pixels of level 200 will become 255 (assuming 8-bit image).
+
+The result is more noticeable when the image has a low contrast, such as the one shown in Figure \ref{C original}. The histogram-equalised version of it is given in Figure \ref{C equalised} and the new histogram in Figure \ref{C equalised histogram}. More details are now visible as the contrast has been enhanced.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{Images/C original.jpg}
+        \caption{Original image}
+        \label{C original}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{Images/C original histogram.png}
+        \caption{Histogram of original image}
+        \label{C original histogram}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{Images/C equalised.jpg}
+        \caption{Histogram-equalised image}
+        \label{C equalised}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.3\textwidth]{Images/C equalised histogram.png}
+        \caption{Histogram of histogram-equalised image}
+        \label{C equalised histogram}
+    \end{subfigure}
+    \caption{Histogram and histogram equalisation \cite{Histogram equalisation wiki}}
+    \label{Histogram and histogram equalisation}
+\end{figure}
 
 \subsection{Fast Fourier Transform} 
 Idea of FT.
 Maths of FFT.
-Demonstration.
-Speed test. 
 
 \subsection{Focusing and Astigmatism Correction}
 Idea.
 Algorithm and flow chart.
-Demonstration of current result.
-Next step.
 
 \section{The Software}
 \subsection{Overview}
@@ -133,13 +174,18 @@ Possible improvements.
 \section{Demonstrations}
 \subsection{Real-time Histogram Equalisation}
 Screenshots of the software.
+Demonstration of the algorithm.
+Speed test of the algorithm.
 
 \subsection{Real-time Fast Fourier Transform}
 Screenshots of the software.
+Demonstration of the algorithm.
+Speed test of the algorithm.
 
 \subsection{Automatic Focusing and Astigmatism Correction}
 Screenshots of the software.
-Test results.
+Demonstration of the algorithm.
+Speed test of the algorithm.
 
 \section{Next Steps}
 Next steps.
@@ -157,6 +203,9 @@ Next steps.
     
     \bibitem{SEM wiki}
     "Scanning electron microscope." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Scanning_electron_microscope} (accessed May 9, 2020).
+
+    \bibitem{Histogram equalisation wiki}
+    "Histogram equalization." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Histogram_equalization} (accessed May 11, 2020).
 
     \bibitem{SEM astigmatism correction}
     "Correcting Astigmatism in SEM Images." cambridge.org. \url{https://www.cambridge.org/core/journals/microscopy-today/article/correcting-astigmatism-in-sem-images/7ED43987C7916AAFBE1869522546AC84/core-reader} (accessed May 10, 2020).

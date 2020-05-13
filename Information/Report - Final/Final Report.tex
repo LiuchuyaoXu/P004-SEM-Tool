@@ -304,17 +304,23 @@ The following code demonstrate how to initialise an \textit{SemImage} instance, 
     image.applyHistogramEqualisation()
 \end{lstlisting}
 
-\subsection{SemTool}
-Idea of the module.
-Classes and functions.
-Demo code.
-Possible improvements.
+\subsection{Masker}
+A key factor that affects the performance of the automatic focusing and astigmatism correction algorithm is the speed of performing segmentation on the FFTs. The most straightforward way of doing it is to iterate through the whole matrix while calculating the sums in pure Python, for every FFT. This has a time complexity of $O(N^2)$. The \textit{Masker} module provides a faster solution.
 
-\subsection{SemCorrector}
-Idea of the module.
-Classes and functions.
-Demo code.
-Possible improvements.
+A \textit{Masker} can be initialised with a 2D shape, and it will create eight matrices, each representing a region as shown in Fig. \ref{FFT regions}. For example, if the input is $[5, 7]$, the matrix created for region R1 will be
+\begin{align*}
+\begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1\\
+1 & 1 & 1 & 1 & 1 & 1 & 0\\
+1 & 1 & 1 & 0 & 0 & 0 & 0\\
+1 & 1 & 1 & 1 & 1 & 1 & 0\\
+1 & 1 & 1 & 1 & 1 & 1 & 1
+\end{bmatrix}.
+\end{align*}
+The algorithm ensures that there is no overlapping between matrices apart from at the center. After obtaining the matrix for region R1, the sum of of values in an FFT in R1 can be calculated using the \textit{numpy.ma} module:
+\begin{lstlisting}[language=Python]
+    ma.array(fft, mask=masker.r1).sum()
+\end{lstlisting}
 
 \section{Demonstrations}
 \subsection{Real-time Histogram Equalisation}
@@ -334,6 +340,8 @@ Speed test of the algorithm.
 
 \section{Next Steps}
 Next steps.
+
+Need to add more details on how things were made fast.
 
 \begin{thebibliography}{00}
     \bibitem{SEM wiki}

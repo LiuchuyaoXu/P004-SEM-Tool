@@ -289,15 +289,20 @@ An image is effectively a finite sequence of data, and this can cause boundary e
 \end{figure}
 
 The \textit{applyHistogramEqualisation()} method implements the algorithm as described in \ref{Histogram Equalisation}. The most time-consuming part of the algorithm is to map all pixels in the original image to their new values using the transform function \eqref{Histogram equalisation transform function}. To achieve good performance, the software uses the Python \textit{map()} function together with the \textit{lambda} operator, which iterates through all pixels in the image and thus has time complexity of $O(N^2)$. This is not optimal and better complexity may be achieved by utilising the GPU. However, that would make the code more complex and harder to read, since the \textit{cupy} package does not provide a straightforward solution to it. With \textit{map()} and \textit{lambda}, the transformation can be implemented in one line:
-\begin{lstlisting}
-map(lambda x: trans[x], image)
+\begin{lstlisting}[language=Python]
+    map(lambda x: trans[x], image)
 \end{lstlisting}
 \textit{trans} is an array that serves as the transformation function, if the original pixel value is \textit{x}, the new value should be \textit{trans[x]}. The \textit{lambda} operator is a way to create small anonymous functions, which are throw-away functions and are only needed where they are created. \textit{lambda x: trans[x]} creates an anonymous function which returns \textit{trans[x]} when given \textit{x}, and \textit{map()} uses this function to transform all pixels in \textit{image}.
 
 Both \textit{updateFft()} and \textit{updateHistogram()} use functions in \textit{cupy} to perform the calculations. Since \textit{cupy} may not always be available due do the hardware environment, the software automatically switches to \textit{numpy} when \textit{cupy} cannot be used.
 
 The following code demonstrate how to initialise an \textit{SemImage} instance, apply Hamming window to the image, copy its FFT to the variable \textit{fft} and apply histogram equalisation to it.
-\lstinputlisting[language=Python]{Code/SemImage.py}
+\begin{lstlisting}[language=Python]
+    image = SemImage(data)
+    image.applyHamming()
+    fft = image.fft
+    image.applyHistogramEqualisation()
+\end{lstlisting}
 
 \subsection{SemTool}
 Idea of the module.

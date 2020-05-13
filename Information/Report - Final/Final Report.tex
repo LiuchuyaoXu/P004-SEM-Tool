@@ -97,7 +97,7 @@ Fast computing can aid the operators in a few ways. Firstly, a numerical evaluat
 The project focuses on developing tools that use Fast Fourier Transform (FFT) to help operators evaluate the focusing and astigmatism of SEM images, and also looks into an algorithm for the automatic correction of them.
 
 \section{Algorithms}
-\subsection{Histogram Equalisation}
+\subsection{Histogram Equalisation} \label{Histogram Equalisation}
 There are many types of histograms in image processing. The grey level (brightness level) pixel intensity histogram, which plots the number of pixels of each grey value in the image, is the most relevant one for SEM images. This is because an SEM translates the energy of the secondary electrons directly into a grey level, colours do not exist in SEM images.
 
 The algorithm for obtaining the histogram of an SEM image is given by
@@ -143,6 +143,7 @@ Histogram equalisation is a method for adjusting the distribution of pixel inten
 where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and preform rounding to create the transform function
 \begin{equation}
     f_l = \lfloor s_lL \rfloor,
+    \label{Histogram equalisation transform function}
 \end{equation}
 If a pixel in the original image has grey level $l$, it will have grey level $f_l$ in the transformed image. For example, if all pixels in the original image are concentrated between grey level 100 to 200, the pixels of level 100 will become 0 in the new image while the pixels of level 200 will become 255 (assuming 8-bit image).
 
@@ -243,9 +244,9 @@ Fig. \ref{Correction algorithm flowchart} shows the general flow chart of the al
 \subsection{Overview}
 The software controls the SEM and takes images from it using its application programming interface (API). The API provided by the manufacturer supports only C++. To make development easier, a Python wrapper (SEM\_API.py) for the native API has been written by Luyang Han and is used by the software.
 
-There are four modules in the software --- \textit{SemTool}, \textit{SemImage}, \textit{SemCorrector} and \textit{Masker}. \textit{SemTool} handles the graphical user interface (GUI), \textit{SemImage} provides a class for containing an SEM image, \textit{SemCorrector} provides the automatic focusing and astigmatism correction algorithm and uses \textit{Masker} to efficiently segment the FFTs of images. The class diagram of the software is given in Fig. \ref{Software classes}, showing only the major classes. The modularity improves the readability of the code and makes it easier to maintain and develop.
+The architecture of the software is designed with a priority on maintainability. There are four modules in the software --- \textit{SemTool}, \textit{SemImage}, \textit{SemCorrector} and \textit{Masker}. \textit{SemTool} handles the graphical user interface (GUI), \textit{SemImage} provides a class for containing an SEM image, \textit{SemCorrector} provides the automatic focusing and astigmatism correction algorithm and uses \textit{Masker} to efficiently segment the FFTs of images. The class diagram of the software is given in Fig. \ref{Software classes}, showing only the major classes. The modularity improves the readability of the code and makes it easier to maintain and develop.
 
-The Python \textit{numpy} and \textit{cupy} library are the main packages used for performing mathematical operations. \textit{Numpy} provides an interface to be used in Python, but uses C++ code that runs on the CPU at the bottom level to improve performance. \textit{Cupy} provides a similar interface as \textit{numpy}, but runs the code on the GPU. The parallel processing power of the GPU can make \textit{cupy} way faster than \textit{numpy} for calculations involving matrices, such as calculating the FFT of an image. To ensure good performance, algorithms written in pure Python are avoided wherever possible.
+The Python \textit{numpy} and \textit{cupy} library are the main packages used for performing mathematical operations. \textit{Numpy} provides an interface to be used in Python, but implements the functions using C code at the bottom level, which run on the CPU directly and improve performance. \textit{Cupy} provides a similar interface as \textit{numpy}, but runs the code on the GPU. The parallel processing power of the GPU can make \textit{cupy} way faster than \textit{numpy} for calculations involving matrices, such as calculating the FFT of an image. To ensure good performance, algorithms written in pure Python are avoided wherever possible.
 
 \begin{figure}[htbp]
     \centering
@@ -255,12 +256,48 @@ The Python \textit{numpy} and \textit{cupy} library are the main packages used f
 \end{figure}
 
 \subsection{SemImage}
-Each \textit{SemImage} contains 
+Fig. \ref{Software SemImage} shows the \textit{SemImage} class. It encapsulates all variables and methods that are directly relevant to an image taken by the SEM. Each \textit{SemImage} contains three \textit{numpy.ndarray} instances --- \textit{array}, \textit{fft} and \textit{histogram}, which store data of the image, its FFT and histogram, respectively.
 
-Idea of the module.
-Classes and functions.
-Demo code.
-Possible improvements.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Images/Software SemImage.png}
+    \caption{\textit{SemImage} class.}
+    \label{Software SemImage}
+\end{figure}
+
+An image is effectively a finite sequence of data, and this can cause boundary effect when its FFT is calculated. The abrupt discontinuity at the edges gives the FFT some strong high-frequency components. To circumvent this, the \textit{SemImage} class provides two methods --- \textit{applyHamming()} and \textit{applyHanning()}, which apply a Hamming and Hanning window function to the image data, respectively. The window functions taper the edges off towards zero, and thus reduce the boundary effect. Fig. \ref{Window functions} illustrates how they look like, and they can be obtained by setting $a_0$ to $0.5$ and $25/46$, respectively, in the function
+\begin{equation}
+    w[n] = a_0 - (1-a_0)\cdot \cos{\frac{2\pi n}{N}}, \quad 0\leq n \leq N.
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/Window Hamming.png}
+        \caption{Hamming window.}
+        \label{Window Hamming}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/Window Hanning.png}
+        \caption{Hanning window.}
+        \label{Window Hanning}
+    \end{subfigure}
+    \caption{Window functions \cite{Window function wiki}.}
+    \label{Window functions}
+\end{figure}
+
+The \textit{applyHistogramEqualisation()} method implements the algorithm as described in \ref{Histogram Equalisation}. The most time-consuming part of the algorithm is to map all pixels in the original image to their new values using the transform function \eqref{Histogram equalisation transform function}. To achieve good performance, the software uses the Python \textit{map()} function together with the \textit{lambda} operator, which iterates through all pixels in the image and thus has time complexity of $O(N^2)$. This is not optimal and better complexity may be achieved by utilising the GPU. However, that would make the code more complex and harder to read, since the \textit{cupy} package does not provide a straightforward solution to it. With \textit{map()} and \textit{lambda}, the transformation can be implemented in one line:
+\begin{lstlisting}
+map(lambda x: trans[x], image)
+\end{lstlisting}
+\textit{trans} is an array that serves as the transformation function, if the original pixel value is \textit{x}, the new value should be \textit{trans[x]}. The \textit{lambda} operator is a way to create small anonymous functions, which are throw-away functions and are only needed where they are created. \textit{lambda x: trans[x]} creates an anonymous function which returns \textit{trans[x]} when given \textit{x}, and \textit{map()} uses this function to transform all pixels in \textit{image}.
+
+Both \textit{updateFft()} and \textit{updateHistogram()} use functions in \textit{cupy} to perform the calculations. Since \textit{cupy} may not always be available due do the hardware environment, the software automatically switches to \textit{numpy} when \textit{cupy} cannot be used.
+
+The following code demonstrate how to initialise an \textit{SemImage} instance, apply Hamming window to the image, copy its FFT to the variable \textit{fft} and apply histogram equalisation to it.
+\lstinputlisting[language=Python]{Code/SemImage.py}
 
 \subsection{SemTool}
 Idea of the module.
@@ -317,8 +354,11 @@ Next steps.
 
     \bibitem{Fast Fourier transform wiki}
     "Fast Fourier transform." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Fast_Fourier_transform} (accessed May 12, 2020).
-
+    
     \bibitem{SEM astigmatation correction algorithm}
     K.H. Ong, J.C.H. Phang and J.T.L. Thong, "A robust focusing and astigmatism correction method for the scanning electron microscope," 1997, scanning 19: 553-563, doi: 10.1002/sca.4950190805.
+
+    \bibitem{Window function wiki}
+    "Window function." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Window_function} (accessed May 13, 2020).
 \end{thebibliography}
 \end{document}

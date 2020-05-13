@@ -1,6 +1,6 @@
 #   Author: Liuchuyao Xu, 2020
 # 
-#   Brief:  Implement the SemImage class, each SemImage encapsulates all data and methods relevant to a greyscale image.
+#   Brief:  Implement the SemImage class, each SemImage encapsulates all data and methods relevant to an 8-bit greyscale image.
 
 import numpy as np
 
@@ -25,9 +25,9 @@ class SemImage:
     def array(self, array):
         array = np.asarray(array, int)
         if len(array.shape) != 2:
-            raise TypeError("SemImage was not initialised with a 2d array.")
+            raise TypeError("SemImage was initialised with a wrong data type.")
         if array.max() > 255 or array.min() < 0:
-            raise TypeError("SemImage was not initialised with a grey-level image.")
+            raise TypeError("SemImage was initialised with a wrong data type.")
         self._array = array
 
     @property

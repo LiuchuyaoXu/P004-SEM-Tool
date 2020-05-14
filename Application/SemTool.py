@@ -26,16 +26,33 @@ except:
     SEM_API = None
     print("Warning, could not import SEM_API, SEM images will be read from a local folder.")
 
+class ImageGrabber():
+    def __init__(self, sem=None, imageDir=None):
+        if sem:
+            self.sem = sem
+        else:
+            self.sem = None
+            self.dir = imageDir
+            self.list = os.listdir(imageDir)
+            self.index = 1
+
+    def __call__(self):
+        if self.sem:
+            image = np.asarray(self.sem.img_array)
+            return SemImage(image)
+        else:
+            if self.index >= len(self.list):
+                self.index = 0
+            image = Image.open(os.path.join(self.dir, self.list[self.index]))
+            image = np.asarray(image)
+            self.index += 1
+            return SemImage(image)
+
 class SemTool(QtWidgets.QMainWindow):
-    def __init__(self, imageDir=None):
+    def __init__(self, imageGrabber):
         super().__init__()        
 
-        if SEM_API:
-            sem.UpdateImage_Start()
-        else:
-            self.imageDir = imageDir
-            self.images = os.listdir(self.imageDir)
-            self.imageIndex = 1
+        self.imageGrabber = imageGrabber
 
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
@@ -54,11 +71,7 @@ class SemTool(QtWidgets.QMainWindow):
         # for plot in plots:
         #     plot.axis("off")
 
-        if SEM_API:
-            image = SemImage(np.asarray(sem.img_array))
-        else:
-            image = Image.open(os.path.join(self.imageDir, self.images[self.imageIndex]))
-            image = SemImage(np.asarray(image))
+        image = self.imageGrabber()
 
         self.imagePlot = plots[0].imshow(image.array, cmap="gray", vmin=0, vmax=255)
         self.imageFftPlot = plots[1].imshow(image.fft, cmap="gray", vmin=0, vmax=255)
@@ -86,14 +99,7 @@ class SemTool(QtWidgets.QMainWindow):
     def updateCanvas(self):
         start = time.time()
 
-        if SEM_API:
-            image = SemImage(np.asarray(sem.img_array))
-        else:
-            image = Image.open(os.path.join(self.imageDir, self.images[self.imageIndex]))
-            image = SemImage(np.asarray(image))
-            self.imageIndex += 1
-            if self.imageIndex == len(self.images):
-                self.imageIndex = 0
+        image = self.imageGrabber()
 
         self.imagePlot.set_data(image.array)
 
@@ -117,11 +123,11 @@ if __name__ == "__main__":
     if SEM_API:
         with SEM_API.SEM_API("remote") as sem:
             app = QtWidgets.QApplication(sys.argv)
-            gui = SemTool()
+            gui = SemTool(ImageGrabber(sem=sem))
             gui.show()
             sys.exit(app.exec_())
     else:
         app = QtWidgets.QApplication(sys.argv)
-        gui = SemTool("./Images - For Testing SemCorrector")
+        gui = SemTool(ImageGrabber(imageDir="./Images - For Testing SemCorrector"))
         gui.show()
         sys.exit(app.exec_())

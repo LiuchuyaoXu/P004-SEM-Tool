@@ -1,6 +1,6 @@
 #   File:   SemTool.py
 #
-#   Brief:  Implement a class for properties and methods related to SEM real-time diagnostic tool GUI.
+#   Brief:  Implement classes related to the GUI of the diagnostic tool.
 # 
 #   Author: Liuchuyao Xu, 2020
 
@@ -23,15 +23,16 @@ from SemImage import SemImage
 try:
     import SEM_API
 except:
+    SEM_API = None
     print("Warning, could not import SEM_API, SEM images will be read from a local folder.")
 
 class SemTool(QtWidgets.QMainWindow):
     def __init__(self, imageDir=None):
         super().__init__()        
 
-        try:
+        if SEM_API:
             sem.UpdateImage_Start()
-        except:
+        else:
             self.imageDir = imageDir
             self.images = os.listdir(self.imageDir)
             self.imageIndex = 1
@@ -39,7 +40,7 @@ class SemTool(QtWidgets.QMainWindow):
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
         self.initCanvas()
-        self.initControlPanel()
+        # self.initControlPanel()
 
         self.frameTimer = QtCore.QTimer()
         self.frameTimer.timeout.connect(self.updateCanvas)
@@ -53,14 +54,14 @@ class SemTool(QtWidgets.QMainWindow):
         for plot in plots:
             plot.axis("off")
 
-        try:
+        if SEM_API:
             image = SemImage(np.asarray(sem.img_array))
-        except:
+        else:
             image = Image.open(os.path.join(self.imageDir, self.images[self.imageIndex]))
             image = SemImage(np.asarray(image))
 
-        self.imagePlot = plots[0].imshow(image.array, cmap="gray")
-        self.imageFftPlot = plots[1].imshow(np.log(image.fft))
+        self.imagePlot = plots[0].imshow(image.array, cmap="gray", vmin=0, vmax=255)
+        self.imageFftPlot = plots[1].imshow(image.fft, cmap="gray", vmin=0, vmax=255)
         self.imageHistPlot = plots[2].bar(np.arange(image.histogram.size), image.histogram, width=1)
         self.canvas.figure.canvas.draw()
 
@@ -84,9 +85,9 @@ class SemTool(QtWidgets.QMainWindow):
     def updateCanvas(self):
         start = time.time()
 
-        try:
+        if SEM_API:
             image = SemImage(np.asarray(sem.img_array))
-        except:
+        else:
             image = Image.open(os.path.join(self.imageDir, self.images[self.imageIndex]))
             image = SemImage(np.asarray(image))
             self.imageIndex += 1
@@ -94,8 +95,14 @@ class SemTool(QtWidgets.QMainWindow):
                 self.imageIndex = 0
 
         self.imagePlot.set_data(image.array)
+
         image.applyHanning()
-        self.imageFftPlot.set_data(np.log(image.fft))
+        fft = image.fft
+        fft = fft / fft.max()
+        fft = fft > 0.001
+        fft = fft * 255
+        self.imageFftPlot.set_data(fft)
+
         for bar, h in zip(self.imageHistPlot, image.histogram):
             bar.set_height(h)
         self.canvas.figure.canvas.draw()
@@ -104,14 +111,14 @@ class SemTool(QtWidgets.QMainWindow):
         print(end - start)
 
 if __name__ == "__main__":
-    try:
+    if SEM_API:
         with SEM_API.SEM_API("remote") as sem:
             app = QtWidgets.QApplication(sys.argv)
             gui = SemTool()
             gui.show()
             sys.exit(app.exec_())
-    except:
-            app = QtWidgets.QApplication(sys.argv)
-            gui = SemTool("./Images - For Testing SemCorrector")
-            gui.show()
-            sys.exit(app.exec_())
+    else:
+        app = QtWidgets.QApplication(sys.argv)
+        gui = SemTool("./Images - For Testing SemCorrector")
+        gui.show()
+        sys.exit(app.exec_())

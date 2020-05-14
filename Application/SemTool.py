@@ -7,7 +7,6 @@
 import os
 import sys
 import time
-
 import numpy as np
 from PyQt5 import QtGui
 from PyQt5 import QtCore
@@ -83,7 +82,7 @@ class SemTool(QtWidgets.QMainWindow):
 
         self.frameTimer = QtCore.QTimer()
         self.frameTimer.timeout.connect(self.updatePlots)
-        self.frameTimer.start(1000)
+        self.frameTimer.start(80)
 
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
@@ -92,6 +91,7 @@ class SemTool(QtWidgets.QMainWindow):
     def initPanel(self):
         panel = QtWidgets.QWidget(self)
         panel.setWindowTitle("Control Panel")
+        self.setCentralWidget(panel)
 
         imagePlotButton = QtWidgets.QPushButton("Image Plot")
         imagePlotButton.clicked.connect(self.openImagePlot)
@@ -117,8 +117,6 @@ class SemTool(QtWidgets.QMainWindow):
         layout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, panel)
         layout.insertWidget(0, buttonBox)
         layout.insertWidget(1, radioBox)
-
-        self.setCentralWidget(panel)
 
     def openImagePlot(self):
         self.imagePlot.show()

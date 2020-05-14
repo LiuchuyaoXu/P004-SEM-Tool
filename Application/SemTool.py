@@ -73,6 +73,9 @@ class FftPlot(MplCanvas):
     
     def updateData(self, semImage):
         data = semImage.fft
+        threshold = 2 * data.sum() / 1024 / 768
+        data = data > threshold
+        data = data * 255
         self.plot.set_data(data)
         self.figure.canvas.draw()
 
@@ -139,6 +142,7 @@ class SemTool(QtWidgets.QMainWindow):
         self.histPlot.show()
 
     def updatePlots(self):
+        start = time.time()
         image = self.imageGrabber()
         if self.imagePlot.isVisible():
             self.imagePlot.updateData(image)
@@ -146,6 +150,8 @@ class SemTool(QtWidgets.QMainWindow):
             self.fftPlot.updateData(image)
         if self.histPlot.isVisible():
             self.histPlot.updateData(image)
+        end = time.time()
+        print("Frame update time taken: ", end - start)
 
 if __name__ == "__main__":
     if SEM_API:

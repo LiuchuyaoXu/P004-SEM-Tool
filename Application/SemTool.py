@@ -71,6 +71,8 @@ class HistPlot(MplCanvas):
         self.figure.canvas.draw()
 
 class SemTool(QtWidgets.QMainWindow):
+    frameUpdated = QtCore.Signal()
+
     def __init__(self, imageGrabber):
         super().__init__()
 
@@ -80,13 +82,11 @@ class SemTool(QtWidgets.QMainWindow):
         self.fftPlot = FftPlot()
         self.histPlot = HistPlot()
 
-        self.frameTimer = QtCore.QTimer()
-        self.frameTimer.timeout.connect(self.updatePlots)
-        self.frameTimer.start(80)
-
+        self.initPanel()
         self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
-        self.initPanel()
+        self.frameUpdated.connect(self.updatePlots, QtCore.Qt.QueuedConnection)
+        self.updatePlots()
 
     def initPanel(self):
         panel = QtWidgets.QWidget(self)
@@ -128,20 +128,25 @@ class SemTool(QtWidgets.QMainWindow):
         self.histPlot.show()
 
     def updatePlots(self):
-        start = time.time()
-        image = self.imageGrabber()
-        if self.hanningButton.isChecked():
-            image.applyHanning()
-        if self.histEquButton.isChecked():
-            image.applyHistogramEqualisation()
-        if self.imagePlot.isVisible():
-            self.imagePlot.updateData(image)
-        if self.fftPlot.isVisible():
-            self.fftPlot.updateData(image)
-        if self.histPlot.isVisible():
-            self.histPlot.updateData(image)
-        end = time.time()
-        print("Frame update time taken: ", end - start)
+        if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible():
+            start = time.time()
+
+            image = self.imageGrabber()
+            if self.hanningButton.isChecked():
+                image.applyHanning()
+            if self.histEquButton.isChecked():
+                image.applyHistogramEqualisation()
+
+            if self.imagePlot.isVisible():
+                self.imagePlot.updateData(image)
+            if self.fftPlot.isVisible():
+                self.fftPlot.updateData(image)
+            if self.histPlot.isVisible():
+                self.histPlot.updateData(image)
+
+            end = time.time()
+            print("Frame update time taken: ", end - start)
+        self.frameUpdated.emit()
 
 if __name__ == "__main__":
     if SEM_API:

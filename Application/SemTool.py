@@ -112,15 +112,19 @@ class SemTool(QtWidgets.QMainWindow):
     def initPanel(self):
         panel = QtWidgets.QWidget(self)
         panel.setWindowTitle("Control Panel")
-
+        
         imagePlotButton = QtWidgets.QPushButton("Image Plot", panel)
         imagePlotButton.clicked.connect(self.openImagePlot)
-
         fftPlotButton = QtWidgets.QPushButton("FFT Plot", panel)
         fftPlotButton.clicked.connect(self.openFftPlot)
-
         histPlotButton = QtWidgets.QPushButton("Histogram Plot", panel)
         histPlotButton.clicked.connect(self.openHistPlot)
+
+        buttonBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
+        buttonBox.addButton(imagePlotButton, QtWidgets.QDialogButtonBox.ActionRole)
+        buttonBox.addButton(fftPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
+        buttonBox.addButton(histPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
+        buttonBox.setParent(panel)
 
         self.setCentralWidget(panel)
 
@@ -151,6 +155,6 @@ if __name__ == "__main__":
             sys.exit(app.exec_())
     else:
         app = QtWidgets.QApplication(sys.argv)
-        gui = SemTool2(ImageGrabber(imageDir="./Images - For Testing SemCorrector"))
+        gui = SemTool(ImageGrabber(imageDir="./Images - For Testing SemCorrector"))
         gui.show()
         sys.exit(app.exec_())

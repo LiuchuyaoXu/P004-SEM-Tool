@@ -51,8 +51,8 @@ class SemTool(QtWidgets.QMainWindow):
         self.setCentralWidget(self.canvas)
 
         plots = self.canvas.figure.subplots(1, 3)
-        for plot in plots:
-            plot.axis("off")
+        # for plot in plots:
+        #     plot.axis("off")
 
         if SEM_API:
             image = SemImage(np.asarray(sem.img_array))
@@ -62,7 +62,8 @@ class SemTool(QtWidgets.QMainWindow):
 
         self.imagePlot = plots[0].imshow(image.array, cmap="gray", vmin=0, vmax=255)
         self.imageFftPlot = plots[1].imshow(image.fft, cmap="gray", vmin=0, vmax=255)
-        self.imageHistPlot = plots[2].bar(np.arange(image.histogram.size), image.histogram, width=1)
+        hist = image.histogram / image.histogram.max()
+        self.imageHistPlot = plots[2].bar(np.arange(hist.size), hist, width=1)
         self.canvas.figure.canvas.draw()
 
     def initControlPanel(self):
@@ -103,7 +104,9 @@ class SemTool(QtWidgets.QMainWindow):
         fft = fft * 255
         self.imageFftPlot.set_data(fft)
 
-        for bar, h in zip(self.imageHistPlot, image.histogram):
+        # image.applyHistogramEqualisation()
+        hist = image.histogram / image.histogram.max()
+        for bar, h in zip(self.imageHistPlot, hist):
             bar.set_height(h)
         self.canvas.figure.canvas.draw()
 

@@ -83,10 +83,11 @@ class HistPlot(MplCanvas):
         self.setWindowTitle("Image Histogram")
 
         self.axes = self.figure.add_subplot()
-        self.plot = self.axes.bar(np.arange(256), np.zeros(256), width=1)
+        self.plot = self.axes.bar(np.arange(256), np.ones(256), width=1)
 
     def updateData(self, semImage):
         hist = semImage.histogram
+        hist = hist / hist.max()
         for bar, h in zip(self.plot, hist):
             bar.set_height(h)
         self.figure.canvas.draw()

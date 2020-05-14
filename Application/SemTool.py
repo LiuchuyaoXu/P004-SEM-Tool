@@ -9,8 +9,6 @@ import sys
 import time
 
 import numpy as np
-import numpy.ma as ma
-from PIL import Image
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
@@ -18,35 +16,13 @@ from matplotlib.figure import Figure as MplFigure
 from matplotlib.colors import LogNorm as MplLogNorm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MplCanvas
 
-from SemImage import SemImage
+from SemImageGrabber import SemImageGrabber
 
 try:
     import SEM_API
 except:
     SEM_API = None
     print("Warning, could not import SEM_API, SEM images will be read from a local folder.")
-
-class ImageGrabber():
-    def __init__(self, sem=None, imageDir=None):
-        if sem:
-            self.sem = sem
-        else:
-            self.sem = None
-            self.dir = imageDir
-            self.list = os.listdir(imageDir)
-            self.index = 1
-
-    def __call__(self):
-        if self.sem:
-            image = np.asarray(self.sem.img_array)
-            return SemImage(image)
-        else:
-            if self.index >= len(self.list):
-                self.index = 0
-            image = Image.open(os.path.join(self.dir, self.list[self.index]))
-            image = np.asarray(image)
-            self.index += 1
-            return SemImage(image)
 
 class ImagePlot(MplCanvas):
     def __init__(self):
@@ -173,11 +149,11 @@ if __name__ == "__main__":
     if SEM_API:
         with SEM_API.SEM_API("remote") as sem:
             app = QtWidgets.QApplication(sys.argv)
-            gui = SemTool(ImageGrabber(sem=sem))
+            gui = SemTool(SemImageGrabber(sem=sem))
             gui.show()
             sys.exit(app.exec_())
     else:
         app = QtWidgets.QApplication(sys.argv)
-        gui = SemTool(ImageGrabber(imageDir="./Images - For Testing SemCorrector"))
+        gui = SemTool(SemImageGrabber(imageDir="./Images - For Testing SemCorrector"))
         gui.show()
         sys.exit(app.exec_())

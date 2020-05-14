@@ -116,19 +116,31 @@ class SemTool(QtWidgets.QMainWindow):
     def initPanel(self):
         panel = QtWidgets.QWidget(self)
         panel.setWindowTitle("Control Panel")
-        
-        imagePlotButton = QtWidgets.QPushButton("Image Plot", panel)
+
+        imagePlotButton = QtWidgets.QPushButton("Image Plot")
         imagePlotButton.clicked.connect(self.openImagePlot)
-        fftPlotButton = QtWidgets.QPushButton("FFT Plot", panel)
+        fftPlotButton = QtWidgets.QPushButton("FFT Plot")
         fftPlotButton.clicked.connect(self.openFftPlot)
-        histPlotButton = QtWidgets.QPushButton("Histogram Plot", panel)
+        histPlotButton = QtWidgets.QPushButton("Histogram Plot")
         histPlotButton.clicked.connect(self.openHistPlot)
 
         buttonBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
         buttonBox.addButton(imagePlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(fftPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(histPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
-        buttonBox.setParent(panel)
+
+        self.hanningButton = QtWidgets.QRadioButton("Hanning Window")
+        self.hanningButton.setAutoExclusive(False)
+        self.histEquButton = QtWidgets.QRadioButton("Histogram Equalisation")
+        self.histEquButton.setAutoExclusive(False)
+
+        radioBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
+        radioBox.addButton(self.hanningButton, QtWidgets.QDialogButtonBox.ActionRole)
+        radioBox.addButton(self.histEquButton, QtWidgets.QDialogButtonBox.ActionRole)
+        
+        layout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, panel)
+        layout.insertWidget(0, buttonBox)
+        layout.insertWidget(1, radioBox)
 
         self.setCentralWidget(panel)
 
@@ -144,6 +156,10 @@ class SemTool(QtWidgets.QMainWindow):
     def updatePlots(self):
         start = time.time()
         image = self.imageGrabber()
+        if self.hanningButton.isChecked():
+            image.applyHanning()
+        if self.histEquButton.isChecked():
+            image.applyHistogramEqualisation()
         if self.imagePlot.isVisible():
             self.imagePlot.updateData(image)
         if self.fftPlot.isVisible():

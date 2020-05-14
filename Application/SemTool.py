@@ -48,76 +48,99 @@ class ImageGrabber():
             self.index += 1
             return SemImage(image)
 
+class ImagePlot(MplCanvas):
+    def __init__(self):
+        super().__init__(MplFigure())
+
+        self.setWindowTitle("Image")
+
+        self.axes = self.figure.add_subplot()
+        self.plot = self.axes.imshow(np.zeros([768, 1024]), cmap="gray", vmin=0, vmax=255)
+
+    def updateData(self, semImage):
+        data = semImage.array
+        self.plot.set_data(data)
+        self.figure.canvas.draw()
+
+class FftPlot(MplCanvas):
+    def __init__(self):
+        super().__init__(MplFigure())
+
+        self.setWindowTitle("Image FFT")
+
+        self.axes = self.figure.add_subplot()
+        self.plot = self.axes.imshow(np.zeros([768, 1024]), cmap="gray", vmin=0, vmax=255)
+    
+    def updateData(self, semImage):
+        data = semImage.fft
+        self.plot.set_data(data)
+        self.figure.canvas.draw()
+
+class HistPlot(MplCanvas):
+    def __init__(self):
+        super().__init__(MplFigure())
+
+        self.setWindowTitle("Image Histogram")
+
+        self.axes = self.figure.add_subplot()
+        self.plot = self.axes.bar(np.arange(256), np.zeros(256), width=1)
+
+    def updateData(self, semImage):
+        hist = semImage.histogram
+        for bar, h in zip(self.plot, hist):
+            bar.set_height(h)
+        self.figure.canvas.draw()
+
 class SemTool(QtWidgets.QMainWindow):
     def __init__(self, imageGrabber):
-        super().__init__()        
+        super().__init__()
 
         self.imageGrabber = imageGrabber
 
-        self.setWindowTitle("SEM Real-time Diagnostic Tool")
-
-        self.initCanvas()
-        # self.initControlPanel()
+        self.imagePlot = ImagePlot()
+        self.fftPlot = FftPlot()
+        self.histPlot = HistPlot()
 
         self.frameTimer = QtCore.QTimer()
-        self.frameTimer.timeout.connect(self.updateCanvas)
+        self.frameTimer.timeout.connect(self.updatePlots)
         self.frameTimer.start(1000)
 
-    def initCanvas(self):
-        self.canvas = MplCanvas(MplFigure())
-        self.setCentralWidget(self.canvas)
+        self.setWindowTitle("SEM Real-time Diagnostic Tool")
 
-        plots = self.canvas.figure.subplots(1, 3)
-        # for plot in plots:
-        #     plot.axis("off")
+        self.initPanel()
 
+    def initPanel(self):
+        panel = QtWidgets.QWidget(self)
+        panel.setWindowTitle("Control Panel")
+
+        imagePlotButton = QtWidgets.QPushButton("Image Plot", panel)
+        imagePlotButton.clicked.connect(self.openImagePlot)
+
+        fftPlotButton = QtWidgets.QPushButton("FFT Plot", panel)
+        fftPlotButton.clicked.connect(self.openFftPlot)
+
+        histPlotButton = QtWidgets.QPushButton("Histogram Plot", panel)
+        histPlotButton.clicked.connect(self.openHistPlot)
+
+        self.setCentralWidget(panel)
+
+    def openImagePlot(self):
+        self.imagePlot.show()
+
+    def openFftPlot(self):
+        self.fftPlot.show()
+
+    def openHistPlot(self):
+        self.histPlot.show()
+
+    def updatePlots(self):
         image = self.imageGrabber()
-
-        self.imagePlot = plots[0].imshow(image.array, cmap="gray", vmin=0, vmax=255)
-        self.imageFftPlot = plots[1].imshow(image.fft, cmap="gray", vmin=0, vmax=255)
-        hist = image.histogram / image.histogram.max()
-        self.imageHistPlot = plots[2].bar(np.arange(hist.size), hist, width=1)
-        self.canvas.figure.canvas.draw()
-
-    def initControlPanel(self):
-        panel = QtWidgets.QDockWidget("Control Panel", self)
-        panel.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
-
-        self.zoom = QtWidgets.QSlider(QtCore.Qt.Horizontal, panel)
-        self.zoom.setTickPosition(QtWidgets.QSlider.TicksBothSides)
-        self.zoom.setTickInterval(10)
-        self.zoom.setSingleStep(1)
-        self.zoom.setMinimum(1)
-        self.zoom.setMaximum(100)
-        self.zoom.valueChanged.connect(self.updateZoom)
-
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, panel)
-
-    def updateZoom(self, value):
-        self.zoom.setValue(value)
-
-    def updateCanvas(self):
-        start = time.time()
-
-        image = self.imageGrabber()
-
-        self.imagePlot.set_data(image.array)
-
-        image.applyHanning()
-        fft = image.fft
-        fft = fft / fft.max()
-        fft = fft > 0.001
-        fft = fft * 255
-        self.imageFftPlot.set_data(fft)
-
-        # image.applyHistogramEqualisation()
-        hist = image.histogram / image.histogram.max()
-        for bar, h in zip(self.imageHistPlot, hist):
-            bar.set_height(h)
-        self.canvas.figure.canvas.draw()
-
-        end = time.time()
-        print(end - start)
+        if self.imagePlot.isVisible():
+            self.imagePlot.updateData(image)
+        if self.fftPlot.isVisible():
+            self.fftPlot.updateData(image)
+        if self.histPlot.isVisible():
+            self.histPlot.updateData(image)
 
 if __name__ == "__main__":
     if SEM_API:
@@ -128,6 +151,6 @@ if __name__ == "__main__":
             sys.exit(app.exec_())
     else:
         app = QtWidgets.QApplication(sys.argv)
-        gui = SemTool(ImageGrabber(imageDir="./Images - For Testing SemCorrector"))
+        gui = SemTool2(ImageGrabber(imageDir="./Images - For Testing SemCorrector"))
         gui.show()
         sys.exit(app.exec_())

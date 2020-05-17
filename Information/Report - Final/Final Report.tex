@@ -255,6 +255,37 @@ The Python \textit{numpy} and \textit{cupy} library are the main packages used f
     \label{Software classes}
 \end{figure}
 
+Fig. \ref{Software screenshot} shows a screenshot of the GUI. The push buttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves frame rate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is the most time-consuming process in the software. Most of the time, the only window needed is the FFT plot, which means a framerate of about 16 is possible. The automatic focusing and astigmatism correction algorithm has not been fully tested due to the impact of the COVID-19 pandemic, and is therefore not yet integrated to the GUI.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Images/Software screenshot.jpg}
+    \caption{Screenshot of the Software.}
+    \label{Software screenshot}
+\end{figure}
+
+\begin{table}[htbp]
+    \caption{Results of software framerate test}
+    \begin{center}
+    \begin{tabular}{|c|c|}
+    \hline
+     & \textbf{Framerate} \\
+    \hline
+    no windows, no algorithms & 10 ms \\
+    \hline
+    one window, no algorithms & 60 ms \\
+    \hline
+    three windows, no algorithms & 180 ms \\
+    \hline
+    three windows, two algorithms & 200 ms \\
+    \hline
+    \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
+    \multicolumn{2}{l}{$^{\mathrm{b}}$With Intel Core i7 and Nvidia GeForce GTX 1060.}
+    \end{tabular}
+    \label{Software framerates}
+    \end{center}
+\end{table}
+
 \subsection{SemImage}
 Fig. \ref{Software SemImage} shows the \textit{SemImage} class. It encapsulates all variables and methods that are directly relevant to an image taken by the SEM. Each \textit{SemImage} contains three \textit{numpy.ndarray} instances --- \textit{array}, \textit{fft} and \textit{histogram}, which store data of the image, its FFT and histogram, respectively.
 
@@ -321,43 +352,6 @@ The algorithm ensures that there is no overlapping between matrices apart from a
 \begin{lstlisting}[language=Python]
     ma.array(fft, mask=masker.r1).sum()
 \end{lstlisting}
-
-\section{Demonstrations}
-Fig. \ref{Software screenshot} shows a screenshot of the GUI. The push buttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves frame rate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is the most time-consuming process in the software. Most of the time, the only window needed is the FFT plot, which means a framerate of about 16 is possible. The automatic focusing and astigmatism correction algorithm has not been fully tested due to the impact of the COVID-19 pandemic, and is therefore not yet integrated to the GUI.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.4\textwidth]{Images/Software screenshot.jpg}
-    \caption{Screenshot of the Software.}
-    \label{Software screenshot}
-\end{figure}
-
-\begin{table}[htbp]
-    \caption{Results of software framerate test}
-    \begin{center}
-    \begin{tabular}{|c|c|}
-    \hline
-     & \textbf{Framerate} \\
-    \hline
-    no windows, no algorithms & 10 ms \\
-    \hline
-    one window, no algorithms & 60 ms \\
-    \hline
-    three windows, no algorithms & 180 ms \\
-    \hline
-    three windows, two algorithms & 200 ms \\
-    \hline
-    \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
-    \multicolumn{2}{l}{$^{\mathrm{b}}$With Intel Core i7 and Nvidia GeForce GTX 1060.}
-    \end{tabular}
-    \label{Software framerates}
-    \end{center}
-\end{table}
-
-\section{Next Steps}
-Next steps.
-
-Need to add more details on how things were made fast.
 
 \begin{thebibliography}{00}
     \bibitem{SEM wiki}

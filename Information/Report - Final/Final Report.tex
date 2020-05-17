@@ -24,7 +24,7 @@
 \end{abstract}
 
 \section{Introduction}
-The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. Higher resolution can be achieved compared to the traditional optical microscope, since electrons have much lower wavelength than light. An SEM can have resolution lower than one nanometre, whereas that of an optical microscope is often limited to a few hundred nanometres \cite{SEM wiki}. This has benefited a variety of fields. For example, scientists have been using the SEM to analyse the doping density in semiconductor \cite{SEM for semiconductor}. The goal of the project is to develop software tools in Python to support diagnosis of SEM images for the purpose of assisting the operator or automating procedures.
+The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. Higher resolution can be achieved compared to the traditional optical microscope, since electrons have much lower wavelength than light. An SEM can have resolution lower than one nanometre, whereas that of an optical microscope is often limited to a few hundred nanometres \cite{SEM wiki}. This has benefited a variety of fields. For example, scientists have been using the SEM to analyse the doping density in semiconductors \cite{SEM for semiconductor} and to view changes in bacterial cells \cite{SEM for bacterial cells}.
 
 Fig. \ref{SEM basic construction} shows the basic construction of an SEM. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons are emitted from the specimen. These are called secondary electrons and are collected by the detector, which generates signals whose magnitude depend on the strength of the secondary electrons. The display unit produces one frame after each complete scan of the specimen.
 
@@ -94,7 +94,12 @@ Although experienced SEM operators can often find the right settings for focus a
 
 Fast computing can aid the operators in a few ways. Firstly, a numerical evaluation of the quality of the image may be provided, which eliminates the subjectivity in using human eyes. Numbers are also easier to note down if any record is required. Two operators may have different views on the same image, but the numbers will not be different. Therefore, cooperation and communication between operators can be enhanced. The use of numbers also enable automatic procedures for adjusting settings of the SEM, which save time and may produce better results than doing it manually.
 
-The project focuses on developing tools that use Fast Fourier Transform (FFT) to help operators evaluate the focusing and astigmatism of SEM images, and also looks into an algorithm for the automatic correction of them.
+\section{GPU, fast computing and the project}
+The graphics processing unit (GPU) was originally designed to efficiently manipulate data in order to accelerate the rendering of 3D images on displays. Depending on the position, pixels in a 3D image may require different processing to achieve effects such as lighting, blurring and fogging. This is achieved by breaking down the image into a massive number of fragments and processing each fragment individually. The processes happen independently but may share the same logical sequence of control, and this pattern is named single instruction multiple data (SIMD). A GPU consists of a large array of processing cores, with each of them using SIMD to process a block of fragments.
+
+The characteristic of the GPU allows it to outperform central processing units (CPUs) when performing algorithms that manipulate data in parallel. Take the dot product between two vectors of size 1000 as an example, the processing cores on the GPU may be 100 times slower than the CPU, but if 1000 of them work in parallel and each computes the multiplication of one element from each vector, the overall speed will be 10 times faster. This has allowed computer vision programs that were previously impossible or computationally too expensive to build. For example, a wearable mediated reality device that make computer-generated information appear to the user as though it was anchored in the real world \cite{Mediated reality using GPU}.
+
+The goal of the project is to develop software tools based on fast computation provided by the GPU, to support real-time diagnosis of SEM images for the purpose of assisting the operator or automating procedures, which has only been possible off-line.
 
 \section{Algorithms}
 \subsection{Histogram Equalisation} \label{Histogram Equalisation}
@@ -280,7 +285,7 @@ Fig. \ref{Software screenshot} shows a screenshot of the GUI. The push buttons o
     three windows, two algorithms & 200 ms \\
     \hline
     \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
-    \multicolumn{2}{l}{$^{\mathrm{b}}$With Intel Core i7 and Nvidia GeForce GTX 1060.}
+    \multicolumn{2}{l}{$^{\mathrm{b}}$With Intel Core i7 and NVIDIA GeForce GTX 1060.}
     \end{tabular}
     \label{Software framerates}
     \end{center}
@@ -360,11 +365,17 @@ The algorithm ensures that there is no overlapping between matrices apart from a
     \bibitem{SEM for semiconductor}
     T. Agemura and T. Sekiguchi, "Secondary electron spectroscopy for imaging semiconductor materials," 2018 International Symposium on Semiconductor Manufacturing (ISSM), Tokyo, Japan, 2018, pp. 1-3, doi: 10.1109/ISSM.2018.8651171.
 
+    \bibitem{SEM for bacterial cells}
+    T. Cushnie, N. O’Driscoll and A. Lamb, "Morphological and ultrastructural changes in bacterial cells as an indicator of antibacterial mechanism of action", Cellular and Molecular Life Sciences, vol. 73, no. 23, pp. 4471-4492, 2016. Available: 10.1007/s00018-016-2302-2 [Accessed 17 May 2020].
+
     \bibitem{SEM A to Z}
     \textit{Scanning Electron Microscope A to Z}. JEOL Ltd. [Online]. Available: \url{https://www.jeol.co.jp/en/applications/pdf/sm/sem_atoz_all.pdf}. Accessed: May 9, 2020.
 
     \bibitem{SEM astigmatism correction}
     "Correcting Astigmatism in SEM Images." cambridge.org. \url{https://www.cambridge.org/core/journals/microscopy-today/article/correcting-astigmatism-in-sem-images/7ED43987C7916AAFBE1869522546AC84/core-reader} (accessed May 10, 2020).
+
+    \bibitem{Mediated reality using GPU}
+    Fung, et al., "Mediated Reality Using Computer Graphics Hardware for Computer Vision" Archived 2 April 2012 at the Wayback Machine, Proceedings of the International Symposium on Wearable Computing 2002 (ISWC2002), Seattle, Washington, USA, 7–10 October 2002, pp. 83–89.
 
     \bibitem{Histogram equalisation wiki}
     "Histogram equalization." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Histogram_equalization} (accessed May 11, 2020).

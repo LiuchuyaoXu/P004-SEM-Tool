@@ -323,20 +323,36 @@ The algorithm ensures that there is no overlapping between matrices apart from a
 \end{lstlisting}
 
 \section{Demonstrations}
-\subsection{Real-time Histogram Equalisation}
-Screenshots of the software.
-Demonstration of the algorithm.
-Speed test of the algorithm.
+Fig. \ref{Software screenshot} shows a screenshot of the GUI. The push buttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves frame rate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is the most time-consuming process in the software. Most of the time, the only window needed is the FFT plot, which means a framerate of about 16 is possible. The automatic focusing and astigmatism correction algorithm has not been fully tested due to the impact of the COVID-19 pandemic, and is therefore not yet integrated to the GUI.
 
-\subsection{Real-time Fast Fourier Transform}
-Screenshots of the software.
-Demonstration of the algorithm.
-Speed test of the algorithm.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Images/Software screenshot.jpg}
+    \caption{Screenshot of the Software.}
+    \label{Software screenshot}
+\end{figure}
 
-\subsection{Automatic Focusing and Astigmatism Correction}
-Screenshots of the software.
-Demonstration of the algorithm.
-Speed test of the algorithm.
+\begin{table}[htbp]
+    \caption{Results of software framerate test}
+    \begin{center}
+    \begin{tabular}{|c|c|}
+    \hline
+     & \textbf{Framerate} \\
+    \hline
+    no windows, no algorithms & 10 ms \\
+    \hline
+    one window, no algorithms & 60 ms \\
+    \hline
+    three windows, no algorithms & 180 ms \\
+    \hline
+    three windows, two algorithms & 200 ms \\
+    \hline
+    \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
+    \multicolumn{2}{l}{$^{\mathrm{b}}$With Intel Core i7 and Nvidia GeForce GTX 1060.}
+    \end{tabular}
+    \label{Software framerates}
+    \end{center}
+\end{table}
 
 \section{Next Steps}
 Next steps.

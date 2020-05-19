@@ -25,7 +25,7 @@ Fig. \ref{SEM basic construction} shows the basic construction of an SEM. The el
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.5\textwidth]{Images/SEM basic construction.jpg}
+    \includegraphics[width=0.45\textwidth]{Images/SEM basic construction.jpg}
     \caption{Basic construction of an SEM \cite{SEM A to Z}.}
     \label{SEM basic construction}
 \end{figure}
@@ -38,41 +38,104 @@ The characteristic of the GPU allows it to outperform central processing units (
 
 The goal of the project is to develop software tools based on fast computation provided by the GPU, to support interactive real-time diagnosis of SEM images for the purpose of assisting the operator or automating procedures, with a focus on the use of FFT.
 
-\section{Overview}
+\section{Software aspects of the tools}
+\subsection{Design principle}
+Considering that the work of the project may serve as the foundation stone for many further developments, the design of the software has a strong emphasis on readability and maintainability.
+
+\subsection{The selection of programming language}
+The SEM used for the project is made by Carl Zeiss AG, which provides an application programming interface (API) that can be used for controlling the SEM and grabbing images from it. The API supports C++ and thus makes it a possible programming language for the project. Being a relatively low-level compiled language makes C++ extremely fast and useful for speed-critical applications. However, it also means that C++ has a complex syntax, which could significantly slow down development if the user does not have enough experience with it.
+
+Considering the time scale of the project and to make development easier for people who will continue the work, Python is selected instead as the programming language, which has a much simpler syntax and is widely supported. With careful design, it has proved to be able to produce useful results despite the slower speed (see later sections).
+
+\subsection{Modules of the software}
+The software is highly modularised, which maximises readability and maintainability. This also makes it easier to translate the programs into C++ later if better performance is needed, since C++ is mostly used in an object-oriented manner. Fig. \ref{Software class diagram} shows the six main classes of the software.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Images/Software class diagram.png}
+    \caption{Class diagram of the software in unified modelling language (UML)}
+    \label{Software class diagram}
+\end{figure}
+
+\textit{SEM\_API} is a Python wrapper for the native SEM API written by Luyang Han, which allows the user to directly control the SEM in Python.
+
+\textit{SemImage} encapsulates variables and methods that are directly relevant to an image taken by the SEM, and \textit{SemImageGrabber} is a helper class that helps obtain image data from the SEM and create instances of \textit{SemImage} from them. Images can be obtained in two ways:
+\begin{itemize}
+    \item From the SEM.
+    \item From a local folder, which is helpful when the SEM is not available.
+\end{itemize}
+\textit{SemImageGrabber} detects if the SEM is available and decides on which way to use.
+
+\textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The push buttons open a window for the corresponding plot and the radio buttons select algorithms (see section \ref{Section histogram equalisation} and \ref{Section FFT} for detailed descriptions) to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves frame rate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is a major time-consuming process of the software. Most of the time, the only window needed is the FFT plot, which means a refresh rate of about 16 frames per second is possible. Note that the algorithms do not slow down the rendering very much, since the computations are high optimised by the GPU.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Images/Software screenshot.jpg}
+    \caption{Screenshot of the GUI.}
+    \label{Software GUI}
+\end{figure}
+
+\begin{table}[htbp]
+    \caption{Results of software framerate test}
+    \begin{center}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Windows and algorithms selected} & \textbf{Framerate} \\
+    \hline
+    no windows, no algorithms & 10 ms \\
+    \hline
+    one window, no algorithms & 60 ms \\
+    \hline
+    three windows, no algorithms & 180 ms \\
+    \hline
+    three windows, two algorithms & 200 ms \\
+    \hline
+    \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
+    \multicolumn{2}{l}{$^{\mathrm{b}}$With 8-bit grey-scale 1024 $\times$ 768 input images.} \\
+    \multicolumn{2}{l}{$^{\mathrm{c}}$With Intel Core i7 and NVIDIA GeForce GTX 1060.}
+    \end{tabular}
+    \label{Software framerates}
+    \end{center}
+\end{table}
+
+\textit{SemCorrector} implements the automatic focusing and astigmatism correction algorithm and uses a helper class \textit{Masker} to achieve fast computation (see section \ref{Section correction algorithm} for detailed descriptions). Due to the impact of the COVID-19 pandemic, the algorithm has not been fully tested, and is therefore not integrated to the GUI yet.
 
 \section{Real-time histogram equalisation for improving image contrast}
+\label{Section histogram equalisation}
 
 \section{Real-time fast Fourier transform for evaluating image focusing and astigmatism}
-The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be completely eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
+\label{Section FFT}
+% The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be completely eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
 
-\begin{figure}[htbp]
-    \centering
-    \begin{subfigure}{0.5\textwidth}0
-        \centering
-        \includegraphics[width=1\textwidth]{Images/B astigmatic a.jpeg}
-    \end{subfigure}
-    \begin{subfigure}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1\textwidth]{Images/B astigmatic b.jpeg}
-    \end{subfigure}
-    \caption{Sample astigmatic SEM images \cite{SEM astigmatism correction}.}
-    \label{SEM sample images}
-\end{figure}
+% \begin{figure}[htbp]
+%     \centering
+%     \begin{subfigure}{0.5\textwidth}
+%         \centering
+%         \includegraphics[width=1\textwidth]{Images/B astigmatic a.jpeg}
+%     \end{subfigure}
+%     \begin{subfigure}{0.5\textwidth}
+%         \centering
+%         \includegraphics[width=1\textwidth]{Images/B astigmatic b.jpeg}
+%     \end{subfigure}
+%     \caption{Sample astigmatic SEM images \cite{SEM astigmatism correction}.}
+%     \label{SEM sample images}
+% \end{figure}
 
-Focus determines the focal point of the electron probe. When the focal point is far from the surface of the specimen, the incident electrons interact with the specimen in a larger area. As a result, spots near each other produce signals of closer magnitude. This makes the image appear blurry.
+% Focus determines the focal point of the electron probe. When the focal point is far from the surface of the specimen, the incident electrons interact with the specimen in a larger area. As a result, spots near each other produce signals of closer magnitude. This makes the image appear blurry.
 
-Stigmators are used to compensate for astigmatism. Astigmatism arises due to imperfections in components of the SEM, and describes uneven focus in the electron probe, as shown in Fig. \ref{SEM uneven focus}. When the electron probe is out of focus, astigmatism makes the incident electrons interact with the specimen in an elliptical area, and thus makes the image appear stretched. When the electron probe is in focus, astigmatism makes the image appear blurry.
+% Stigmators are used to compensate for astigmatism. Astigmatism arises due to imperfections in components of the SEM, and describes uneven focus in the electron probe, as shown in Fig. \ref{SEM uneven focus}. When the electron probe is out of focus, astigmatism makes the incident electrons interact with the specimen in an elliptical area, and thus makes the image appear stretched. When the electron probe is in focus, astigmatism makes the image appear blurry.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.5\textwidth]{Images/SEM uneven focus.jpg}
-    \caption{Uneven focus of the SEM.}
-    \label{SEM uneven focus}
-\end{figure}
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{Images/SEM uneven focus.jpg}
+%     \caption{Uneven focus of the SEM.}
+%     \label{SEM uneven focus}
+% \end{figure}
 
-Although experienced SEM operators can often find the right settings for focus and stigmator control in a short time, it may not be as straightforward for new users. Sometimes, the surface being observed may have a complex structure and makes adjusting even harder. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is rather subjective. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
+% Although experienced SEM operators can often find the right settings for focus and stigmator control in a short time, it may not be as straightforward for new users. Sometimes, the surface being observed may have a complex structure and makes adjusting even harder. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is rather subjective. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
 
 \section{Automatic focusing and astigmatism correction algorithm}
+\label{Section correction algorithm}
 
 \section{Conclusions}
 
@@ -95,8 +158,8 @@ Although experienced SEM operators can often find the right settings for focus a
     \bibitem{GPU mediated reality}
     J. Fung, F. Tang and S. Mann, "Mediated reality using computer graphics hardware for computer vision," Proceedings. Sixth International Symposium on Wearable Computers, Seattle, WA, USA, 2002, pp. 83-89, doi: 10.1109/ISWC.2002.1167222.
 
-    \bibitem{SEM astigmatism correction}
-    C. Lyman, "Correcting Astigmatism in SEM Images," Microscopy Today, 2019, vol. 27, no. 03, pp. 32-35, doi: 10.1017/s1551929519000476.
+    % \bibitem{SEM astigmatism correction}
+    % C. Lyman, "Correcting Astigmatism in SEM Images," Microscopy Today, 2019, vol. 27, no. 03, pp. 32-35, doi: 10.1017/s1551929519000476.
 
     % \bibitem{Histogram equalisation wiki}
     % "Histogram equalization." en.wikipedia.org. \url{https://en.wikipedia.org/wiki/Histogram_equalization} (accessed May 11, 2020).

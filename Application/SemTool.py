@@ -133,9 +133,10 @@ class SemTool(QtWidgets.QMainWindow):
 
             image = self.imageGrabber()
             if self.hanningButton.isChecked():
-                image.applyHanning()
+                image.applyHanning(updateAll=False)
             if self.histEquButton.isChecked():
-                image.applyHistogramEqualisation()
+                image.applyHistogramEqualisation(updateAll=False)
+            image.updateAll()
 
             if self.imagePlot.isVisible():
                 self.imagePlot.updateData(image)

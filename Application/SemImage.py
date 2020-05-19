@@ -95,46 +95,46 @@ class SemImage:
         #     self.updateAll()
 
     def applyHistogramEqualisation(self, updateAll=True):
-        # try:
-        #     transFunc = cp.cumsum(self.histogram)
-        #     transFunc = transFunc * 255 / transFunc.max()
-        #     transFunc = transFunc.astype(int)
-        #     gpuMap = cp.ElementwiseKernel(
-        #         'T x, raw T y', 'T z',
-        #         'z = y[x]',
-        #         'gpuMap'
-        #     )
-        #     array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
-        #     self.array = cp.asnumpy(array)
-        # except:
-        #     transFunc = np.cumsum(self.histogram)
-        #     transFunc = transFunc * 255 / transFunc.max()
-        #     transFunc = transFunc.astype(int)
-        #     array = np.array(list(map(lambda x: transFunc[x], self.array)))
-        #     self.array = array
+        try:
+            transFunc = cp.cumsum(self.histogram)
+            transFunc = transFunc * 255 / transFunc.max()
+            transFunc = transFunc.astype(int)
+            gpuMap = cp.ElementwiseKernel(
+                'T x, raw T y', 'T z',
+                'z = y[x]',
+                'gpuMap'
+            )
+            array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
+            self.array = cp.asnumpy(array)
+        except:
+            transFunc = np.cumsum(self.histogram)
+            transFunc = transFunc * 255 / transFunc.max()
+            transFunc = transFunc.astype(int)
+            array = np.array(list(map(lambda x: transFunc[x], self.array)))
+            self.array = array
 
-        start = time.time()
-        transFunc = cp.cumsum(self.histogram)
-        transFunc = transFunc * 255 / transFunc.max()
-        transFunc = transFunc.astype(int)
-        gpuMap = cp.ElementwiseKernel(
-            'T x, raw T y', 'T z',
-            'z = y[x]',
-            'gpuMap'
-        )
-        array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
-        self.array = cp.asnumpy(array)
-        end = time.time()
-        print("Time taken to perform histogram equalisation using GPU: ", end - start)
+        # start = time.time()
+        # transFunc = cp.cumsum(self.histogram)
+        # transFunc = transFunc * 255 / transFunc.max()
+        # transFunc = transFunc.astype(int)
+        # gpuMap = cp.ElementwiseKernel(
+        #     'T x, raw T y', 'T z',
+        #     'z = y[x]',
+        #     'gpuMap'
+        # )
+        # array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
+        # self.array = cp.asnumpy(array)
+        # end = time.time()
+        # print("Time taken to perform histogram equalisation using GPU: ", end - start)
 
-        start = time.time()
-        transFunc = np.cumsum(self.histogram)
-        transFunc = transFunc * 255 / transFunc.max()
-        transFunc = transFunc.astype(int)
-        array = np.array(list(map(lambda x: transFunc[x], self.array)))
-        self.array = array
-        end = time.time()
-        print("Time taken to perform histogram equalisation using CPU: ", end - start)
+        # start = time.time()
+        # transFunc = np.cumsum(self.histogram)
+        # transFunc = transFunc * 255 / transFunc.max()
+        # transFunc = transFunc.astype(int)
+        # array = np.array(list(map(lambda x: transFunc[x], self.array)))
+        # self.array = array
+        # end = time.time()
+        # print("Time taken to perform histogram equalisation using CPU: ", end - start)
 
         if updateAll:
             self.updateAll()

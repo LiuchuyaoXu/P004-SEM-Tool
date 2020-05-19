@@ -112,6 +112,9 @@ class SemImage:
             transFunc = transFunc.astype(int)
             array = np.array(list(map(lambda x: transFunc[x], self.array)))
             self.array = array
+        finally:
+            if updateAll:
+                self.updateAll()
 
         # start = time.time()
         # transFunc = cp.cumsum(self.histogram)
@@ -136,8 +139,8 @@ class SemImage:
         # end = time.time()
         # print("Time taken to perform histogram equalisation using CPU: ", end - start)
 
-        if updateAll:
-            self.updateAll()
+        # if updateAll:
+        #     self.updateAll()
 
     def updateFft(self):
         try:

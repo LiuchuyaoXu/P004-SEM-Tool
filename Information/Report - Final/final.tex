@@ -9,9 +9,12 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage[lighttt]{lmodern}
 \usepackage{subcaption}
 \usepackage{textcomp}
 \usepackage{xcolor}
+
+\lstset{basicstyle=\ttfamily, keywordstyle=\bfseries}
 
 \begin{document}
 
@@ -53,7 +56,7 @@ The software is highly modularised, which maximises readability and maintainabil
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.45\textwidth]{Images/Software class diagram.png}
-    \caption{Class diagram of the software in unified modelling language (UML)}
+    \caption{Class diagram of the software in unified modelling language (UML).}
     \label{Software class diagram}
 \end{figure}
 
@@ -66,7 +69,7 @@ The software is highly modularised, which maximises readability and maintainabil
 \end{itemize}
 \textit{SemImageGrabber} detects if the SEM is available and decides on which way to use.
 
-\textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The push buttons open a window for the corresponding plot and the radio buttons select algorithms (see section \ref{Section histogram equalisation} and \ref{Section FFT} for detailed descriptions) to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves frame rate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is a major time-consuming process of the software. Most of the time, the only window needed is the FFT plot, which means a refresh rate of about 16 frames per second is possible. Note that the algorithms do not slow down the rendering very much, since the computations are high optimised by the GPU.
+\textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The push buttons open a window for the corresponding plot and the radio buttons select algorithms (see section \ref{Section histogram equalisation} and \ref{Section FFT} for detailed descriptions) to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is a major time-consuming process of the software. When only one window is opened, a refresh rate of about 16 frames per second is possible.
 
 \begin{figure}[htbp]
     \centering
@@ -80,15 +83,14 @@ The software is highly modularised, which maximises readability and maintainabil
     \begin{center}
     \begin{tabular}{|c|c|}
     \hline
-    \textbf{Windows and algorithms selected} & \textbf{Framerate} \\
+    \textbf{Number of} & \textbf{Time taken to} \\
+    \textbf{windows opened} & \textbf{update each frame} \\
     \hline
-    no windows, no algorithms & 10 ms \\
+    zero & 15 ms \\
     \hline
-    one window, no algorithms & 60 ms \\
+    one & 60 ms \\
     \hline
-    three windows, no algorithms & 180 ms \\
-    \hline
-    three windows, two algorithms & 200 ms \\
+    three & 160 ms \\
     \hline
     \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
     \multicolumn{2}{l}{$^{\mathrm{b}}$With 8-bit grey-scale 1024 $\times$ 768 input images.} \\
@@ -102,6 +104,95 @@ The software is highly modularised, which maximises readability and maintainabil
 
 \section{Real-time histogram equalisation for improving image contrast}
 \label{Section histogram equalisation}
+There are many types of histograms in image processing. The grey level (brightness level) pixel intensity histogram, which plots the number of pixels of each grey value in the image, is the most relevant one for SEM images. This is because an SEM translates the energy of the secondary electrons directly into a grey level, colours do not exist in SEM images.
+
+The algorithm for obtaining the histogram of an SEM image is given by
+\begin{equation}
+    n_l = \frac{1}{P} \sum_{p} I(l_p=l),
+\end{equation}
+where $n_l$ is the normalised number of pixels of grey level $l$, $P$ is the total number of pixels in the image and $l_p$ is the grey level of the $p_{th}$ pixel. 
+
+Fig. \ref{C original} shows an 8-bit grey-scale image, i.e. its depth of digitisation is 8-bit and it has 256 grey levels. Fig. \ref{C original histogram} shows the histogram of the image and its integral. As can be seen in the histogram, most pixels are concentrated in the middle of the grey scale. This is reflected by the fact that the image is missing its highlights and shadows.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/C original.jpg}
+        \caption{Original image.}
+        \label{C original}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/C original histogram.png}
+        \caption{Histogram of the original image.}
+        \label{C original histogram}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/C equalised.jpg}
+        \caption{Histogram-equalised image.}
+        \label{C equalised}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/C equalised histogram.png}
+        \caption{Histogram of the histogram-equalised image.}
+        \label{C equalised histogram}
+    \end{subfigure}
+    \caption{Histogram and histogram equalisation.}
+    \label{Histogram and histogram equalisation}
+\end{figure}
+
+Histogram equalisation is a method for adjusting the distribution of pixel intensities of an image, in order to improve its overall contrast. Effectively, it is achieved by spreading out the more frequent intensity values. To perform histogram equalisation, first obtain the integral of the histogram using
+\[s_l = \sum_{i=1}^{l} n_i,\]
+where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and preform rounding to create the transform function
+\begin{equation}
+    f_l = \lfloor s_lL \rfloor,
+    \label{Histogram equalisation transform function}
+\end{equation}
+If a pixel in the original image has grey level $l$, it will have grey level $f_l$ in the transformed image. For example, if all pixels in the original image are concentrated between grey level 100 to 200, the pixels of level 100 will become 0 in the new image while the pixels of level 200 will become 255 (assuming 8-bit image).
+
+The result is more noticeable when the image has a low contrast, such as the one shown in Fig. \ref{C original}. The histogram-equalised version of it is given in Fig. \ref{C equalised} and the new histogram in Fig. \ref{C equalised histogram}. More details are now visible as the contrast has been enhanced.
+
+The most time-consuming part of histogram equalisation is to map all pixels in the original image to their new values using the transform function \eqref{Histogram equalisation transform function}. This can be implemented using CPU code in one line:
+\begin{lstlisting}
+newImage = 
+  map(lambda x: f[x], image)
+\end{lstlisting}
+\lstinline{f} is an array that serves as the transformation function, if the original pixel value is x, the new value should be \lstinline{f[x]}. The \lstinline{lambda} operator is a way to create small anonymous functions, which are throw-away functions and are only needed where they are created. It improves conciseness and readability by reducing code bloat. \lstinline{lambda x: f[x]} creates an anonymous function that returns \lstinline{f[x]} when given \lstinline{x}, and \lstinline{map()} uses this function to transform all pixels in \lstinline{image}. This gives a time complexity of $O(N^2)$ which is not optimal. A smaller time complexity can be achieved using the GPU code:
+\begin{lstlisting}
+map = cupy.ElementwiseKernel(
+  'T x, raw T f', 'T xNew',
+  'xNew = f[x]',
+  'map'
+)
+newImage = map(image, f)
+\end{lstlisting}
+\lstinline{cupy.ElementwiseKernel()} defines a kernel that the GPU uses to process the input data in parallel. Tests have shown that the use of GPU can increase the speed by 2 times, as summarised in Table \ref{Software speed comparison}. In theory, the factor of speed improvement should be similar as that for calculating the histogram, since it also requires iterating through all pixels in the image. However, the code implementations introduce overheads which limit the improvement in speed.
+
+\begin{table}[htbp]
+    \caption{Speed comparison between CPU and GPU}
+    \begin{center}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Algorithm} & \textbf{Time taken} & \textbf{Time taken} \\
+    & \textbf{using CPU} & \textbf{using GPU} \\
+    \hline
+    Apply Hanning window & 16 ms & 9 ms \\
+    \hline
+    Calculating histogram & 30 ms & 2 ms \\
+    \hline
+    Histogram equalisation & 9 ms & 5 ms \\
+    \hline
+    Fast Fourier transform & 60 ms & 8 ms \\
+    \hline
+    \multicolumn{3}{l}{$^{\mathrm{b}}$For an 8-bit grey-scale 1024 $\times$ 768 input image.} \\
+    \multicolumn{3}{l}{$^{\mathrm{c}}$With Intel Core i7 and NVIDIA GeForce GTX 1060.}
+    \end{tabular}
+    \label{Software speed comparison}
+    \end{center}
+\end{table}
 
 \section{Real-time fast Fourier transform for evaluating image focusing and astigmatism}
 \label{Section FFT}

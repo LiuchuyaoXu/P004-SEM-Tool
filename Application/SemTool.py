@@ -158,6 +158,6 @@ if __name__ == "__main__":
             sys.exit(app.exec_())
     else:
         app = QtWidgets.QApplication(sys.argv)
-        gui = SemTool(SemImageGrabber(imageDir="./Images - For Testing SemCorrector"))
+        gui = SemTool(SemImageGrabber(imageDir="./Images - For Testing"))
         gui.show()
         sys.exit(app.exec_())

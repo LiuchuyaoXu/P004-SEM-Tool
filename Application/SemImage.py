@@ -2,6 +2,7 @@
 # 
 #   Brief:  Implement the SemImage class, each SemImage encapsulates all data and methods relevant to an 8-bit greyscale image.
 
+import time
 import numpy as np
 
 try:
@@ -73,20 +74,47 @@ class SemImage:
                 self.updateAll()
 
     def applyHistogramEqualisation(self, updateAll=True):
-        hist = self.histogram
-        histTrans = np.zeros(256)
-        numPixels = np.sum(hist)
+        try:
+            transFunc = cp.cumsum(self.histogram)
+            transFunc = transFunc * 255 / transFunc.max()
+            transFunc = transFunc.astype(int)
+            gpuMap = cp.ElementwiseKernel(
+                'T x, raw T y', 'T z',
+                'z = y[x]',
+                'gpuMap'
+            )
+            array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
+            self.array = cp.asnumpy(array)
+        except:
+            transFunc = np.cumsum(self.histogram)
+            transFunc = transFunc * 255 / transFunc.max()
+            transFunc = transFunc.astype(int)
+            array = np.array(list(map(lambda x: transFunc[x], self.array)))
+            self.array = array
 
-        total = 0
-        for i in range(0, 256):
-            total += hist[i]
-            histTrans[i] = total
-        histTrans /= numPixels
-        histTrans *= 255 / histTrans.max()
-        histTrans = histTrans.astype(int)    
-        array = np.array(list(map(lambda x: histTrans[x], self.array)))
-        self.array = array
-        
+        # start = time.time()
+        # transFunc = cp.cumsum(self.histogram)
+        # transFunc = transFunc * 255 / transFunc.max()
+        # transFunc = transFunc.astype(int)
+        # gpuMap = cp.ElementwiseKernel(
+        #     'T x, raw T y', 'T z',
+        #     'z = y[x]',
+        #     'gpuMap'
+        # )
+        # array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
+        # self.array = cp.asnumpy(array)
+        # end = time.time()
+        # print("Time taken to perform histogram equalisation using GPU: ", end - start)
+
+        # start = time.time()
+        # transFunc = np.cumsum(self.histogram)
+        # transFunc = transFunc * 255 / transFunc.max()
+        # transFunc = transFunc.astype(int)
+        # array = np.array(list(map(lambda x: transFunc[x], self.array)))
+        # self.array = array
+        # end = time.time()
+        # print("Time taken to perform histogram equalisation using CPU: ", end - start)
+
         if updateAll:
             self.updateAll()
 
@@ -111,6 +139,19 @@ class SemImage:
         except:
             hist = np.histogram(self.array, bins=np.arange(257))
             self._histogram = hist[0]
+
+        # start = time.time()
+        # array = cp.asarray(self.array)
+        # hist = cp.histogram(array, bins=cp.arange(257))
+        # self._histogram = cp.asnumpy(hist[0])
+        # end = time.time()
+        # print("Time taken to update histogram using cupy:", end - start)
+
+        # start = time.time()
+        # hist = np.histogram(self.array, bins=np.arange(257))
+        # self._histogram = hist[0]
+        # end = time.time()
+        # print("Time taken to update histogram using numpy:", end - start)
 
     def updateAll(self):
         self.updateFft()

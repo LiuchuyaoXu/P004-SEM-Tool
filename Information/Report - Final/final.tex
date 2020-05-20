@@ -22,9 +22,9 @@
 \end{abstract}
 
 \section{Introduction}
-The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. Higher resolution can be achieved compared to the traditional optical microscope, since electrons have much lower wavelength than light. An SEM can have resolution lower than one nanometre, whereas that of an optical microscope is often limited to a few hundred nanometres. This has benefited a variety of fields. For example, scientists have been using the SEM to analyse the doping density in semiconductors \cite{SEM for semiconductors} and to view changes in bacterial cells \cite{SEM for bacterial cells}.
+The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. Higher resolution can be achieved compared to the traditional optical microscope since electrons have much lower wavelength than light. An SEM can have a resolution lower than one nanometre, whereas that of an optical microscope is often limited to a few hundred nanometres. This has benefited a variety of fields. For example, scientists have been using the SEM to analyse the doping density in semiconductors \cite{SEM for semiconductors} and to view changes in bacterial cells \cite{SEM for bacterial cells}.
 
-Fig. \ref{SEM basic construction} shows the basic construction of an SEM. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons are emitted from the specimen. These are called secondary electrons and are collected by the detector, which generates signals whose magnitude depend on the strength of the secondary electrons. The display unit produces one frame of image after each complete scan of the specimen.
+Fig. \ref{SEM basic construction} shows the basic construction of an SEM. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons are emitted from the specimen. These are called secondary electrons and are collected by the detector, which generates signals whose magnitudes depend on the strength of the secondary electrons. The display unit produces one image after each complete scan of the specimen.
 
 \begin{figure}[htbp]
     \centering
@@ -33,13 +33,13 @@ Fig. \ref{SEM basic construction} shows the basic construction of an SEM. The el
     \label{SEM basic construction}
 \end{figure}
 
-Digital image analysis methods have been widely used in the field of SEM. For example, the fibre orientation distribution of non-woven fabrics can be determined using fast Fourier transform (FFT) and Hough transform (HT) \cite{SEM for microstructural analysis}. The FFT is an especially popular algorithm and many papers have been published on the use of it. However, due to its complexity and a lack of fast hardware, real-time analysis had largely been impossible or impractical in the past, i.e. it was only feasible to perform FFT on images off-line. In 1997, with an advanced central processing unit (CPU) --- the Pentium Pro, it was only possible to achieve a refresh rate of about 0.6 frames per second for an 8-bit 1024 $\times$ 1024 image \cite{SEM image sharpness measurement}. The enhancement of CPUs has enabled faster frame rates and more recently, the development of graphics processing unit (GPU) has taken image analysis to a different level.
+Digital image analysis methods have been widely used in the field of SEM. For example, the fibre orientation distribution of non-woven fabrics can be determined using fast Fourier transform (FFT) and Hough transform (HT) \cite{SEM for microstructural analysis}. The FFT is an especially popular algorithm and many papers have been published on the use of it. However, due to its complexity and a lack of fast hardware, real-time analysis had largely been impossible or impractical in the past, i.e. it was only feasible to perform FFT on images off-line. In 1997, with an advanced central processing unit (CPU) --- the Pentium Pro, it was only possible to achieve a refresh rate of about 0.6 frames per second for an 8-bit 1024 $\times$ 1024 image \cite{SEM image sharpness measurement}. The enhancement of CPUs has enabled faster frame rates and more recently, the development of the graphics processing unit (GPU) has taken image analysis to a different level.
 
-The GPU was originally designed to efficiently manipulate data in order to accelerate the rendering of 3D images on displays. Depending on the position, pixels in a 3D image may require different processing to achieve effects such as lighting, blurring and fogging. This is achieved by breaking down the image into a massive number of fragments and processing each fragment individually. The processes happen independently but may share the same logical sequence of control, and this pattern is named single instruction multiple data (SIMD). A GPU consists of a large array of processing cores, with each of them using SIMD to process a block of fragments.
+The GPU was originally designed to efficiently manipulate data in order to accelerate the rendering of 3D images on displays. Depending on the position, pixels in a 3D image may require different processing to achieve effects such as lighting, blurring, and fogging. This is achieved by breaking down the image into a massive number of fragments and processing each fragment individually. The processes happen independently but may share the same logical sequence of control, and this pattern is named single instruction multiple data (SIMD). A GPU consists of a large array of processing cores, with each of them using SIMD to process a block of fragments.
 
-The characteristic of the GPU allows it to outperform central processing units (CPUs) when performing algorithms that manipulate data in parallel. Take the dot product between two vectors of size 1000 as an example, the processing cores on the GPU may be 100 times slower than the CPU, but if 1000 of them work in parallel and each computes the multiplication of one element from each vector, the overall speed will be 10 times faster. This has allowed computer vision programs that were previously impossible or computationally too expensive to build. For example, a wearable mediated reality device that make computer-generated information appear to the user as though it was anchored in the real world \cite{GPU mediated reality}.
+The characteristic of the GPU allows it to outperform central processing units (CPUs) when performing algorithms that manipulate data in parallel. Take the dot product between two vectors of size 1000 as an example, the processing cores on the GPU might be 100 times slower than the CPU, but if 1000 of them work in parallel and each computes the multiplication of one element from each vector, the overall speed will be 10 times faster. This has allowed computer vision programs that were previously impossible or computationally too expensive to build. For example, a wearable mediated reality device that makes computer-generated information appear to the user as though it was anchored in the real world \cite{GPU mediated reality}.
 
-The goal of the project is to develop software tools based on fast computation provided by the GPU, to support interactive real-time diagnosis of SEM images for the purpose of assisting the operator or automating procedures, with a focus on the use of FFT.
+The goal of the project is to develop software tools based on fast computation provided by the GPU, to support interactive real-time diagnosis of SEM images that assists the operator or automated procedures, with a focus on the use of FFT.
 
 \section{Software aspects of the tools}
 \subsection{Design principle}
@@ -51,7 +51,7 @@ The SEM used for the project is made by Carl Zeiss AG, which provides an applica
 Considering the time scale of the project and to make development easier for people who will continue the work, Python is selected instead as the programming language, which has a much simpler syntax and is widely supported. With careful design, it has proved to be able to produce useful results despite the slower speed (see later sections).
 
 \subsection{Modules of the software}
-The software is highly modularised, which maximises readability and maintainability. This also makes it easier to translate the programs into C++ later if better performance is needed, since C++ is mostly used in an object-oriented manner. Fig. \ref{Software class diagram} shows the six main classes of the software.
+The software is highly modularised, which maximises readability and maintainability. This also makes it easier to translate the programs into C++ later if better performance is needed since C++ is mostly used in an object-oriented manner. Fig. \ref{Software class diagram} shows the six main classes of the software.
 
 \begin{figure}[htbp]
     \centering
@@ -69,7 +69,7 @@ The software is highly modularised, which maximises readability and maintainabil
 \end{itemize}
 \textit{SemImageGrabber} detects if the SEM is available and decides on which way to use.
 
-\textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The push buttons open a window for the corresponding plot and the radio buttons select algorithms (see section \ref{Section histogram equalisation} and \ref{Section FFT} for detailed descriptions) to be performed on the image. The plots are shown on different windows, and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is a major time-consuming process of the software. When only one window is opened, a refresh rate of about 16 frames per second is possible.
+\textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The pushbuttons open a window for the corresponding plot and the radio buttons select algorithms (see section \ref{Section histogram equalisation} and \ref{Section FFT} for detailed descriptions) to be performed on the image. The plots are shown on different windows and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Software framerates} shows that the improvement is rather significant, as rendering windows is a major time-consuming process of the software. When only one window is opened, a refresh rate of about 16 frames per second is possible.
 
 \begin{figure}[htbp]
     \centering
@@ -84,7 +84,7 @@ The software is highly modularised, which maximises readability and maintainabil
     \begin{tabular}{|c|c|}
     \hline
     \textbf{Number of} & \textbf{Time taken to} \\
-    \textbf{windows opened} & \textbf{update each frame} \\
+    \textbf{plots opened} & \textbf{update each frame} \\
     \hline
     zero & 15 ms \\
     \hline
@@ -94,16 +94,18 @@ The software is highly modularised, which maximises readability and maintainabil
     \hline
     \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
     \multicolumn{2}{l}{$^{\mathrm{b}}$With 8-bit grey-scale 1024 $\times$ 768 input images.} \\
-    \multicolumn{2}{l}{$^{\mathrm{c}}$With Intel Core i7 and NVIDIA GeForce GTX 1060.}
+    \multicolumn{2}{l}{$^{\mathrm{c}}$With Intel Core i7 and NVIDIA GTX 1060.}
     \end{tabular}
     \label{Software framerates}
     \end{center}
 \end{table}
 
-\textit{SemCorrector} implements the automatic focusing and astigmatism correction algorithm and uses a helper class \textit{Masker} to achieve fast computation (see section \ref{Section correction algorithm} for detailed descriptions). Due to the impact of the COVID-19 pandemic, the algorithm has not been fully tested, and is therefore not integrated to the GUI yet.
+There are two ways for updating the plots, and the first one is to re-render the whole window. This wastes time since some components are always the same and do not need to be re-rendered, such as the window title and the axes. Therefore, \textit{SemTool} uses the second method, where only the data to be plotted are updated. This directly modifies the relevant data in the memory of the GPU, thereby avoiding re-rendering the whole window. Tests have shown that if the first method is used, the time taken to update each frame when there is only one plot opened will be 90 ms instead of 60 ms.
+
+\textit{SemCorrector} implements the automatic focusing and astigmatism correction algorithm and uses a helper class \textit{Masker} to achieve fast computation (see section \ref{Section correction algorithm} for detailed descriptions). Due to the impact of the COVID-19 pandemic, the algorithm has not been fully tested and is therefore not integrated to the GUI yet.
 
 \subsection{Method to utilise the GPU}
-As the popularity of using GPU to perform general purpose processing increases (GPGPU), GPU manufacturers have started providing APIs that make writing GPU code easier. The project uses the CUDA Toolkit made by NVIDIA and the Python library \textit{CuPy}. \textit{CuPy} is an implementation of multi-dimensional array on CUDA, and one of its main advantages is that its core multi-dimensional array class is largely compatible with the Python \textit{NumPy} library. This allows existing code to be easily converted to harness the power of the GPU.
+As the popularity of using GPU to perform general-purpose processing increases (GPGPU), GPU manufacturers have started providing APIs that make writing GPU code easier. The project uses the CUDA Toolkit made by NVIDIA and the Python library \textit{CuPy}. \textit{CuPy} is an implementation of multi-dimensional arrays on CUDA, and one of its main advantages is that its core multi-dimensional array class is largely compatible with the Python \textit{NumPy} library. This allows existing code to be easily converted to harness the power of the GPU.
 
 \section{Real-time histogram equalisation for improving image contrast}
 \label{Section histogram equalisation}
@@ -115,7 +117,7 @@ The algorithm for obtaining the histogram of an SEM image is given by
 \end{equation}
 where $n_l$ is the normalised number of pixels of grey level $l$, $P$ is the total number of pixels in the image and $l_p$ is the grey level of the $p_{th}$ pixel. 
 
-Fig. \ref{C original} shows an 8-bit grey-scale image, i.e. its depth of digitisation is 8-bit and it has 256 grey levels. Fig. \ref{C original histogram} shows the histogram of the image and its integral. As can be seen in the histogram, most pixels are concentrated in the middle of the grey scale. This is reflected by the fact that the image is missing its highlights and shadows.
+Fig. \ref{C original} shows an 8-bit grey-scale image, i.e. its depth of digitisation is 8-bit and it has 256 grey levels. Fig. \ref{C original histogram} shows the histogram of the image and its integral. As can be seen in the histogram, most pixels are concentrated in the middle of the greyscale. This is reflected by the fact that the image is missing its highlights and shadows.
 
 \begin{figure}[htbp]
     \centering
@@ -147,23 +149,23 @@ Fig. \ref{C original} shows an 8-bit grey-scale image, i.e. its depth of digitis
     \label{Histogram and histogram equalisation}
 \end{figure}
 
-Histogram equalisation is a method for adjusting the distribution of pixel intensities of an image, in order to improve its overall contrast. Effectively, it is achieved by spreading out the more frequent intensity values. To perform histogram equalisation, first obtain the integral of the histogram using
+Histogram equalisation is a method for adjusting the distribution of pixel intensities of an image, to improve its overall contrast. Effectively, it is achieved by spreading out more frequent intensity values. To perform histogram equalisation, firstly obtain the integral of the histogram using
 \[s_l = \sum_{i=1}^{l} n_i,\]
-where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and preform rounding to create the transform function
+where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and perform rounding to create the transform function
 \begin{equation}
     f_l = \lfloor s_lL \rfloor,
     \label{Histogram equalisation transform function}
 \end{equation}
-If a pixel in the original image has grey level $l$, it will have grey level $f_l$ in the transformed image. For example, if all pixels in the original image are concentrated between grey level 100 to 200, the pixels of level 100 will become 0 in the new image while the pixels of level 200 will become 255 (assuming 8-bit image).
+If a pixel in the original image has a grey level $l$, it will have a grey level $f_l$ in the transformed image. For example, if all pixels in the original image are concentrated between grey level 100 to 200, the pixels of level 100 will become 0 in the new image while the pixels of level 200 will become 255 (assuming an 8-bit image).
 
-The result is more noticeable when the image has a low contrast, such as the one shown in Fig. \ref{C original}. The histogram-equalised version of it is given in Fig. \ref{C equalised} and the new histogram in Fig. \ref{C equalised histogram}. More details are now visible as the contrast has been enhanced.
+The result is more noticeable when the image has low contrast, such as the one shown in Fig. \ref{C original}. The histogram-equalised version of it is given in Fig. \ref{C equalised} and the new histogram in Fig. \ref{C equalised histogram}. More details are now visible as the contrast has been enhanced.
 
 The most time-consuming part of histogram equalisation is to map all pixels in the original image to their new values using the transform function \eqref{Histogram equalisation transform function}. This can be implemented using CPU code in one line:
 \begin{lstlisting}
 newImage = 
   map(lambda x: f[x], image)
 \end{lstlisting}
-\lstinline{f} is an array that serves as the transformation function, if the original pixel value is x, the new value should be \lstinline{f[x]}. The \lstinline{lambda} operator is a way to create small anonymous functions, which are throw-away functions and are only needed where they are created. It improves conciseness and readability by reducing code bloat. \lstinline{lambda x: f[x]} creates an anonymous function that returns \lstinline{f[x]} when given \lstinline{x}, and \lstinline{map()} uses this function to transform all pixels in \lstinline{image}. This gives a time complexity of $O(N^2)$ which is not optimal. A smaller time complexity can be achieved using the GPU code:
+\lstinline{f} is an array that serves as the transformation function, if the original pixel value is x, the new value should be \lstinline{f[x]}. The \lstinline{lambda} operator is a way to create small anonymous functions, which are throw-away and are only needed where they are created. It improves conciseness and readability by reducing code bloat. \lstinline{lambda x: f[x]} creates an anonymous function that returns \lstinline{f[x]} when given \lstinline{x}, and \lstinline{map()} uses this function to transform all pixels in \lstinline{image}. This gives a time complexity of $O(N^2)$ which is not optimal. A smaller time complexity can be achieved using the GPU code:
 \begin{lstlisting}
 map = cupy.ElementwiseKernel(
   'T x, raw T f', 'T xNew',
@@ -199,7 +201,7 @@ newImage = map(image, f)
 
 \section{Real-time fast Fourier transform for evaluating image focusing and astigmatism}
 \label{Section FFT}
-The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be completely eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
+The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
 
 \begin{figure}[htbp]
     \centering
@@ -244,7 +246,7 @@ In image processing, the discrete Fourier transform (DFT) is often preferred, wh
 \end{equation}
 where $x_0,x_1,...,x_{N-1}$ is the input sequence and $X_0,X_1,...,X_{N-1}$ is the output sequence. $X_k$ is effectively the result of the dot product between the vector $[x_0,x_1,...,x_{N-1}]$ and $[e^0,e^{-i2\pi k/N},...,,e^{-i2\pi k(N-1)/N}]$, and the latter is a finite sequence of frequency $2\pi k$. Therefore, the DFT computes the magnitude of the component of the input sequence with frequency $2\pi k$, for $0 \leq k \leq N-1$.
 
-Fig. \ref{FT FFT on images} gives an example of FFT applied on a real image. The top row shows a set of images and the bottom row shows the corresponding transforms (amplitudes only). Points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image.
+Fig. \ref{FT FFT on images} gives an example of FFT applied to a real image. The top row shows a set of images and the bottom row shows the corresponding transforms (amplitudes only). Points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image.
 
 \begin{figure}[htbp]
     \centering
@@ -280,7 +282,7 @@ An image is effectively a finite sequence of data, and this can cause boundary e
     \label{Window functions}
 \end{figure}
 
-As summarised in table \ref{Software speed comparison}, the use of GPU can make the calculation of FFT eight time faster. Without the GPU, calculating FFT alone limits the refresh rate of the tool to 16 frames per second. The GPU improves the number to 125 frames per second.
+As summarised in table \ref{Software speed comparison}, the use of GPU can make calculating FFT eight times faster. Without the GPU, calculating FFT alone limits the refresh rate of the tool to 16 frames per second. The GPU improves the number to 125 frames per second.
 
 \begin{figure*}
     \centering
@@ -291,9 +293,9 @@ As summarised in table \ref{Software speed comparison}, the use of GPU can make 
 
 \section{Automatic focusing and astigmatism correction algorithm}
 \label{Section correction algorithm}
-K.H. Ong, J.C.H. Phang and J.T.L. Thong proposed an algorithm for automatic focusing and astigmatism correction \cite{SEM correction algorithm} using the properties of the FFT of SEM images described in section \ref{Section FFT}.
+K.H. Ong, J.C.H. Phang, and J.T.L. Thong proposed an algorithm for automatic focusing and astigmatism correction \cite{SEM correction algorithm} using the properties of the FFT of SEM images described in section \ref{Section FFT}.
 
-The FFT of an image can be converted into a binary image by applying a threshold to the magnitudes, and segmented into 8 regions as shown in Fig. \ref{FFT regions}. A pixel has value 1 if the magnitude is above the threshold and 0 otherwise. Let $I$ be a matrix representing the current image with focus set to $F$, obtain an under-focused image $I_{uf}$ and over-focused image $I_{of}$ by setting the focus to $F-\Delta F=F_{uf}$ and $F+\Delta F=F_{of}$, respectively. Let $T$, $T_{uf}$ and $T_{of}$ be matrices representing the binary FFT of $I$, $I_{uf}$ and $I_{of}$, respectively.
+The FFT of an image can be converted into a binary image by applying a threshold to the magnitudes, and then segmented into 8 regions as shown in Fig. \ref{FFT regions}. A pixel has value 1 if the magnitude is above the threshold and 0 otherwise. Let $I$ be a matrix representing the current image with focus set to $F$, obtain an under-focused image $I_{uf}$ and an over-focused image $I_{of}$ by setting the focus to $F-\Delta F=F_{uf}$ and $F+\Delta F=F_{of}$, respectively. Let $T$, $T_{uf}$ and $T_{of}$ be matrices representing the binary FFT of $I$, $I_{uf}$ and $I_{of}$, respectively.
 
 \begin{figure}[htbp]
     \centering
@@ -347,10 +349,10 @@ Fig. \ref{Correction algorithm flowchart} shows the general flow chart of the al
     \label{Correction algorithm flowchart}
 \end{figure}
 
-There are five key parameters that affect the performance of the algorithm:
+The performance of the algorithm is affected by five key parameters:
 \begin{itemize}
-    \item $P_{threshold}$. Ideally, the focus of the SEM should be set to a value such that $P = 0$, i.e. the under-focused image and the over-focused image have exactly the same FFT magnitude. However, this is practically impossible due to noise, non-linearity in the lens system, etc. Therefore, $P_{threshold}$ is used to define a threshold such that the image is considered to be in perfect focus when $|P| < P_{threshold}$. If $P$ is normalised, $P_{threshold}$ can be conveniently set to a percentage value.
-    \item $F_{step}$, which is how much the focus should be adjusted during each iteration in focus adjustment. A smaller $F_{step}$ allows the final image to have finer resolution but increases the amount of time needed for the adjustment. A larger $F_{step}$ speeds up the process but may never achieve the level of focus as required by $P_{threshold}$. To achieve the best result, larger values of $F_{step}$ should be used at the beginning and smaller ones towards the end.
+    \item $P_{threshold}$. Ideally, the focus of the SEM should be set to a value such that $P = 0$, i.e. the under-focused image and the over-focused image have the same FFT magnitude. However, this is practically impossible due to noise, non-linearity in the lens system, etc. Therefore, $P_{threshold}$ is used to define a threshold such that the image is considered to be in perfect focus when $|P| < P_{threshold}$. If $P$ is normalised, $P_{threshold}$ can be conveniently set to a percentage value.
+    \item $F_{step}$, which is how much the focus should be adjusted during each iteration in focus adjustment. A smaller $F_{step}$ allows the final image to have a finer resolution but increases the amount of time needed for the adjustment. A larger $F_{step}$ speeds up the process but may never achieve the level of focus as required by $P_{threshold}$. To achieve the best result, larger values of $F_{step}$ should be used at the beginning and smaller ones towards the end.
     \item $\Delta F$, which determines how much the focus should be changed to obtain the under-focused and over-focused images. It is more important to the astigmatism correction step. When $\Delta F$ is too small, the difference between the FFT of the under-focused and over-focused image will not be significant enough and can be easily hidden by noise. When it is too big, the FFTs will lose their high-frequency components, which again makes the difference too small.
     \item $S_{threshold}$. The values of $P_{R12}, P_{R34}, P_{S12}, P_{S34}$ are prone to the influence of noise near zero. Same as the purpose of $P_{threshold}$, $S_{threshold}$ defines a threshold to circumvent this problem.
     \item $S_{step}$, which is how much the value of the stigmator control should be adjusted during each iteration in astigmatism adjustment. Similar to $F_{step}$, it determines the speed of the adjustment and the level of fineness of the final images.
@@ -368,12 +370,12 @@ A \textit{Masker} can be initialised with a 2D shape, and it will create eight m
 1 & 1 & 1 & 1 & 1 & 1 & 1
 \end{bmatrix}.
 \end{align*}
-The algorithm ensures that there is no overlapping between matrices apart from at the center. After obtaining the matrix for region R1, the sum of of values in an FFT in R1 can be calculated using:
+The code ensures that there is no overlapping between matrices apart from at the center. After obtaining the matrix for region R1, the sum of of values in an FFT in R1 can be calculated using:
 \begin{lstlisting}
 ma.array(fft, masker.r1).sum()
 \end{lstlisting}
 
-The correction algorithm is implemented by the \textit{SemCorrector} class. Due to the impact of the COVID-19 pandemic, only the focusing correction part has been tested and the result is as shown in Fig. \ref{Correction focusing demo}. The algorithm was able to find the best focus for the SEM as determine by the operator.
+The correction algorithm is implemented by the \textit{SemCorrector} class. Due to the impact of the COVID-19 pandemic, only the focusing correction part has been tested and the result is as shown in Fig. \ref{Correction focusing demo}. The algorithm was able to find the same best focus for the SEM as determined by the operator.
 
 \begin{figure}[htbp]
     \centering
@@ -390,6 +392,10 @@ The correction algorithm is implemented by the \textit{SemCorrector} class. Due 
     \caption{Automatic focusing correction.}
     \label{Correction focusing demo}
 \end{figure}
+
+The algorithm has two major practical problems. The first one is that it takes time for the SEM image to be updated after a change in the settings has been made. This is because the SEM needs to perform multiple scans on the object and take the average to reduce noise. To obtain an 8-bit 1024 $\times$ 768 image with good quality, the algorithm typically has to wait for one second for each iteration. This significantly slows down the speed of the algorithm. A possible solution is to reduce the sample size on the SEM and thereby reducing the time needed for performing the scans.
+
+Another problem is that it is difficult to determine the best values for the five parameters mentioned earlier. The result showed in Fig. \ref{Correction focusing demo} was obtained using the best settings found empirically, which may be dependent on the model of the SEM and characteristics of the object under observation.
 
 \section{Conclusions}
 

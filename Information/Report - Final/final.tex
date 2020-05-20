@@ -373,6 +373,24 @@ The algorithm ensures that there is no overlapping between matrices apart from a
 ma.array(fft, masker.r1).sum()
 \end{lstlisting}
 
+The correction algorithm is implemented by the \textit{SemCorrector} class. Due to the impact of the COVID-19 pandemic, only the focusing correction part has been tested and the result is as shown in Fig. \ref{Correction focusing demo}. The algorithm was able to find the best focus for the SEM as determine by the operator.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/Correction initial.png}
+        \caption{Initial.}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Images/Correction final.png}
+        \caption{Final.}
+    \end{subfigure}
+    \caption{Automatic focusing correction.}
+    \label{Correction focusing demo}
+\end{figure}
+
 \section{Conclusions}
 
 \begin{thebibliography}{00}

@@ -393,11 +393,12 @@ The correction algorithm is implemented by the \textit{SemCorrector} class. Due 
     \label{Correction focusing demo}
 \end{figure}
 
-The algorithm has two major practical problems. The first one is that it takes time for the SEM image to be updated after a change in the settings has been made. This is because the SEM needs to perform multiple scans on the object and take the average to reduce noise. To obtain an 8-bit 1024 $\times$ 768 image with good quality, the algorithm typically has to wait for one second for each iteration. This significantly slows down the speed of the algorithm. A possible solution is to reduce the sample size on the SEM and thereby reducing the time needed for performing the scans.
+The algorithm has two major practical problems. The first one is that it takes time for the SEM image to be updated after a change in the settings has been made. This is because the SEM needs to perform multiple scans on the object and take the average to reduce noise. To obtain an 8-bit 1024 $\times$ 768 image with good quality, the algorithm typically has to wait for a quarter of a second for each iteration. This significantly slows down the speed of the algorithm. A possible solution is to reduce the sample size on the SEM and thereby reducing the time needed for performing the scans.
 
 Another problem is that it is difficult to determine the best values for the five parameters mentioned earlier. The result showed in Fig. \ref{Correction focusing demo} was obtained using the best settings found empirically, which may be dependent on the model of the SEM and characteristics of the object under observation.
 
 \section{Conclusions}
+Two image analysis algorithms --- the FFT and histogram equalisation can be performed about eight times faster on the GPU than on the CPU. This has allowed the real-time image diagnostic tool to have a refresh rate of more than ten frames per second, even if it is written in a relatively slow interpreted programming language.
 
 \begin{thebibliography}{00}
     \bibitem{SEM for semiconductors}

@@ -36,7 +36,7 @@ Fig. \ref{SEM basic construction} illustrates how an SEM works. The electron gun
 \end{figure}
 
 \paragraph{}
-Many image analysis methods have applications in the field of SEM, and the fast Fourier transform is an especially popular one since it can be used to evaluate the focusing and astigmatism of an SEM [see section TBC]; however, due to the complexity of the algorithm and a lack of fast hardware, real-time analysis had been either impossible or impractical in the past. In 1997, with an advanced central processing unit (CPU)---the Pentium Pro, it was only possible to achieve a refresh rate of 0.6 frames per second for 8-bit 1024 $\times$ 1024 input images \cite{SEM image sharpness measurement}. Although the enhancement of CPUs has enabled faster computations throughout the years, what really brings the speed to a different level is the development of graphics processing units (GPUs).
+Many image analysis methods have applications in the field of SEM, and the fast Fourier transform is an especially popular one since it can be used to evaluate the focusing and astigmatism of an SEM [see section \ref{Software FFT}]; however, due to the complexity of the algorithm and a lack of fast hardware, real-time analysis had been either impossible or impractical in the past. In 1997, with an advanced central processing unit (CPU)---the Pentium Pro, it was only possible to achieve a refresh rate of 0.6 frames per second for 8-bit 1024 $\times$ 1024 input images \cite{SEM image sharpness measurement}. Although the enhancement of CPUs has enabled faster computations throughout the years, what really brings the speed to a different level is the development of graphics processing units (GPUs).
 
 \paragraph{}
 The GPU used to be a highly specialised hardware that was designed to excel in rendering complex, high-resolution, real-time 3D scenes for games; however, its special architecture has made it outperform CPUs in many other areas and resulted in the birth of the idea of general-purpose computing on graphics processing units (GPGPU) \cite{GPU computing}, where GPUs are used to perform computations that are traditionally handled by CPUs.
@@ -78,13 +78,13 @@ The parallel structure of the GPU can also provide a significant speed improveme
 \begin{equation*}
     \boldsymbol{v_3} = \boldsymbol{v_1} + \boldsymbol{v_2}
 \end{equation*}
-The CPU divides the task in time and does:
+A single-threaded CPU divides the task in time and does:
 \begin{align*}
     & \text{Time 1: } \boldsymbol{v_3}[0] = \boldsymbol{v_1}[0] + \boldsymbol{v_2}[0] \\
     & \vdots \\
     & \text{Time n: } \boldsymbol{v_3}[n] = \boldsymbol{v_1}[n] + \boldsymbol{v_2}[n] \\
 \end{align*}
-This results in a time complexity of $O(N)$. The GPU achieves a time complexity of $O(1)$ by dividing the task in space, i.e. among threads, and does:
+This results in a time complexity of $O(N)$. The GPU can in theory achieve a time complexity of $O(1)$ by dividing the task in space, i.e. among threads, and doing:
 \begin{align*}
     & \text{Time 1: }
 \begin{cases}
@@ -93,7 +93,7 @@ This results in a time complexity of $O(N)$. The GPU achieves a time complexity 
     & \text{Thread n: } \boldsymbol{v_3}[n] = \boldsymbol{v_1}[n] + \boldsymbol{v_2}[n] \\
 \end{cases}
 \end{align*}
-The task is an SIMD task---the program takes one element from each of the vectors and perform addition on them, but the data handled by each thread is different, it can therefore make full use of the SIMD cores of the GPU. When $N$ is small, the overhead in allocating the resources means that the speed improvement is negligible; however, as $N$ grows large, the reduction in time complexity quickly compensates for the overhead and makes the GPU much faster than the CPU.
+The task is an SIMD task---the program takes one element from each of the vectors and perform addition on them, but the data handled by each thread is different, it can therefore make full use of the SIMD cores of the GPU. When $N$ is small, the overhead in allocating the resources means that the speed improvement is negligible; as $N$ grows larger, the reduction in time complexity quickly compensates for the overhead and makes the GPU much faster than the CPU; however, when $N$ is too big, the GPU will run out of resources, which sets a cap to its performance.
 
 \paragraph{}
 Prior to 2007, to use GPUs for general-purpose computing, the user must write programs using the graphics application programming interface (API) since it was the only interface to GPU hardware. The programming model can be summarised as below:
@@ -114,7 +114,42 @@ The introduction of CUDA changed the situation by providing a more natural, dire
 This model allows the user to directly define threads that are run on the processing cores of the GPU, eliminating the complexity in translating the program into graphics pipeline language, which makes it easier for the user to take full advantage of the GPU's power. The following section describes an experiment conducted to determine the gain in calculation speeds from using CUDA.
 
 \section{Experiment, results and discussions}
+\paragraph{}
+An experiment was set up to compare the performance of a middle-range GPU---the NVIDIA GeForce GTX 1060---and a similarly priced CPU---the Intel Core i7-7700, for the following operations:
+\begin{itemize}
+    \item Addition of two random vectors of size $N$, which has a time complexity of $O(N)$ if done without parallelism, as described in the previous section.
+    \item Multiplication of two random matrices of dimension $N \times N$, which has a time complexity of $O(N^3)$ if done without parallelism (and without using special algorithms such as the Coppersmith-Winograd algorithm).
+\end{itemize}
+Ten test samples were taken for each set of parameters and the average results are shown in Fig. \ref{Test GPU and CPU}. As can be seen, the GPU provides a significant improvement on calculation speeds when there are a few millions of elements to be processed (which is typical in image processing).
 
+This has allowed the development of a real-time diagnostic tool for the SEM with useful framerates, which is discussed in the next chapter.
+
+\begin{figure*}[htbp]
+    \centering
+    \begin{subfigure}{0.8\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Test GPU and CPU vector addition.png}
+        \caption{Vector addition.}
+        \label{Test GPU and CPU vector addition}
+    \end{subfigure}
+    \begin{subfigure}{0.8\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Test GPU and CPU matrix multiplication.png}
+        \caption{Matrix multiplication.}
+        \label{Test GPU and CPU matrix multiplication}
+    \end{subfigure}
+    \caption{Performance test results of the GPU and the CPU}
+    \label{Test GPU and CPU}
+\end{figure*}
+
+\chapter{Real-time diagnostic tool for SEMs}
+\section{Design of the software}
+
+\section{Real-time histogram equalisation for improving image contrast}
+
+\section{Real-time fast Fourier transform for evaluating image focusing and astigmatism} \label{Software FFT}
+
+\chapter{Automatic focusing and astigmatism correction algorithm}
 
 \chapter{Conclusions}
 

@@ -1,4 +1,9 @@
 \documentclass[12pt, twocolumn]{report}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{setspace}
 \usepackage{geometry}
 \usepackage{hyperref}
@@ -16,7 +21,7 @@
 \begin{abstract}
 \end{abstract}
 
-\section{Introduction}
+\chapter{Introduction}
 \paragraph{}
 The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. It has higher resolutions than traditional optical microscopes---an SEM can have a resolution lower than one nanometre, whereas that of an optical microscope is limited to a few hundred nanometres. This has benefited a variety of fields by allowing scientists to see micro-details of objects that were previously impossible to observe. For example, the SEM can be used to study structures of semiconductor devices \cite{SEM for semiconductors} and to view changes in bacterial cells \cite{SEM for baterial cells}.
 
@@ -42,11 +47,76 @@ A key characteristic of GPUs is massive parallelism. Depending on their position
 \paragraph{}
 This report investigates the gain in calculation speeds from the use of GPUs, and presents a diagnostic tool developed based on GPGPU, which can perform real-time histogram equalisation and FFT on images captured by an SEM. The tool was used to implement an automatic focusing and astigmatism correction algorithm, and the results are discussed.
 
-\section{The gain in calculation speeds from the use of GPUs}
-\subsection{GPU architecture}
+\chapter{The gain in calculation speeds from the use of GPUs}
+\section{GPU computing}
+\paragraph{}
+The GPU is designed to meet the high demand in parallelism for fast rendering of scenes on displays. For example, a 1080p display refreshing at 60 Hz requires $60 \times 1920 \times 1080 = 124,416,000$ values to be computed in each second, which cannot be done efficient enough in the sequential manner used by the CPU. It describes an image using graphics primitives as shown in Fig. \ref{GPU graphics primitives}. To construct the image, the primitives are passed through the graphics pipeline of the GPU, which can be divided into the following stages:
+\begin{itemize}
+    \item Vertex generation. A list of vertices are generated to represent the image as a 3D triangle mesh, as illustrated by Fig. \ref{GPU graphics triangle mesh}.
+    \item Triangle generation. The vertices are assembled into triangles, which are the fundamental hardware-supported primitive in modern GPUs.
+    \item Fragment generation. The triangles are mapped to blocks of pixels on the screen; each block is called a ``fragment''.
+    \item Fragment processing. The fragments are shaded based on colour and texture information to determine their final colour.
+    \item Composition. A final image is created by assembling the fragments.
+\end{itemize}
+The processing of primitives within each stage follow the same logical sequence of control, but the data are different. This pattern is called ``single instruction multiple data'' (SIMD). The GPU has a large array of SIMD, multi-threaded processing cores sharing the same global memory, and it divides the cores among the stages such that the pipeline is divided in \textit{space}, not time. Each primitive is processed by a thread of one of the processors.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/GPU graphics primitives.jpg}
+    \caption{Graphics primitives \cite{GPU architecture lecture}.}
+    \label{GPU graphics primitives}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/GPU graphics triangle mesh.jpg}
+    \caption{Representing an image as a 3D triangle mesh \cite{GPU architecture lecture}.}
+    \label{GPU graphics triangle mesh}
+\end{figure}
+
+The parallel structure of the GPU can also provide a significant speed improvement in general-purpose computing. Take the addition of two vectors of size $N$ as an example:
+\begin{equation*}
+    \boldsymbol{v_3} = \boldsymbol{v_1} + \boldsymbol{v_2}
+\end{equation*}
+The CPU divides the task in time and does:
+\begin{align*}
+    & \text{Time 1: } \boldsymbol{v_3}[0] = \boldsymbol{v_1}[0] + \boldsymbol{v_2}[0] \\
+    & \vdots \\
+    & \text{Time n: } \boldsymbol{v_3}[n] = \boldsymbol{v_1}[n] + \boldsymbol{v_2}[n] \\
+\end{align*}
+This results in a time complexity of $O(N)$. The GPU achieves a time complexity of $O(1)$ by dividing the task in space, i.e. among threads, and does:
+\begin{align*}
+    & \text{Time 1: }
+\begin{cases}
+    & \text{Thread 1: } \boldsymbol{v_3}[0] = \boldsymbol{v_1}[0] + \boldsymbol{v_2}[0] \\
+    & \vdots \\
+    & \text{Thread n: } \boldsymbol{v_3}[n] = \boldsymbol{v_1}[n] + \boldsymbol{v_2}[n] \\
+\end{cases}
+\end{align*}
+The task is an SIMD task---the program takes one element from each of the vectors and perform addition on them, but the data handled by each thread is different, it can therefore make full use of the SIMD cores of the GPU. When $N$ is small, the overhead in allocating the resources means that the speed improvement is negligible; however, as $N$ grows large, the reduction in time complexity quickly compensates for the overhead and makes the GPU much faster than the CPU.
+
+\paragraph{}
+Prior to 2007, to use GPUs for general-purpose computing, the user must write programs using the graphics application programming interface (API) since it was the only interface to GPU hardware. The programming model can be summarised as below:
+\begin{itemize}
+    \item The user specifies geometry that covers a region on the screen.
+    \item The user sets parameters of the pipeline (e.g., ``lighting'' and ``texture'' information).
+    \item The user provides the fragment processing program (kernel).
+    \item The GPU produces an output ``image'' and stores it in global memory.
+\end{itemize}
+This was a major problem in GPGPU because many general-purpose tasks have nothing to do with graphics and are difficult to implement using the graphics API. 
+
+\paragraph{}
+The introduction of CUDA changed the situation by providing a more natural, direct, non-graphics interface. The new programming model can be summarised as below:
+\begin{itemize}
+    \item The user defines the computation as a structured grid of threads.
+    \item The GPU executes each thread and stores the results in global memory.
+\end{itemize}
+This model allows the user to directly define threads that are run on the processing cores of the GPU, eliminating the complexity in translating the program into graphics pipeline language, which makes it easier for the user to take full advantage of the GPU's power. The following section describes an experiment conducted to determine the gain in calculation speeds from using CUDA.
+
+\section{Experiment, results and discussions}
 
 
-\section{Conclusions}
+\chapter{Conclusions}
 
 \begin{thebibliography}{00}
     \bibitem{SEM for semiconductors}
@@ -66,5 +136,8 @@ This report investigates the gain in calculation speeds from the use of GPUs, an
 
     \bibitem{Deep learning}
     Ian Goodfellow; Yoshua Bengio; Aaron Courville, ``Deep learning,'' in Deep Learning, The MIT Press, 2017, p. 23.
+
+    \bibitem{GPU architecture lecture}
+    ``GPU Architecture and CUDA Programming,'' Carnegie Mellon University, 2017, [Online], available: \url{http://15418.courses.cs.cmu.edu/spring2017/home}. [Accessed: 19 May 2020].
 \end{thebibliography}
 \end{document}

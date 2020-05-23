@@ -306,6 +306,73 @@ newImage = map(image, f)
 \end{table}
 
 \section{Real-time fast Fourier transform calculation}
+\subsection{Theories}
+\paragraph{}
+The Fourier transform (FT) decomposes a function into its constituent frequencies, as illustrated in Fig. \ref{FT demonstration}. The composite wave can be represented by the superposition of a 1 Hz sine wave and a 10 Hz sine wave, and its FT therefore has two components. A function that changes more abruptly will have stronger high-frequency components than a smoother one.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/FT demonstration.png}
+    \caption{Fourier transform}
+    \label{FT demonstration}
+\end{figure}
+
+\paragraph{}
+In image processing, the discrete Fourier transform is used instead of the FT, which takes a finite sequence of equally-spaced values as input and is thus better suited than the FT. It is defined by
+\begin{equation}
+    X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-i2\pi kn/N}, \quad 0 \leq k \leq N-1,
+    \label{FT DFT}
+\end{equation}
+where $x_0,x_1,...,x_{N-1}$ is the input sequence and $X_0,X_1,...,X_{N-1}$ is the output sequence. $X_k$ is effectively the result of the dot product between the vector $[x_0,x_1,...,x_{N-1}]$ and $[e^0,e^{-i2\pi k/N},...,,e^{-i2\pi k(N-1)/N}]$, and the latter is a finite sequence of frequency $2\pi k$. Therefore, the DFT computes the magnitude of the component of the input sequence that has frequency $2\pi k$, for $0 \leq k \leq N-1$.
+
+\paragraph{}
+A drawback of using \eqref{FT DFT} is that it has a time complexity of $O(N^2)$ ($N$ multiplications need to be computed for each of the $N$ components in the output sequence $X_0,X_1,...,X_{N-1}$). In image processing, where the inputs are 2D sequences, the time complexity quickly explodes and makes the equation practically impossible to use. A fast Fourier transform (FFT) is an algorithm that computes the DFT with smaller timer complexity. There are many feasible FFT algorithms and the most common one is the Cooley-Tukey algorithm \cite{FT FFT}. The algorithm is used where $N$ is, or can be chosen to be, a highly composite number. Suppose $N = r_1 \cdot r_2$, then the indices in \eqref{FT DFT} can be expressed as
+\begin{align*}
+    n = n_1r_2 + n_0, \quad & n_0 = 0, 1, ..., r_2 - 1, \\
+    & n_1 = 0, 1, ..., r_1 - 1.
+\end{align*}
+Equation \eqref{FT DFT} can then be written as
+\begin{align*}
+    % X_k & = \sum_{n_0}\sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi k(n_1r_2 + n_0)/N} \\
+    X_k & = \sum_{n_0}\sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi kn_1r_2/N} e^{-i2\pi kn_0/N} \\
+    % & = \sum_{n_0}\sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi k_0(n_1r_2)/N} e^{-i2\pi k(n_0)/N} \\
+    & = \sum_{n_0} e^{-i2\pi kn_0/N} \sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi kn_1r_2/N}.
+\end{align*}
+Now, only $r_1 + r_2$ operations need to be performed to compute $X_k$, and the whole algorithm requires $N(r_1 + r_2)$ operations. The procedure can be repeated to produce an $m$-step algorithm requiring $N(r_1 + r_2 + \cdots + r_m)$ operations, where $N = r_1 \cdot r_2 \cdots r_m$. Modern processors can perform the algorithm the most efficiently when $r_1 = r_2 = \cdots = r_m = 2$ because of their binary architecture, then the total number of operations is
+\begin{align*}
+    2N\log_2 N,
+\end{align*}
+which yields a time complexity of $O(N\log N)$. 
+
+Fig. \ref{FT FFT on images} gives an example of FFT applied to a real image. The top row shows a set of images and the bottom row shows the corresponding transform (amplitudes only). Points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/FT FFT on images.jpg}
+    \caption{FFT and filtering on images \cite{FT lecture}.}
+    \label{FT FFT on images}
+\end{figure}
+
+A problem in the use of the FFT for image analysis is the boundary effect. The abrupt discontinuity at the edges gives the FFT some strong high-frequency components. In practice, windows functions such as the Hann window and the Hamming window are often applied to the image before performing the FFT, which taper the edges off towards zero and thus reduce the boundary effect. Fig. \ref{FT window functions} illustrates how the Hann window and the Hamming window look like; they can be obtained by setting $a_0$ to $0.5$ and $25/46$, respectively, in the function
+\begin{equation}
+    w[n] = a_0 - (1-a_0)\cdot \cos{\frac{2\pi n}{N}}, \quad 0\leq n \leq N.
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/FT window Hamming.png}
+        \caption{Hamming window.}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/FT window Hann.png}
+        \caption{Hanning window.}
+    \end{subfigure}
+    \caption{Window functions.}
+    \label{FT window functions}
+\end{figure}
 
 \chapter{Automatic focusing and astigmatism correction algorithm}
 
@@ -332,5 +399,11 @@ newImage = map(image, f)
 
     \bibitem{GPU architecture lecture}
     ``GPU Architecture and CUDA Programming,'' Carnegie Mellon University, 2017, [Online], available: \url{http://15418.courses.cs.cmu.edu/spring2017/home}. [Accessed: 19 May 2020].
+
+    \bibitem{FT FFT}
+    J. Cooley and J. Tukey, "An algorithm for the machine calculation of complex Fourier series," Mathematics of Computation, vol. 19, no. 90, pp. 297-297, 1965, doi: 10.1090/s0025-5718-1965-0178586-1.
+
+    \bibitem{FT lecture}
+    "2D Fourier transforms and applications," University of Oxford, 2014, [Online], available: \url{http://www.robots.ox.ac.uk/}. [Accessed: 19 May 2020].
 \end{thebibliography}
 \end{document}

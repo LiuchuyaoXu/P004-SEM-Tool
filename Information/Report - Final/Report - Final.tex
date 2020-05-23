@@ -8,9 +8,12 @@
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{listings}
+\usepackage[lighttt]{lmodern}
 
 \onehalfspacing
 \geometry{margin=25mm}
+\lstset{basicstyle=\ttfamily, keywordstyle=\bfseries}
 
 \author{Liuchuyao Xu}
 \title{General-purpose Computing on Graphics Processing Units for Real-time Analysis of Scanning Electron Microscope Images}
@@ -138,16 +141,171 @@ This has allowed the development of a real-time diagnostic tool for the SEM with
         \caption{Matrix multiplication.}
         \label{Test GPU and CPU matrix multiplication}
     \end{subfigure}
-    \caption{Performance test results of the GPU and the CPU}
+    \caption{Performance test results of the GPU and CPU}
     \label{Test GPU and CPU}
 \end{figure*}
 
-\chapter{Real-time diagnostic tool for SEMs}
-\section{Design of the software}
+\chapter{A real-time diagnostic tool for SEMs}
+\section{The Design}
+\paragraph{Features}
+The aim of the tool is to support interactive real-time diagnosis of SEM images that assists the operator or automated procedures, and it has two main features:
+\begin{itemize}
+    \item Real-time histogram calculation and histogram equalisation.
+    \item Real-time FFT calculation.
+\end{itemize}
 
-\section{Real-time histogram equalisation for improving image contrast}
+\paragraph{Design principle}
+Considering that the tool may serve as the foundation stone for many further developments, the design of the software has a strong emphasis on readability and maintainability.
 
-\section{Real-time fast Fourier transform for evaluating image focusing and astigmatism} \label{Software FFT}
+\paragraph{Selection of programming language}
+The SEM used for the project is made by Carl Zeiss AG, which provides an API for controlling the SEM and grabbing images from it. The API supports C++ and thus makes it a possible programming language for the project. Being a relatively low-level compiled language makes C++ extremely fast and useful for speed-critical applications. However, it also means that C++ has a complex syntax, which could significantly slow down development if the user does not have enough experience with it. Considering the time scale of the project and to make development easier for people who will continue the work, Python is selected instead of C++ as the programming language. It has a much simpler syntax and is widely supported; with careful design, it has proved to produce useful results despite its slower speed (see later sections).
+
+\paragraph{Modules of the software}
+The software is highly modularised for maximising readability and maintainability. This also makes it easier to translate the program into C++ later if faster speed is needed since C++ is mostly used in an object-oriented manner. The software is divided into six main classes as shown in Fig. \ref{Software class diagram}:
+\begin{itemize}
+    \item \textit{SEM\_API} is a Python wrapper for the native SEM API, which allows the user to directly control the SEM in Python.
+    \item \textit{SemImage} encapsulates variables and methods that are directly relevant to an SEM image.
+    \item \textit{SemImageGrabber} is a helper class that helps obtain image data from the SEM and create instances of \textit{SemImage} from them. Images can be obtained in two ways:
+    \begin{itemize}
+        \item From the SEM.
+        \item From a local folder, which is helpful when the SEM is not available.
+    \end{itemize}
+    \textit{SemImageGrabber} detects if the SEM is available and decides on which way to use.
+    \item \textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The pushbuttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image [see section TBC]. The plots are shown on different windows and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Test software framerates} shows that the improvement is significant, as rendering windows is a major time-consuming process of the software. When only one window is opened, a refresh rate of about 16 frames per second is possible. There are two ways for updating the plots, and the first one is to re-render the whole window. This wastes time since some components are always the same and do not need to be re-rendered, such as the window title and the axes. Therefore, \textit{SemTool} uses the second method, where only the data to be plotted are updated. This directly modifies the relevant data in the memory of the GPU, thereby avoiding re-rendering the whole window. Tests have shown that if the first method is used, the time taken to update each frame when there is only one plot opened will be 90 ms instead of 60 ms.
+    \item \textit{SemCorrector} implements the automatic focusing and astigmatism correction algorithm and uses a helper class \textit{Masker} to achieve fast computation [see section TBC]. Due to the impact of the COVID-19 pandemic, the algorithm has not been fully tested and is therefore not integrated to the GUI yet.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/Software class diagram.png}
+    \caption{Class diagram of the software in unified modelling language (UML).}
+    \label{Software class diagram}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/Software screenshot.jpg}
+    \caption{Screenshot of the GUI.}
+    \label{Software GUI}
+\end{figure}
+
+\begin{table}[htbp]
+    \caption{Results of software framerate test}
+    \begin{center}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Number of} & \textbf{Time taken to} \\
+    \textbf{plots opened} & \textbf{update each frame} \\
+    \hline
+    zero & 15 ms \\
+    \hline
+    one & 60 ms \\
+    \hline
+    three & 160 ms \\
+    \hline
+    \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
+    \multicolumn{2}{l}{$^{\mathrm{b}}$8-bit grey-scale 1024 $\times$ 768 input images.} \\
+    \multicolumn{2}{l}{$^{\mathrm{c}}$On Intel Core i7 and NVIDIA GTX 1060 }
+    \end{tabular}
+    \label{Test software framerates}
+    \end{center}
+\end{table}
+
+\section{Real-time histogram calculation and histogram equalisation}
+\paragraph{}
+Histograms use bars to represent the shades of tones (level) that make up an image. The grey level (brightness level) histogram is the most relevant histogram to SEM images, since SEMs translate the energy of the secondary electrons directly into a grey level. The height of the bars in a grey level histogram can be calculated by
+\begin{equation}
+    n_l = \frac{1}{P} \sum_{p} I(l_p=l),
+\end{equation}
+where $n_l$ is the normalised number of pixels of grey level $l$, $P$ is the total number of pixels in the image and $l_p$ is the grey level of the $p_{th}$ pixel. 
+
+\paragraph{}
+Fig. \ref{Histogram equalisation inital image} shows an 8-bit grey-scale image, i.e. its depth of digitisation is 8-bit and it has 256 grey levels. Fig. \ref{Histogram equalisation inital image histogram} shows the histogram of the image and its integral. As can be seen in the histogram, most pixels are concentrated in the middle of the greyscale. This is reflected by the fact that the image is missing its highlights and shadows.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Histogram equalisation inital image.jpg}
+        \caption{Original image.}
+        \label{Histogram equalisation inital image}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Histogram equalisation inital image histogram.png}
+        \caption{Histogram of the original image.}
+        \label{Histogram equalisation inital image histogram}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Histogram equalisation final image.jpg}
+        \caption{Histogram-equalised image.}
+        \label{Histogram equalisation final image}
+    \end{subfigure}
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Histogram equalisation final image histogram.png}
+        \caption{Histogram of the histogram-equalised image.}
+        \label{Histogram equalisation final image histogram}
+    \end{subfigure}
+    \caption{Histogram and histogram equalisation.}
+    \label{Histogram and histogram equalisation}
+\end{figure}
+
+\paragraph{}
+Histogram equalisation is a method for adjusting the distribution of pixel intensities of an image, to improve its overall contrast. Effectively, it is achieved by spreading out more frequent intensity values. To perform histogram equalisation, firstly obtain the integral of the histogram using
+\[s_l = \sum_{i=1}^{l} n_i,\]
+where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and perform rounding to create the transform function
+\begin{equation}
+    f_l = \lfloor s_lL \rfloor,
+    \label{Histogram equalisation transform function}
+\end{equation}
+If a pixel in the original image has a grey level $l$, it will have a grey level $f_l$ in the transformed image. For example, if all pixels in the original image are concentrated between grey level 100 to 200, the pixels of level 100 will become 0 in the new image while the pixels of level 200 will become 255 (assuming an 8-bit image).
+
+\paragraph{}
+The result is more noticeable when the image has low contrast, such as the one shown in Fig. \ref{Histogram equalisation inital image}. The histogram-equalised version of it is given in Fig. \ref{Histogram equalisation final image} and the new histogram in Fig. \ref{Histogram equalisation final image histogram}. More details are now visible as the contrast has been enhanced.
+
+\paragraph{}
+The most time-consuming part of histogram equalisation is to map all pixels in the original image to their new values using the transform function \eqref{Histogram equalisation transform function}. This can be implemented using CPU code in one line:
+\begin{lstlisting}
+newImage = 
+  map(lambda x: f[x], image)
+\end{lstlisting}
+\lstinline{f} is an array that serves as the transformation function, if the original pixel value is x, the new value should be \lstinline{f[x]}. The \lstinline{lambda} operator is a way to create small anonymous functions, which are throw-away and are only needed where they are created. It improves conciseness and readability by reducing code bloat. \lstinline{lambda x: f[x]} creates an anonymous function that returns \lstinline{f[x]} when given \lstinline{x}, and \lstinline{map()} uses this function to transform all pixels in \lstinline{image}. This gives a time complexity of $O(N^2)$ which is not optimal. A smaller time complexity can be achieved using the GPU code:
+\begin{lstlisting}
+map = cupy.ElementwiseKernel(
+  'T x, raw T f', 'T xNew',
+  'xNew = f[x]',
+  'map'
+)
+newImage = map(image, f)
+\end{lstlisting}
+\lstinline{cupy.ElementwiseKernel()} defines a kernel that the GPU uses to process the input data in parallel. Tests have shown that the use of GPU can increase the speed by 2 times, as summarised in Table \ref{Software speed comparison}. In theory, the factor of speed improvement should be similar as that for calculating the histogram, since it also requires iterating through all pixels in the image. However, the code implementations introduce overheads which limit the improvement in speed.
+
+\begin{table}[htbp]
+    \caption{Speed comparison between CPU and GPU}
+    \begin{center}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Algorithm} & \textbf{CPU} & \textbf{GPU} \\
+    \hline
+    Apply Hanning window & 16 ms & 9 ms \\
+    \hline
+    Calculating histogram & 30 ms & 2 ms \\
+    \hline
+    Histogram equalisation & 9 ms & 5 ms \\
+    \hline
+    Fast Fourier transform & 60 ms & 8 ms \\
+    \hline
+    \multicolumn{3}{l}{$^{\mathrm{a}}$The results are averaged over 10 samples.} \\
+    \multicolumn{3}{l}{$^{\mathrm{b}}$8-bit greyscale 1024 $\times$ 768 input images.} \\
+    \multicolumn{3}{l}{$^{\mathrm{c}}$On Intel Core i7 and NVIDIA GTX 1060.}
+    \end{tabular}
+    \label{Software speed comparison}
+    \end{center}
+\end{table}
+
+\section{Real-time fast Fourier transform calculation}
 
 \chapter{Automatic focusing and astigmatism correction algorithm}
 

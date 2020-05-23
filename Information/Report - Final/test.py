@@ -72,47 +72,56 @@ import matplotlib.pyplot as plt
 
  
  
-samplingFrequency = 100
-samplingInterval = 1 / samplingFrequency
+# samplingFrequency = 100
+# samplingInterval = 1 / samplingFrequency
 
-beginTime = 0
-endTime = 5
+# beginTime = 0
+# endTime = 5
 
-signal1Frequency = 1
-signal2Frequency = 10
-time = np.arange(beginTime, endTime, samplingInterval)
-amplitude1 = np.sin(2*np.pi*signal1Frequency*time)
-amplitude2 = np.sin(2*np.pi*signal2Frequency*time)
-figure, axis = plt.subplots(4, 1)
-plt.subplots_adjust(hspace=1)
+# signal1Frequency = 1
+# signal2Frequency = 10
+# time = np.arange(beginTime, endTime, samplingInterval)
+# amplitude1 = np.sin(2*np.pi*signal1Frequency*time)
+# amplitude2 = np.sin(2*np.pi*signal2Frequency*time)
+# figure, axis = plt.subplots(4, 1)
+# plt.subplots_adjust(hspace=1)
 
-axis[1].set_title('1 Hz sine wave')
-axis[1].plot(time, amplitude1)
-axis[1].set_xlabel('Time')
-axis[1].set_ylabel('Amplitude')
+# axis[1].set_title('1 Hz sine wave')
+# axis[1].plot(time, amplitude1)
+# axis[1].set_xlabel('Time')
+# axis[1].set_ylabel('Amplitude')
 
-axis[2].set_title('10 Hz sine wave')
-axis[2].plot(time, amplitude2)
-axis[2].set_xlabel('Time')
-axis[2].set_ylabel('Amplitude')
+# axis[2].set_title('10 Hz sine wave')
+# axis[2].plot(time, amplitude2)
+# axis[2].set_xlabel('Time')
+# axis[2].set_ylabel('Amplitude')
 
-amplitude = amplitude1 + amplitude2
-axis[0].set_title('Composite wave')
-axis[0].plot(time, amplitude)
-axis[0].set_xlabel('Time')
-axis[0].set_ylabel('Amplitude')
+# amplitude = amplitude1 + amplitude2
+# axis[0].set_title('Composite wave')
+# axis[0].plot(time, amplitude)
+# axis[0].set_xlabel('Time')
+# axis[0].set_ylabel('Amplitude')
 
-fourierTransform = np.fft.fft(amplitude)/len(amplitude)           # Normalize amplitude
-fourierTransform = fourierTransform[range(int(len(amplitude)/2))] # Exclude sampling frequency
+# fourierTransform = np.fft.fft(amplitude)/len(amplitude)           # Normalize amplitude
+# fourierTransform = fourierTransform[range(int(len(amplitude)/2))] # Exclude sampling frequency
 
-tpCount     = len(amplitude)
-values      = np.arange(int(tpCount/2))
-timePeriod  = tpCount/samplingFrequency
-frequencies = values/timePeriod
+# tpCount     = len(amplitude)
+# values      = np.arange(int(tpCount/2))
+# timePeriod  = tpCount/samplingFrequency
+# frequencies = values/timePeriod
 
-axis[3].set_title('Fourier transform of the composite wave')
-axis[3].plot(frequencies, abs(fourierTransform))
-axis[3].set_xlabel('Frequency')
-axis[3].set_ylabel('Amplitude')
+# axis[3].set_title('Fourier transform of the composite wave')
+# axis[3].plot(frequencies, abs(fourierTransform))
+# axis[3].set_xlabel('Frequency')
+# axis[3].set_ylabel('Amplitude')
 
+# plt.show()
+
+
+from numpy.fft import fft, fftshift
+window = np.hamming(51)
+plt.plot(window)
+plt.title("Hamming window")
+plt.ylabel("Amplitude")
+plt.xlabel("Sample")
 plt.show()

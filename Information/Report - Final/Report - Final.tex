@@ -318,7 +318,7 @@ The Fourier transform (FT) decomposes a function into its constituent frequencie
 \end{figure}
 
 \paragraph{}
-In image processing, the discrete Fourier transform is used instead of the FT, which takes a finite sequence of equally-spaced values as input and is thus better suited than the FT. It is defined by
+In image processing, the discrete Fourier transform (DFT) is used instead of the FT, which takes a finite sequence of equally-spaced values as input and is thus better suited than the FT. It is defined by
 \begin{equation}
     X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-i2\pi kn/N}, \quad 0 \leq k \leq N-1,
     \label{FT DFT}
@@ -344,16 +344,18 @@ Now, only $r_1 + r_2$ operations need to be performed to compute $X_k$, and the 
 \end{align*}
 which yields a time complexity of $O(N\log N)$. 
 
+\paragraph{}
 Fig. \ref{FT FFT on images} gives an example of FFT applied to a real image. The top row shows a set of images and the bottom row shows the corresponding transform (amplitudes only). Points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.45\textwidth]{Figures/FT FFT on images.jpg}
+    \includegraphics[width=0.45\textwidth]{Figures/FT FFT on images cropped.jpg}
     \caption{FFT and filtering on images \cite{FT lecture}.}
     \label{FT FFT on images}
 \end{figure}
 
-A problem in the use of the FFT for image analysis is the boundary effect. The abrupt discontinuity at the edges gives the FFT some strong high-frequency components. In practice, windows functions such as the Hann window and the Hamming window are often applied to the image before performing the FFT, which taper the edges off towards zero and thus reduce the boundary effect. Fig. \ref{FT window functions} illustrates how the Hann window and the Hamming window look like; they can be obtained by setting $a_0$ to $0.5$ and $25/46$, respectively, in the function
+\paragraph{}
+A problem in the use of the FFT for image analysis is the boundary effect. The abrupt discontinuity at the edges gives the FFT some strong high-frequency components. In practice, windows functions such as the Hann window and the Hamming window are often applied to the image before performing the FFT, which taper the edges off towards zero and thus reduce the boundary effect. Fig. \ref{FT window functions} shows how the Hann window and the Hamming window look like; they can be obtained by setting $a_0$ to $0.5$ and $25/46$, respectively, in the function
 \begin{equation}
     w[n] = a_0 - (1-a_0)\cdot \cos{\frac{2\pi n}{N}}, \quad 0\leq n \leq N.
 \end{equation}
@@ -373,6 +375,52 @@ A problem in the use of the FFT for image analysis is the boundary effect. The a
     \caption{Window functions.}
     \label{FT window functions}
 \end{figure}
+
+\section{How the FFT can aid SEM operators}
+\paragraph{}
+The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/SEM sample images astigmatism a.jpeg}
+        \caption{Astigmatic images with different level of focusing.}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/SEM sample images astigmatism b.jpeg}
+        \caption{Exact-focus images with different level of astigmatism.}
+    \end{subfigure}
+    \caption{Sample astigmatic SEM images \cite{SEM astigmatism correction}.}
+    \label{SEM sample images}
+\end{figure}
+
+\paragraph{}
+Focus determines the focal point of the electron probe. When the focal point is far from the surface of the specimen, the incident electrons interact with the specimen in a larger area. As a result, spots near each other produce signals of closer magnitude. This makes the image appear blurry.
+
+\paragraph{}
+Stigmators are used to compensate for astigmatism. Astigmatism arises due to imperfections in components of the SEM and describes uneven focus in the electron probe, as illustrated in Fig. \ref{SEM uneven focus}. When the electron probe is out of focus, astigmatism makes the incident electrons interact with the specimen in an elliptical area, and thus makes the image appear stretched. When the electron probe is in focus, astigmatism makes the image appear blurry.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/SEM uneven focus.jpg}
+    \caption{Uneven focus of the SEM.}
+    \label{SEM uneven focus}
+\end{figure}
+
+\paragraph{}
+Although experienced SEM operators can often tell the accuracy of focusing and level of astigmatism in a short time, it may not be as straightforward for new users. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is subjective. Sometimes, the surface being observed may have a complex structure and makes judgement even harder. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
+
+\paragraph{}
+The real-time FFT calculation aids the operators by providing an alternative way of evaluating the focusing and astigmatism of images using the FFT. Fig. \ref{SEM astigmatism} provides a set of sample images that illustrate how different degrees of defocus and astigmatism affect the FFT of an image. An in-focus image contains more details, and its FFT will thus have stronger high-frequency components. The FFT of an astigmatic image rotates by 90 degrees as the image goes from under-focus from over-focus; this is because the elliptical incidence area of the electron probe rotates by 90 degrees and makes the image appear stretched in the new direction (as shown in Fig. \ref{SEM sample images}).
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=1.05\textwidth]{Figures/SEM astigmatism and FFT.jpg}
+    \caption{Images of gold-on-carbon sample and their fast Fourier transforms (FFTs) for different degrees of defocus and astigmatism \cite{SEM correction algorithm}.}
+    \label{SEM astigmatism}
+\end{figure*}
 
 \chapter{Automatic focusing and astigmatism correction algorithm}
 
@@ -401,9 +449,15 @@ A problem in the use of the FFT for image analysis is the boundary effect. The a
     ``GPU Architecture and CUDA Programming,'' Carnegie Mellon University, 2017, [Online], available: \url{http://15418.courses.cs.cmu.edu/spring2017/home}. [Accessed: 19 May 2020].
 
     \bibitem{FT FFT}
-    J. Cooley and J. Tukey, "An algorithm for the machine calculation of complex Fourier series," Mathematics of Computation, vol. 19, no. 90, pp. 297-297, 1965, doi: 10.1090/s0025-5718-1965-0178586-1.
+    J. Cooley and J. Tukey, ``An algorithm for the machine calculation of complex Fourier series,'' Mathematics of Computation, vol. 19, no. 90, pp. 297-297, 1965, doi: 10.1090/s0025-5718-1965-0178586-1.
 
     \bibitem{FT lecture}
-    "2D Fourier transforms and applications," University of Oxford, 2014, [Online], available: \url{http://www.robots.ox.ac.uk/}. [Accessed: 19 May 2020].
+    ``2D Fourier transforms and applications,'' University of Oxford, 2014, [Online], available: \url{http://www.robots.ox.ac.uk/}. [Accessed: 19 May 2020].
+
+    \bibitem{SEM astigmatism correction}
+    C. Lyman, ``Correcting Astigmatism in SEM Images,'' Microscopy Today, vol. 27, no. 03, pp. 32-35, 2019, doi: 10.1017/s1551929519000476.
+
+    \bibitem{SEM correction algorithm}
+    K.H. Ong, J.C.H. Phang and J.T.L. Thong, ``A robust focusing and astigmatism correction method for the scanning electron microscope,'', scanning 19: 553-563, 1997, doi: 10.1002/sca.4950190805.
 \end{thebibliography}
 \end{document}

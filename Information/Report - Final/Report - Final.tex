@@ -20,6 +20,7 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 \begin{abstract}
 \end{abstract}
@@ -306,7 +307,7 @@ newImage = map(image, f)
 \end{table}
 
 \section{Real-time fast Fourier transform calculation}
-\subsection{Theories}
+\subsection{Theory of the FFT}
 \paragraph{}
 The Fourier transform (FT) decomposes a function into its constituent frequencies, as illustrated in Fig. \ref{FT demonstration}. The composite wave can be represented by the superposition of a 1 Hz sine wave and a 10 Hz sine wave, and its FT therefore has two components. A function that changes more abruptly will have stronger high-frequency components than a smoother one.
 
@@ -376,7 +377,7 @@ A problem in the use of the FFT for image analysis is the boundary effect. The a
     \label{FT window functions}
 \end{figure}
 
-\section{How the FFT can aid SEM operators}
+\subsection{How the FFT can aid SEM operators} \label{How the FFT can aid SEM operators}
 \paragraph{}
 The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
 
@@ -422,7 +423,118 @@ The real-time FFT calculation aids the operators by providing an alternative way
     \label{SEM astigmatism}
 \end{figure*}
 
-\chapter{Automatic focusing and astigmatism correction algorithm}
+\paragraph{}
+The importance of real-time calculation is that it saves SEM operators time by eliminating the need for downloading each image, and thus improves their productivity.
+
+\subsection{Performance test of the software}
+
+\chapter{An automatic focusing and astigmatism correction algorithm for SEMs}
+\section{Theory of the algorithm}
+\paragraph{}
+K.H. Ong, J.C.H. Phang, and J.T.L. Thong proposed an algorithm for automatically correcting the focusing and astigmatism of the SEM \cite{SEM correction algorithm}, which uses the properties of the FFT of SEM images described in section \ref{How the FFT can aid SEM operators}.
+
+\paragraph{}
+Firstly, convert the FFT of the image into a binray image by applying a threshold to the magnitudes, and then segment it into eight regions as shown in Fig. \ref{Correction algorithm FFT segmentation}. A pixel has value 1 if the magnitude is above the threshold and 0 otherwise. Let $I$ be a matrix representing the current image with focus set to $F$, obtain an under-focused image $I_{uf}$ and an over-focused image $I_{of}$ by setting the focus to $F-\Delta F=F_{uf}$ and $F+\Delta F=F_{of}$, respectively. Let $T$, $T_{uf}$ and $T_{of}$ be matrices representing the binary FFT of $I$, $I_{uf}$ and $I_{of}$, respectively.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/Correction algorithm FFT segmentation.jpg}
+    \caption{FFT segmentation \cite{SEM correction algorithm}.}
+    \label{Correction algorithm FFT segmentation}
+\end{figure}
+
+\paragraph{}
+The focus can be adjusted by comparing the sum of pixel values in $T$, $T_{uf}$ and $T_{of}$. Let the perfect focus for the image be $\hat{F}$, then
+\begin{align*}
+\begin{cases}
+    \text{sum}(T_{of}) < \text{sum}(T_{uf}), & \hat{F} < F_{uf} < F\\
+    \text{sum}(T_{of}) < \text{sum}(T_{uf}), & F_{uf} < \hat{F} < F \\
+    \text{sum}(T_{of}) = \text{sum}(T_{uf}), & F = \hat{F} \\
+    \text{sum}(T_{uf}) < \text{sum}(T_{of}), & F_{of} > \hat{F} > F \\
+    \text{sum}(T_{uf}) < \text{sum}(T_{of}), & \hat{F} > F_{of} > F
+\end{cases}.
+\end{align*}
+Let
+\begin{equation}
+    P = \text{sum}(T_{of}) - \text{sum}(T_{uf}).
+\end{equation}
+Then, the rules for adjusting focus are
+\begin{itemize}
+    \item when $P>0$, the focus should be decreased.
+    \item when $P<0$, the focus should be increased.
+\end{itemize}
+
+\paragraph{}
+After the focus has been set to the perfect value, i.e. when $F=\hat{F}$, the stigmator settings can be adjusted by comparing the sum of pixel values in different regions of $T$, $T_{uf}$ and $T_{of}$. Let
+\begin{align}
+    P_{R12} & = \text{sum}(T_{of,R12}) - \text{sum}(T_{uf,R12}), \\
+    P_{R34} & = \text{sum}(T_{of,R34}) - \text{sum}(T_{uf,R34}), \\
+    P_{S12} & = \text{sum}(T_{of,S12}) - \text{sum}(T_{uf,S12}), \\
+    P_{S34} & = \text{sum}(T_{of,S34}) - \text{sum}(T_{uf,S34}).
+\end{align}
+The rules for adjusting the stigmators can be determined from Fig. \ref{SEM astigmatism}. As can be seen in the figure, stigmator x affects the astigmatism in the horizontal and vertical directions, i.e. $P_{R12}$ and $P_{R34}$, and stigmator y affects that in the diagonal directions, i.e. $P_{S12}$ and ${P_{S34}}$. Then:
+\begin{itemize}
+    \item when $P_{R12}>0$ and $P_{R34}<0$, the value of stigmator x should be decreased.
+    \item when $P_{R12}<0$ and $P_{R34}>0$, the value of stigmator x should be increased.
+    \item when $P_{S12}>0$ and $P_{S34}<0$, the value of stigmator y should be increased.
+    \item when $P_{S12}<0$ and $P_{S34}>0$, the value of stigmator y should be decreased.
+\end{itemize}
+
+\section{Practical considerations}
+\paragraph{}
+The performance of the algorithm is affected by five key parameters:
+\begin{itemize}
+    \item $P_{threshold}$. Ideally, the focus of the SEM should be set to a value such that $P = 0$, i.e. the under-focused image and the over-focused image have the same FFT magnitude. However, this is practically impossible due to noise, non-linearity in the lens system, etc. Therefore, $P_{threshold}$ is used to define a threshold such that the image is considered to be in perfect focus when $|P| < P_{threshold}$. If $P$ is normalised, $P_{threshold}$ can be conveniently set to a percentage value.
+    \item $F_{step}$, which is how much the focus should be adjusted during each iteration in focus adjustment. A smaller $F_{step}$ allows the final image to have a finer resolution but increases the amount of time needed for the adjustment. A larger $F_{step}$ speeds up the process but may never achieve the level of focus as required by $P_{threshold}$. To achieve the best result, larger values of $F_{step}$ should be used at the beginning and smaller ones towards the end.
+    \item $\Delta F$, which determines how much the focus should be changed to obtain the under-focused and over-focused images. It is more important to the astigmatism correction step. When $\Delta F$ is too small, the difference between the FFT of the under-focused and over-focused image will not be significant enough and can be easily hidden by noise. When it is too big, the FFTs will lose their high-frequency components, which again makes the difference too small.
+    \item $S_{threshold}$. The values of $P_{R12}$, $P_{R34}$, $P_{S12}$, $P_{S34}$ are prone to the influence of noise near zero. Same as the purpose of $P_{threshold}$, $S_{threshold}$ defines a threshold to circumvent this problem.
+    \item $S_{step}$, which is how much the value of the stigmator control should be adjusted during each iteration in astigmatism adjustment. Similar to $F_{step}$, it determines the speed of the adjustment and the level of fineness of the final images.
+\end{itemize}
+
+\paragraph{}
+Another factor that affects the speed of the algorithm is how fast the FFT segmentation can be done. The most straightforward way of doing it is to iterate through the whole matrix while calculating the sums in pure Python, for every FFT. This is slow, and the \textit{Masker} class provides a faster solution.
+
+\paragraph{}
+A \textit{Masker} is initialised with a 2D shape, and it creates eight matrices, each representing a region as shown in Fig. \ref{Correction algorithm FFT segmentation}. For example, if the input is $[5, 7]$, the matrix created for region R1 will be
+\begin{align*}
+\begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1\\
+1 & 1 & 1 & 1 & 1 & 1 & 0\\
+1 & 1 & 1 & 0 & 0 & 0 & 0\\
+1 & 1 & 1 & 1 & 1 & 1 & 0\\
+1 & 1 & 1 & 1 & 1 & 1 & 1
+\end{bmatrix}.
+\end{align*}
+The code ensures that there is no overlapping between matrices apart from at the center. The sum of values in region R1 of the FFT can be calculated using:
+\begin{lstlisting}
+ma.array(fft, masker.r1).sum()
+\end{lstlisting}
+
+\section{Experiment, results, and discussions}
+\paragraph{}
+Due to the impact of the COVID-19 pandemic, the algorithm has not been comprehensively tested and only some preliminary experiments were conducted to verify the logic of the algorithm and the correctness of the implementation. Fig. \ref{Correction algorithm test} shows the result of the focusing correction done by the algorithm. It was able to find the same best focus for the SEM as determined by the operator.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Correction algorithm test initial image.png}
+        \caption{Initial.}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Correction algorithm test final image.png}
+        \caption{Final.}
+    \end{subfigure}
+    \caption{Automatic focusing correction.}
+    \label{Correction algorithm test}
+\end{figure}
+
+\paragraph{}
+A major practical problem found during the experiment is that although the FFTs can be calculated within a few milliseconds using the real-time diagnostic tool, the algorithm still has to wait a few hundred milliseconds in each iteration for the SEM image to be updated. This is because the SEM needs to perform multiple scans on the object and take the average to reduce noise.
+
+\paragraph{}
+Another problem is that it is difficult to determine the best values for the five parameters mentioned earlier. The result shown in Fig. \ref{Correction algorithm test} was obtained using the best settings found empirically, which may be dependent on the model of the SEM and characteristics of the object under observation.
 
 \chapter{Conclusions}
 

@@ -172,7 +172,7 @@ The software is highly modularised for maximising readability and maintainabilit
         \item From a local folder, which is helpful when the SEM is not available.
     \end{itemize}
     \textit{SemImageGrabber} detects if the SEM is available and decides on which way to use.
-    \item \textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The pushbuttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image. The plots are shown on different windows and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. Table \ref{Test software framerates} shows that the improvement is significant, as rendering windows is a major time-consuming process of the software. When only one window is opened, a refresh rate of about 16 frames per second is possible. There are two ways for updating the plots, and the first one is to re-render the whole window. This wastes time since some components are always the same and do not need to be re-rendered, such as the window title and the axes. Therefore, \textit{SemTool} uses the second method, where only the data to be plotted are updated. This directly modifies the relevant data in the memory of the GPU, thereby avoiding re-rendering the whole window. Tests have shown that if the first method is used, the time taken to update each frame when there is only one plot opened will be 90 ms instead of 60 ms.
+    \item \textit{SemTool} handles the creation and rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The pushbuttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image. The plots are shown on different windows and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. There are two ways for updating the plots, and the first one is to re-render the whole window. This wastes time since some components are always the same and do not need to be re-rendered, such as the window title and the axes. Therefore, \textit{SemTool} uses the second method, where only the data to be plotted are updated. This directly modifies the relevant data in the memory of the GPU, thereby avoiding re-rendering the whole window. Tests have shown that if the first method is used, the time taken to update each frame when there is only one plot opened will be 90 ms instead of 60 ms.
     \item \textit{SemCorrector} implements the automatic focusing and astigmatism correction algorithm and uses a helper class \textit{Masker} to achieve fast computation [see chapter \ref{An automatic focusing and astigmatism correction algorithm for SEMs}]. Due to the impact of the COVID-19 pandemic, the algorithm has not been fully tested and is therefore not integrated to the GUI yet.
 \end{itemize}
 
@@ -189,28 +189,6 @@ The software is highly modularised for maximising readability and maintainabilit
     \caption{Screenshot of the GUI.}
     \label{Software GUI}
 \end{figure}
-
-\begin{table}[htbp]
-    \caption{Results of software framerate test}
-    \begin{center}
-    \begin{tabular}{|c|c|}
-    \hline
-    \textbf{Number of} & \textbf{Time taken to} \\
-    \textbf{plots opened} & \textbf{update each frame} \\
-    \hline
-    zero & 15 ms \\
-    \hline
-    one & 60 ms \\
-    \hline
-    three & 160 ms \\
-    \hline
-    \multicolumn{2}{l}{$^{\mathrm{a}}$The numbers are approximate.} \\
-    \multicolumn{2}{l}{$^{\mathrm{b}}$8-bit grey-scale 1024 $\times$ 768 input images.} \\
-    \multicolumn{2}{l}{$^{\mathrm{c}}$On Intel Core i7 and NVIDIA GTX 1060 }
-    \end{tabular}
-    \label{Test software framerates}
-    \end{center}
-\end{table}
 
 \section{Real-time histogram calculation}
 \subsection{Theory of the histogram}
@@ -284,30 +262,7 @@ map = cupy.ElementwiseKernel(
 )
 newImage = map(image, f)
 \end{lstlisting}
-\lstinline{cupy.ElementwiseKernel()} defines a kernel that the GPU uses to process the input data in parallel. Tests have shown that the use of GPU can increase the speed by 2 times, as summarised in Table \ref{Software speed comparison}. In theory, the factor of speed improvement should be similar as that for calculating the histogram, since it also requires iterating through all pixels in the image. However, the code implementations introduce overheads which limit the improvement in speed.
-
-\begin{table}[htbp]
-    \caption{Speed comparison between CPU and GPU}
-    \begin{center}
-    \begin{tabular}{|c|c|c|}
-    \hline
-    \textbf{Algorithm} & \textbf{CPU} & \textbf{GPU} \\
-    \hline
-    Apply Hanning window & 16 ms & 9 ms \\
-    \hline
-    Calculating histogram & 30 ms & 2 ms \\
-    \hline
-    Histogram equalisation & 9 ms & 5 ms \\
-    \hline
-    Fast Fourier transform & 60 ms & 8 ms \\
-    \hline
-    \multicolumn{3}{l}{$^{\mathrm{a}}$The results are averaged over 10 samples.} \\
-    \multicolumn{3}{l}{$^{\mathrm{b}}$8-bit greyscale 1024 $\times$ 768 input images.} \\
-    \multicolumn{3}{l}{$^{\mathrm{c}}$On Intel Core i7 and NVIDIA GTX 1060.}
-    \end{tabular}
-    \label{Software speed comparison}
-    \end{center}
-\end{table}
+\lstinline{cupy.ElementwiseKernel()} defines a kernel that the GPU uses to process the input data in parallel. Tests have shown that the use of GPU can increase the speed by 2 times, as summarised in Table \ref{Software performance test}. In theory, the factor of speed improvement should be similar as that for calculating the histogram, since it also requires iterating through all pixels in the image. However, the code implementations introduce overheads which limit the improvement in speed.
 
 \section{Real-time FFT calculation}
 \subsection{Theory of the FFT}
@@ -429,8 +384,29 @@ The real-time FFT calculation aids the operators by providing an alternative way
 \paragraph{}
 The importance of real-time calculation is that it saves SEM operators time by eliminating the need for downloading each image, and thus improves their productivity.
 
-\section{Performance tests of the software}
+\section{Performance tests of the tool}
+\paragraph{}
+Experiments were conducted to test the performance of the tool with the NVIDIA GeForce GTX 1060 and the Intel Core i7. The following algorithms were performed on a set of 8-bit 1024 $\times$ 768 SEM images and the average results are shown in table \ref{Software performance test}. If all the algorithms need to be performed on each image, using the CPU will limit the framerate to about 9 fps. The use of GPU changes the number to 42 fps, which gives margin to other processes such as the rendering of the GUI.
 
+\begin{table}[htbp]
+    \caption{Results of performance tests of the diagnostic tool}
+    \begin{center}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Algorithm} & \textbf{CPU} & \textbf{GPU} \\
+    \hline
+    Apply Hanning window & 16 ms & 9 ms \\
+    \hline
+    Calculating histogram & 30 ms & 2 ms \\
+    \hline
+    Histogram equalisation & 9 ms & 5 ms \\
+    \hline
+    Fast Fourier transform & 60 ms & 8 ms \\
+    \hline
+    \end{tabular}
+    \label{Software performance test}
+    \end{center}
+\end{table}
 
 \chapter{An automatic focusing and astigmatism correction algorithm for SEMs} \label{An automatic focusing and astigmatism correction algorithm for SEMs}
 \section{Theory of the algorithm}

@@ -537,6 +537,14 @@ A major practical problem found during the experiment is that although the FFTs 
 Another problem is that it is difficult to determine the best values for the five parameters mentioned earlier. The result shown in Fig. \ref{Correction algorithm test} was obtained using the best settings found empirically, which may be dependent on the model of the SEM and characteristics of the object under observation.
 
 \chapter{Conclusions}
+\paragraph{}
+The GPU can perform some general-purpose computing tasks much faster than the CPU because of its architecture that emphasises on parallelism. Experiments have shown that a common middle-range GPU can perform vector operations about eight times faster than a similarly priced CPU. This has allowed the development of a real-time diagnostic tool for SEMs.
+
+\paragraph{}
+The real-time diagnostic tool provides SEM operators a novel way for evaluating the focusing and astigmatism of SEM images, and making corresponding adjustments to the SEM. In the past, operators make judgements based on the stretching of the images. By performing the calculations ten times faster, the use of GPGPU gives operators access to the FFT of the images in real-time at about ten frames per second. This allows operators to evaluate the focusing and astigmatism of SEM images using the FFT, eliminating the subjectivity and difficulty caused by complex structures of the object in the old method.
+
+\paragraph{}
+Being real-time also means that the diagnostic tool can be used to support fast automatic algorithms. An algorithm has been implemented and preliminary tests have shown that it is able to correct the focusing of the SEM as good as an SEM operator. Further experiments need to be conducted to verify its ability to correct astigmatism and to further improve its speed.
 
 \begin{thebibliography}{00}
     \bibitem{SEM for semiconductors}

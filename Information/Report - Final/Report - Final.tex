@@ -147,11 +147,11 @@ This has allowed the development of a real-time diagnostic tool for the SEM with
 \end{figure*}
 
 \chapter{A real-time diagnostic tool for SEMs}
-\section{The Design}
+\section{Design of the software}
 \paragraph{Features}
 The aim of the tool is to support interactive real-time diagnosis of SEM images that assists the operator or automated procedures, and it has two main features:
 \begin{itemize}
-    \item Real-time histogram calculation and histogram equalisation.
+    \item Real-time histogram calculation.
     \item Real-time FFT calculation.
 \end{itemize}
 
@@ -212,7 +212,8 @@ The software is highly modularised for maximising readability and maintainabilit
     \end{center}
 \end{table}
 
-\section{Real-time histogram calculation and histogram equalisation}
+\section{Real-time histogram calculation}
+\subsection{Theory of the histogram}
 \paragraph{}
 Histograms use bars to represent the shades of tones (level) that make up an image. The grey level (brightness level) histogram is the most relevant histogram to SEM images, since SEMs translate the energy of the secondary electrons directly into a grey level. The height of the bars in a grey level histogram can be calculated by
 \begin{equation}
@@ -253,8 +254,9 @@ Fig. \ref{Histogram equalisation inital image} shows an 8-bit grey-scale image, 
     \label{Histogram and histogram equalisation}
 \end{figure}
 
+\subsection{How the histogram can aid SEM operators}
 \paragraph{}
-Histogram equalisation is a method for adjusting the distribution of pixel intensities of an image, to improve its overall contrast. Effectively, it is achieved by spreading out more frequent intensity values. To perform histogram equalisation, firstly obtain the integral of the histogram using
+The contrast of an SEM image can be improved using histogram equalisation, which is a method for adjusting the distribution of pixel intensities of an image. Effectively, it is achieved by spreading out more frequent intensity values. To perform histogram equalisation, firstly obtain the integral of the histogram using
 \[s_l = \sum_{i=1}^{l} n_i,\]
 where $s_l$ is the value of the integral at grey level $l$. The integral spans from 0 to 1 as the histogram is normalised. Scale the integral by the maximum grey level and perform rounding to create the transform function
 \begin{equation}
@@ -266,6 +268,7 @@ If a pixel in the original image has a grey level $l$, it will have a grey level
 \paragraph{}
 The result is more noticeable when the image has low contrast, such as the one shown in Fig. \ref{Histogram equalisation inital image}. The histogram-equalised version of it is given in Fig. \ref{Histogram equalisation final image} and the new histogram in Fig. \ref{Histogram equalisation final image histogram}. More details are now visible as the contrast has been enhanced.
 
+\subsection{A demonstration of GPU programming}
 \paragraph{}
 The most time-consuming part of histogram equalisation is to map all pixels in the original image to their new values using the transform function \eqref{Histogram equalisation transform function}. This can be implemented using CPU code in one line:
 \begin{lstlisting}
@@ -306,7 +309,7 @@ newImage = map(image, f)
     \end{center}
 \end{table}
 
-\section{Real-time fast Fourier transform calculation}
+\section{Real-time FFT calculation}
 \subsection{Theory of the FFT}
 \paragraph{}
 The Fourier transform (FT) decomposes a function into its constituent frequencies, as illustrated in Fig. \ref{FT demonstration}. The composite wave can be represented by the superposition of a 1 Hz sine wave and a 10 Hz sine wave, and its FT therefore has two components. A function that changes more abruptly will have stronger high-frequency components than a smoother one.
@@ -426,7 +429,7 @@ The real-time FFT calculation aids the operators by providing an alternative way
 \paragraph{}
 The importance of real-time calculation is that it saves SEM operators time by eliminating the need for downloading each image, and thus improves their productivity.
 
-\subsection{Performance test of the software}
+\section{Performance tests of the software}
 
 \chapter{An automatic focusing and astigmatism correction algorithm for SEMs}
 \section{Theory of the algorithm}

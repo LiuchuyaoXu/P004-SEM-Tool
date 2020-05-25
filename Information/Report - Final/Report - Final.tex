@@ -27,29 +27,29 @@
 
 \chapter{Introduction}
 \paragraph{}
-The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. It has higher resolutions than traditional optical microscopes---an SEM can have a resolution lower than one nanometre, whereas that of an optical microscope is limited to a few hundred nanometres. This has benefited a variety of fields by allowing scientists to see micro-details of objects that were previously impossible to observe. For example, the SEM can be used to study structures of semiconductor devices \cite{SEM for semiconductors} and to view changes in bacterial cells \cite{SEM for baterial cells}.
+The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. It has higher resolutions than traditional optical microscopes---an SEM can have a resolution lower than one nanometre, whereas that of an optical microscope is limited to a few hundred nanometres. This has benefited a variety of fields by allowing scientists to see micro-details of objects that were previously difficult or impossible to observe. For example, SEMs are an essential quality control tool for wafer manufacturing processes in the semiconductor industry \cite{SEM for semiconductor inspection}. A review SEM detects the defects on a die by comparing an image of it with a reference, and then stores the image for further use. The inspection would have been impossible without the aid of SEMs.
 
 \paragraph{}
-Fig. \ref{SEM basic construction} illustrates how an SEM works. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is then scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons (which are called secondary electrons) are emitted from the specimen. The detector collects the secondary electrons and generates signals based on their energy levels. The display unit uses the signals to produce one image after each complete scan of the specimen.
+Fig. \ref{SEM basic construction} illustrates how the SEM works. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons---which are called secondary electrons---are emitted from the specimen. The detector collects the secondary electrons and generates signals based on their energy levels. The display unit converts the signals into images; one image is produced after each complete scan of the specimen.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.45\textwidth]{Figures/SEM basic construction.jpg}
-    \caption{Basic construction of an SEM \cite{SEM A to Z}.}
+    \includegraphics[width=0.49\textwidth]{Figures/SEM basic construction.jpg}
+    \caption{Basic construction of the SEM \cite{SEM A to Z}.}
     \label{SEM basic construction}
 \end{figure}
 
 \paragraph{}
-Many image analysis methods have applications in the field of SEM, and the fast Fourier transform is an especially popular one since it can be used to evaluate the focusing and astigmatism of an SEM [see section \ref{Software FFT}]; however, due to the complexity of the algorithm and a lack of fast hardware, real-time analysis had been either impossible or impractical in the past. In 1997, with an advanced central processing unit (CPU)---the Pentium Pro, it was only possible to achieve a refresh rate of 0.6 frames per second for 8-bit 1024 $\times$ 1024 input images \cite{SEM image sharpness measurement}. Although the enhancement of CPUs has enabled faster computations throughout the years, what really brings the speed to a different level is the development of graphics processing units (GPUs).
+Many image analysis methods are used on SEM images. The fast Fourier transform is an especially important one since it can be used not only to study the structure of the specimen, but also to evaluate the focusing and astigmatism of the images [see section \ref{How the FFT can aid SEM operators}]; however, due to the complexity of the algorithm and a lack of fast hardware, real-time analysis had been either impossible or impractical in the past. In 1997, with an advanced central processing unit (CPU)---the Pentium Pro, it was only possible to achieve a refresh rate of 0.6 frames per second for 8-bit 1024 $\times$ 1024 input images \cite{SEM image sharpness measurement}. Although the enhancement of CPUs has enabled faster computations throughout the years, what really brings the speed to a different level is the development of graphics processing units (GPUs).
 
 \paragraph{}
-The GPU used to be a highly specialised hardware that was designed to excel in rendering complex, high-resolution, real-time 3D scenes for games; however, its special architecture has made it outperform CPUs in many other areas and resulted in the birth of the idea of general-purpose computing on graphics processing units (GPGPU) \cite{GPU computing}, where GPUs are used to perform computations that are traditionally handled by CPUs.
+The GPU was originally designed to be a highly specialised hardware that excels in rendering complex, high-resolution, real-time 3D scenes for games; however, its special architecture has allowed it to outperform CPUs in many other areas and resulted in the birth of the idea of general-purpose computing on graphics processing units (GPGPU) \cite{GPU computing}, where GPUs are used to perform computations that are traditionally handled by CPUs.
 
 \paragraph{}
-A key characteristic of GPUs is massive parallelism. Depending on their positions, pixels in a 3D scene often require different processing to achieve effects such as lighting, blurring, and fogging. GPUs do this by breaking down the scene into fragments and manipulating each fragment individually. Modern GPUs have thousands of parallel processor cores each running tens of parallel threads to meet the the high requirement for parallelism. For example, the NVIDIA GeForce GTX 1060 has 1280 cores and each of them is capable of running 16 threads; a similarly prices CPU---the Intel i7-7700---has only 4 cores each running 8 threads. It is worth mentioning that the processing cores on a GPU are not as sophisticated as a full CPU and run at a lower clock frequency. The processor clock frequency of the GTX 1060 is 1708 MHz whereas the i7-7700 has a base processor frequency of 3600 MHz. This means that GPGPU is more useful for applications that involve simple, repetitive, parallel tasks. A recent example is deep learning, where computations that follow the same logical sequence of control need to be performed on a deep network of nodes. Typical deep learning networks in 2015 consist of about one million nodes \cite{Deep learning}, which means that the computations cannot be done efficiently on a CPU.
+A key characteristic of GPUs that differentiate them from CPUs is massive parallelism. Different pixels in a 3D scene require different processing to achieve visual effects such as lighting, blurring, and fogging. GPUs do this by breaking down the scene into fragments and manipulating each fragment independently. Modern GPUs have thousands of parallel processor cores each running tens of parallel threads to meet the requirement. For example, the NVIDIA GeForce GTX 1060 has 1280 cores and each of them is capable of running 16 threads; a similarly prices CPU---the Intel Core i7-7700HQ---has only 4 cores each running 8 threads. It is worth mentioning that the processing cores on a GPU are not as sophisticated as a full CPU and run at a lower clock frequency. The processor clock frequency of the GTX 1060 is 1708 MHz whereas the i7-7700 has a base processor frequency of 2800 MHz and a maximum of 3800 MHz. This means that GPGPU is more useful for applications that involve simple, repetitive, parallel tasks. A recent example is deep learning, where the same computation needs to be performed on a large network of nodes. Typical deep learning networks in 2015 consist of about one million nodes \cite{Deep learning}, which makes the computations impossible to be performed efficiently by CPUs.
 
 \paragraph{}
-This report investigates the gain in calculation speeds from the use of GPUs, and presents a diagnostic tool developed based on GPGPU, which can perform real-time histogram equalisation and FFT on images captured by an SEM. The tool was used to implement an automatic focusing and astigmatism correction algorithm, and the results are discussed.
+This report studies the gain in computation speeds that can be obtained from the use of GPUs, and presents a real-time diagnostic tool made possible by that. The tool assists SEM operators by providing the histogram and FFT of the images in real-time. It was used to implement an automatic focusing and astigmatism correction algorithm for SEMs, and the performance is discussed.
 
 \chapter{The gain in calculation speeds from the use of GPUs}
 \section{GPU computing}
@@ -527,11 +527,17 @@ The real-time diagnostic tool provides SEM operators a novel way for evaluating 
 Being real-time also means that the diagnostic tool can be used to support fast automatic algorithms. An algorithm has been implemented and preliminary tests have shown that it is able to correct the focusing of the SEM as good as an SEM operator. Further experiments need to be conducted to verify its ability to correct astigmatism and to further improve its speed.
 
 \begin{thebibliography}{00}
-    \bibitem{SEM for semiconductors}
-    C. REEVES, ``The uses of scanning electron microscopy for studying semiconductor devices,'' International Journal of Electronics, vol. 77, no. 6, pp. 919-928, 1994, doi: 10.1080/00207219408926111.
+    % \bibitem{SEM for semiconductors}
+    % C. REEVES, ``The uses of scanning electron microscopy for studying semiconductor devices,'' International Journal of Electronics, vol. 77, no. 6, pp. 919-928, 1994, doi: 10.1080/00207219408926111.
 
-    \bibitem{SEM for baterial cells}
-    T. Cushnie, N. O’Driscoll and A. Lamb, ``Morphological and ultrastructural changes in bacterial cells as an indicator of antibacterial mechanism of action,'' Cellular and Molecular Life Sciences, vol. 73, no. 23, pp. 4471-4492, 2016, doi: 10.1007/s00018-016-2302-2.
+    % \bibitem{SEM for baterial cells}
+    % T. Cushnie, N. O’Driscoll and A. Lamb, ``Morphological and ultrastructural changes in bacterial cells as an indicator of antibacterial mechanism of action,'' Cellular and Molecular Life Sciences, vol. 73, no. 23, pp. 4471-4492, 2016, doi: 10.1007/s00018-016-2302-2.
+
+    \bibitem{SEM for semiconductor inspection}
+    ``Review SEM - What is a Review SEM?,'' Hitachi, [Online], available: \url{https://www.hitachi-hightech.com/global/products/device/semiconductor/review-sem.html}. [Accessed: 25 May 2020]
+
+    % \bibitem{SEM applications}
+    % ``The Applications and Practical Uses of Scannning Electron Microscopes,'' ATA Scientific Instruments, 2019, [Online], available: \url{https://www.atascientific.com.au/sem-imaging-applications-practical-uses-scanning-electron-microscopes/}. [Accessed: 25 May 2020]
 
     \bibitem{SEM A to Z}
     ``SEM A to Z,'' Jeol.co.jp, [Online], available: \url{https://www.jeol.co.jp/en/applications/pdf/sm/sem_atoz_all.pdf}. [Accessed: 18 May 2020].

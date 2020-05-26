@@ -328,12 +328,12 @@ int i = blockDim.x
     * blockIdx.x 
     + threadIdx.x;
 \end{lstlisting}
-is the key for SPMD in the CUDA programming model. CUDA groups the available threads into a matrix of blocks. All threads run the same \lstinline{map} function, and this line produces a different index number within each thread using the block dimension, block ID, and thread ID. The threads use their index numbers to manipulate data at different locations in the memory.
+is the key for SPMD in the CUDA programming model. CUDA groups the available threads into a matrix of blocks. All threads run the same \lstinline{map} function, and this line produces a different index number within each thread using the block dimension, block ID, and thread ID. The threads use their index numbers to manipulate data at different locations in the memory, and thus achieve SPMD.
 
 \section{Real-time FFT computation}
 \subsection{Theory of the FFT}
 \paragraph{}
-The Fourier transform (FT) decomposes a function into its constituent frequencies, as illustrated in Fig. \ref{FT demonstration}. The composite wave can be represented by the superposition of a 1 Hz sine wave and a 10 Hz sine wave, and its FT therefore has two components. A function that changes more abruptly will have stronger high-frequency components than a smoother one.
+The Fourier transform (FT) is a signal analysis algorithm that decomposes a wave into its constituent frequencies, as illustrated in Fig. \ref{FT demonstration}. The composite wave can be represented by the superposition of a 1 Hz sine wave and a 10 Hz sine wave, and its FT therefore has two components. A function that changes more abruptly will have stronger high-frequency components than a smoother one.
 
 \begin{figure}[htbp]
     \centering
@@ -343,7 +343,7 @@ The Fourier transform (FT) decomposes a function into its constituent frequencie
 \end{figure}
 
 \paragraph{}
-In image processing, the discrete Fourier transform (DFT) is used instead of the FT, which takes a finite sequence of equally-spaced values as input and is thus better suited than the FT. It is defined by
+In image processing, the discrete Fourier transform (DFT) is used instead, which takes a finite sequence of equally-spaced values as input and is thus better suited than the FT. It is defined by
 \begin{equation}
     X_k = \sum_{n=0}^{N-1} x_n \cdot e^{-i2\pi kn/N}, \quad 0 \leq k \leq N-1,
     \label{FT DFT}
@@ -351,16 +351,17 @@ In image processing, the discrete Fourier transform (DFT) is used instead of the
 where $x_0,x_1,...,x_{N-1}$ is the input sequence and $X_0,X_1,...,X_{N-1}$ is the output sequence. $X_k$ is effectively the result of the dot product between the vector $[x_0,x_1,...,x_{N-1}]$ and $[e^0,e^{-i2\pi k/N},...,,e^{-i2\pi k(N-1)/N}]$, and the latter is a finite sequence of frequency $2\pi k$. Therefore, the DFT computes the magnitude of the component of the input sequence that has frequency $2\pi k$, for $0 \leq k \leq N-1$.
 
 \paragraph{}
-A drawback of using \eqref{FT DFT} is that it has a time complexity of $O(N^2)$ ($N$ multiplications need to be computed for each of the $N$ components in the output sequence $X_0,X_1,...,X_{N-1}$). In image processing, where the inputs are 2D sequences, the time complexity quickly explodes and makes the equation practically impossible to use. A fast Fourier transform (FFT) is an algorithm that computes the DFT with smaller timer complexity. There are many feasible FFT algorithms and the most common one is the Cooley-Tukey algorithm \cite{FT FFT}. The algorithm is used where $N$ is, or can be chosen to be, a highly composite number. Suppose $N = r_1 \cdot r_2$, then the indices in \eqref{FT DFT} can be expressed as
+A drawback of using \eqref{FT DFT} is that it has a time complexity of $O(N^2)$ ($N$ multiplications need to be computed for each of the $N$ components in the output sequence $X_0,X_1,...,X_{N-1}$). In image processing, where the inputs are 2D sequences, the time complexity quickly explodes and makes the equation impractical to use. 
+
+\paragraph{}
+A fast Fourier transform (FFT) is an algorithm that computes the DFT with smaller timer complexity. There are many feasible FFT algorithms and the most common one is the Cooley-Tukey algorithm \cite{FT FFT}. The algorithm is used where $N$ is, or can be chosen to be, a highly composite number. Suppose $N = r_1 \cdot r_2$, then the indices in \eqref{FT DFT} can be expressed as
 \begin{align*}
     n = n_1r_2 + n_0, \quad & n_0 = 0, 1, ..., r_2 - 1, \\
     & n_1 = 0, 1, ..., r_1 - 1.
 \end{align*}
 Equation \eqref{FT DFT} can then be written as
 \begin{align*}
-    % X_k & = \sum_{n_0}\sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi k(n_1r_2 + n_0)/N} \\
     X_k & = \sum_{n_0}\sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi kn_1r_2/N} e^{-i2\pi kn_0/N} \\
-    % & = \sum_{n_0}\sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi k_0(n_1r_2)/N} e^{-i2\pi k(n_0)/N} \\
     & = \sum_{n_0} e^{-i2\pi kn_0/N} \sum_{n_1} x_{n_0 + n_1} \cdot e^{-i2\pi kn_1r_2/N}.
 \end{align*}
 Now, only $r_1 + r_2$ operations need to be performed to compute $X_k$, and the whole algorithm requires $N(r_1 + r_2)$ operations. The procedure can be repeated to produce an $m$-step algorithm requiring $N(r_1 + r_2 + \cdots + r_m)$ operations, where $N = r_1 \cdot r_2 \cdots r_m$. Modern processors can perform the algorithm the most efficiently when $r_1 = r_2 = \cdots = r_m = 2$ because of their binary architecture, then the total number of operations is
@@ -370,7 +371,7 @@ Now, only $r_1 + r_2$ operations need to be performed to compute $X_k$, and the 
 which yields a time complexity of $O(N\log N)$. 
 
 \paragraph{}
-Fig. \ref{FT FFT on images} gives an example of FFT applied to a real image. The top row shows a set of images and the bottom row shows the corresponding transform (amplitudes only). Points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image.
+Fig. \ref{FT FFT on images} gives an example of FFT applied on images. The top row shows a set of images and the bottom row shows the corresponding transform (magnitudes only). As can be seen, points near the origin represent lower-frequency components and are cut off when a high-pass filter is applied to the image; points further away from the origin represent higher-frequency components.
 
 \begin{figure}[htbp]
     \centering
@@ -380,7 +381,7 @@ Fig. \ref{FT FFT on images} gives an example of FFT applied to a real image. The
 \end{figure}
 
 \paragraph{}
-A problem in the use of the FFT for image analysis is the boundary effect. The abrupt discontinuity at the edges gives the FFT some strong high-frequency components. In practice, windows functions such as the Hann window and the Hamming window are often applied to the image before performing the FFT, which taper the edges off towards zero and thus reduce the boundary effect. Fig. \ref{FT window functions} shows how the Hann window and the Hamming window look like; they can be obtained by setting $a_0$ to $0.5$ and $25/46$, respectively, in the function
+A problem in using FFT for image analysis is the boundary effect. The abrupt discontinuity at the edges gives the FFT some strong high-frequency components. In practice, window functions such as the Hann window and the Hamming window are often applied to the image before performing the FFT. They taper the edges off towards zero and thus reduce the boundary effect. Fig. \ref{FT window functions} shows how the Hann window and the Hamming window look like; they can be obtained by setting $a_0$ to $0.5$ and $25/46$, respectively, in the following function:
 \begin{equation}
     w[n] = a_0 - (1-a_0)\cdot \cos{\frac{2\pi n}{N}}, \quad 0\leq n \leq N.
 \end{equation}
@@ -403,7 +404,7 @@ A problem in the use of the FFT for image analysis is the boundary effect. The a
 
 \subsection{How the FFT can aid SEM operators} \label{How the FFT can aid SEM operators}
 \paragraph{}
-The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be eliminated by adjusting relevant settings. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
+The quality of an SEM image is affected by aberrations. While some exist because of the fundamental properties of the microscope and are difficult to get rid of, some can be eliminated by adjusting relevant settings of the SEM. Two important ones are focus and stigmator control, which directly affect the resolution and astigmatism of the image, respectively. Fig. \ref{SEM sample images} illustrates the effect of wrong focus and stigmator settings.
 
 \begin{figure}[htbp]
     \centering
@@ -425,7 +426,7 @@ The quality of an SEM image is affected by aberrations. While some exist because
 Focus determines the focal point of the electron probe. When the focal point is far from the surface of the specimen, the incident electrons interact with the specimen in a larger area. As a result, spots near each other produce signals of closer magnitude. This makes the image appear blurry.
 
 \paragraph{}
-Stigmators are used to compensate for astigmatism. Astigmatism arises due to imperfections in components of the SEM and describes uneven focus in the electron probe, as illustrated in Fig. \ref{SEM uneven focus}. When the electron probe is out of focus, astigmatism makes the incident electrons interact with the specimen in an elliptical area, and thus makes the image appear stretched. When the electron probe is in focus, astigmatism makes the image appear blurry.
+Stigmators are used to compensate for the astigmatism that arises due to imperfections in components of the SEM. Astigmatism describes uneven focus in the electron probe, as illustrated in Fig. \ref{SEM uneven focus}. When the electron probe is out of focus, astigmatism makes the incident electrons interact with the specimen in an elliptical area, and thus makes the image appear stretched. When the electron probe is in focus, astigmatism makes the image appear blurry.
 
 \begin{figure}[htbp]
     \centering
@@ -435,10 +436,10 @@ Stigmators are used to compensate for astigmatism. Astigmatism arises due to imp
 \end{figure}
 
 \paragraph{}
-Although experienced SEM operators can often tell the accuracy of focusing and level of astigmatism in a short time, it may not be as straightforward for new users. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is subjective. Sometimes, the surface being observed may have a complex structure and makes judgement even harder. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
+Although experienced operators can often tell the accuracy of focusing and level of astigmatism of an SEM in a short time, it may not be as straightforward for new users. The complexity arises because any judgement of an image is based on what the operators see through their eyes, which is subjective. Sometimes, the surface being observed may have a complex structure that makes judgement even harder. Intensive training and practical experience are often required for an operator to become efficient in using the SEM.
 
 \paragraph{}
-The real-time FFT calculation aids the operators by providing an alternative way of evaluating the focusing and astigmatism of images using the FFT. Fig. \ref{SEM astigmatism} provides a set of sample images that illustrate how different degrees of defocus and astigmatism affect the FFT of an image. An in-focus image contains more details, and its FFT will thus have stronger high-frequency components. The FFT of an astigmatic image rotates by 90 degrees as the image goes from under-focus from over-focus; this is because the elliptical incidence area of the electron probe rotates by 90 degrees and makes the image appear stretched in the new direction (as shown in Fig. \ref{SEM sample images}).
+The FFT can aid operators by providing an alternative way of evaluating the focusing and astigmatism of SEM images. Fig. \ref{SEM astigmatism} provides a set of sample images that illustrate how different degrees of defocus and astigmatism affect the FFT of an image. An in-focus image contains more details, and its FFT will thus have stronger high-frequency components. The FFT of an astigmatic image rotates by 90 degrees as the image goes from under-focus to over-focus; this is caused by the rotation of the elliptical incidence area which makes the image appear stretched in the new direction (as shown in Fig. \ref{SEM sample images}).
 
 \begin{figure*}
     \centering
@@ -448,7 +449,7 @@ The real-time FFT calculation aids the operators by providing an alternative way
 \end{figure*}
 
 \paragraph{}
-The importance of real-time calculation is that it saves SEM operators time by eliminating the need for downloading each image, and thus improves their productivity.
+To use the FFT for this purpose, the computation has to be real-time since operators need to cycle the image between being under-focused and over-focused. Too much time will be wasted if they have to wait for the FFT each time after adjusting the settings.
 
 \section{Performance tests of the tool}
 \paragraph{}

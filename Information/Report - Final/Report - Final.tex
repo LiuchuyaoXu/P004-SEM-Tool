@@ -30,7 +30,7 @@
 The scanning electron microscope (SEM) is a type of microscope that produces images using signals generated from the interaction between electrons and the surface under observation. It has higher resolutions than traditional optical microscopes---an SEM can have a resolution lower than one nanometre, whereas that of an optical microscope is limited to a few hundred nanometres. This has benefited a variety of fields by allowing scientists to see micro-details of objects that were previously difficult or impossible to observe. For example, SEMs are an essential quality control tool for wafer manufacturing processes in the semiconductor industry \cite{SEM for semiconductor inspection}. A review SEM detects the defects on a die by comparing an image of it with a reference, and then stores the image for further use. The inspection would have been impossible without the aid of SEMs.
 
 \paragraph{}
-Fig. \ref{SEM basic construction} illustrates how the SEM works. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons---which are called secondary electrons---are emitted from the specimen. The detector collects the secondary electrons and generates signals based on their energy levels. The display unit converts the signals into images; one image is produced after each complete scan of the specimen.
+Fig. \ref{SEM basic construction} shows the basic construction of the SEM. The electron gun generates an electron beam, which is transformed into an electron probe after passing through the condenser lens and objective lens. It is scanned across the specimen under the effect of the scanning coil. As a result of the interaction between the incident electrons and the specimen, some electrons are emitted from the specimen. They are called secondary electrons and are collected by the detector, which generates signals based on their energy levels. The display unit converts the signals into images; one image is produced after each complete scan of the specimen.
 
 \begin{figure}[htbp]
     \centering
@@ -49,102 +49,112 @@ The GPU was originally designed to be a highly specialised hardware that excels 
 A key characteristic of GPUs that differentiate them from CPUs is massive parallelism. Different pixels in a 3D scene require different processing to achieve visual effects such as lighting, blurring, and fogging. GPUs do this by breaking down the scene into fragments and manipulating each fragment independently. Modern GPUs have thousands of parallel processor cores each running tens of parallel threads to meet the requirement. For example, the NVIDIA GeForce GTX 1060 has 1280 cores and each of them is capable of running 16 threads; a similarly prices CPU---the Intel Core i7-7700HQ---has only 4 cores each running 8 threads. It is worth mentioning that the processing cores on a GPU are not as sophisticated as a full CPU and run at a lower clock frequency. The processor clock frequency of the GTX 1060 is 1708 MHz whereas the i7-7700 has a base processor frequency of 2800 MHz and a maximum of 3800 MHz. This means that GPGPU is more useful for applications that involve simple, repetitive, parallel tasks. A recent example is deep learning, where the same computation needs to be performed on a large network of nodes. Typical deep learning networks in 2015 consist of about one million nodes \cite{Deep learning}, which makes the computations impossible to be performed efficiently by CPUs.
 
 \paragraph{}
-This report studies the gain in computation speeds that can be obtained from the use of GPUs, and presents a real-time diagnostic tool made possible by that. The tool assists SEM operators by providing the histogram and FFT of the images in real-time. It was used to implement an automatic focusing and astigmatism correction algorithm for SEMs, and the performance is discussed.
+This report studies the gain in computation speeds that can be obtained by using GPUs, and presents a real-time diagnostic tool made possible by that. The tool assists SEM operators by providing the histogram and FFT of the images in real-time. It was used to implement an automatic focusing and astigmatism correction algorithm for SEMs, and the performance is discussed.
 
-\chapter{The gain in calculation speeds from the use of GPUs}
+\chapter{The gain in computation speeds from the use of GPUs}
 \section{GPU computing}
 \paragraph{}
-The GPU is designed to meet the high demand in parallelism for fast rendering of scenes on displays. For example, a 1080p display refreshing at 60 Hz requires $60 \times 1920 \times 1080 = 124,416,000$ values to be computed in each second, which cannot be done efficient enough in the sequential manner used by the CPU. It describes an image using graphics primitives as shown in Fig. \ref{GPU graphics primitives}. To construct the image, the primitives are passed through the graphics pipeline of the GPU, which can be divided into the following stages:
+GPUs are super parallel work distributors; they describe an image using a set of graphics primitives and allocate resources to manipulate each of them independently. Fig. \ref{GPU graphics primitives} shows the primitives used by modern GPUs. Different types of primitives are created and processed in different stages of the graphics pipeline, as described below:
 \begin{itemize}
-    \item Vertex generation. A list of vertices are generated to represent the image as a 3D triangle mesh, as illustrated by Fig. \ref{GPU graphics triangle mesh}.
-    \item Triangle generation. The vertices are assembled into triangles, which are the fundamental hardware-supported primitive in modern GPUs.
-    \item Fragment generation. The triangles are mapped to blocks of pixels on the screen; each block is called a ``fragment''.
-    \item Fragment processing. The fragments are shaded based on colour and texture information to determine their final colour.
-    \item Composition. A final image is created by assembling the fragments.
+    \item Vertex fetching. The GPU fetches a list of vertices that represent the image as a 3D triangle mesh, as illustrated in Fig. \ref{GPU graphics triangle mesh}. Triangles are the fundamental hardware-supported primitive in modern GPUs; their advantage is that any of them can be defined by three vertices, which simplifies maths. Vertices are generated outside the GPU, together with information on lighting, texture, and transforms that need to be applied.
+    \item Vertex shading. Mathematical operations are performed on the vertex data to add desired effects.
+    \item Rasterisation. Each triangle is mapped to a block of pixels on the screen, called a ``fragment''.
+    \item Fragment shading. The fragments are shaded on a per-pixel basis to determine their final colour.
+    \item Raster operations. A final image is constructed by assembling the fragments and put into the frame buffer.
 \end{itemize}
-The processing of primitives within each stage follow the same logical sequence of control, but the data are different. This pattern is called ``single instruction multiple data'' (SIMD). The GPU has a large array of SIMD, multi-threaded processing cores sharing the same global memory, and it divides the cores among the stages such that the pipeline is divided in \textit{space}, not time. Each primitive is processed by a thread of one of the processors.
+The processing units of the GPU support the data parallelism by adopting a single-program multiple-data (SPMD) programming model, where the same shading and rasterisation programs are used to to process different data. The programs can read data from shared global memory and write back to it. The GPU also makes use of task parallelism by dividing the pipe in \textit{space}, not time. Some pixels of a triangle could be running fragment-shading programs while others are already being written to the frame buffer; simultaneously, the GPU could be fetching the vertices of another triangle.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.45\textwidth]{Figures/GPU graphics primitives.jpg}
-    \caption{Graphics primitives \cite{GPU architecture lecture}.}
-    \label{GPU graphics primitives}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/GPU graphics primitives.jpg}
+        \caption{Graphics primitives.}
+        \label{GPU graphics primitives}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/GPU graphics triangle mesh.jpg}
+        \caption{An image can be represented as a 3D triangle mesh.}
+        \label{GPU graphics triangle mesh}
+    \end{subfigure}
+    \caption{The GPU describes an image as a set of primitives \cite{GPU architecture lecture}.}
+    \label{GPU graphics}
 \end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.45\textwidth]{Figures/GPU graphics triangle mesh.jpg}
-    \caption{Representing an image as a 3D triangle mesh \cite{GPU architecture lecture}.}
-    \label{GPU graphics triangle mesh}
-\end{figure}
-
-The parallel structure of the GPU can also provide a significant speed improvement in general-purpose computing. Take the addition of two vectors of size $N$ as an example:
+\paragraph{}
+The parallelism can also provide a performance improvement for non-graphics tasks. Take the addition of two vectors of size $N$ as an example:
 \begin{equation*}
     \boldsymbol{v_3} = \boldsymbol{v_1} + \boldsymbol{v_2}
 \end{equation*}
 A single-threaded CPU divides the task in time and does:
 \begin{align*}
+    & \text{Thread 1: }
+\begin{cases}
     & \text{Time 1: } \boldsymbol{v_3}[0] = \boldsymbol{v_1}[0] + \boldsymbol{v_2}[0] \\
     & \vdots \\
-    & \text{Time n: } \boldsymbol{v_3}[n] = \boldsymbol{v_1}[n] + \boldsymbol{v_2}[n] \\
+    & \text{Time N: } \boldsymbol{v_3}[N] = \boldsymbol{v_1}[N] + \boldsymbol{v_2}[N] \\
+\end{cases}
 \end{align*}
-This results in a time complexity of $O(N)$. The GPU can in theory achieve a time complexity of $O(1)$ by dividing the task in space, i.e. among threads, and doing:
+This results in a time complexity of $O(N)$. The GPU can in theory achieve a time complexity of $O(1)$ by dividing the task among threads, and doing:
 \begin{align*}
     & \text{Time 1: }
 \begin{cases}
     & \text{Thread 1: } \boldsymbol{v_3}[0] = \boldsymbol{v_1}[0] + \boldsymbol{v_2}[0] \\
     & \vdots \\
-    & \text{Thread n: } \boldsymbol{v_3}[n] = \boldsymbol{v_1}[n] + \boldsymbol{v_2}[n] \\
+    & \text{Thread n: } \boldsymbol{v_3}[N] = \boldsymbol{v_1}[N] + \boldsymbol{v_2}[N] \\
 \end{cases}
 \end{align*}
-The task is an SIMD task---the program takes one element from each of the vectors and perform addition on them, but the data handled by each thread is different, it can therefore make full use of the SIMD cores of the GPU. When $N$ is small, the overhead in allocating the resources means that the speed improvement is negligible; as $N$ grows larger, the reduction in time complexity quickly compensates for the overhead and makes the GPU much faster than the CPU; however, when $N$ is too big, the GPU will run out of resources, which sets a cap to its performance.
+The vector addition is an SPMD task---each thread takes one element from each of the vectors and performs addition on them, but different threads handle different data. When $N$ is small, the overhead in allocating the threads means that the speed improvement is negligible; as $N$ grows larger, the reduction in time complexity quickly compensates for the overhead and makes the GPU much faster than the CPU; however, the GPU will run out of resources when $N$ is too big, and this sets a cap to its performance.
 
 \paragraph{}
-Prior to 2007, to use GPUs for general-purpose computing, the user must write programs using the graphics application programming interface (API) since it was the only interface to GPU hardware. The programming model can be summarised as below:
+The vertex and fragment shading programs used to be fixed and graphics-specific, and the progression in making them customisable is a key that pushed the advancement of GPGPU \cite{GPU computing}. Prior to 2007, to use GPUs for general-purpose computing, the user must write programs using the language of the graphics application programming interface (API) since it was the only interface to GPU hardware:
 \begin{itemize}
-    \item The user specifies geometry that covers a region on the screen.
-    \item The user sets parameters of the pipeline (e.g., ``lighting'' and ``texture'' information).
-    \item The user provides the fragment processing program (kernel).
+    \item The user specifies a list of ``vertices'' that cover a region on the screen.
+    \item The user sets parameters of the graphics pipeline, e.g. ``lighting'' and ``texture''.
+    \item The user provides ``shading'' programs for the vertices and fragments.
     \item The GPU produces an output ``image'' and stores it in global memory.
 \end{itemize}
-This was a major problem in GPGPU because many general-purpose tasks have nothing to do with graphics and are difficult to implement using the graphics API. 
-
-\paragraph{}
-The introduction of CUDA changed the situation by providing a more natural, direct, non-graphics interface. The new programming model can be summarised as below:
+This was a major problem in GPGPU because many tasks have nothing to do with graphics and are difficult to translate into the graphics language. The introduction of CUDA changed the situation by providing a more natural, direct, non-graphics interface. The new programming model can be summarised as below:
 \begin{itemize}
     \item The user defines the computation as a structured grid of threads.
-    \item The GPU executes each thread and stores the results in global memory.
+    \item The GPU executes each thread and puts the result in global memory.
 \end{itemize}
-This model allows the user to directly define threads that are run on the processing cores of the GPU, eliminating the complexity in translating the program into graphics pipeline language, which makes it easier for the user to take full advantage of the GPU's power. The following section describes an experiment conducted to determine the gain in calculation speeds from using CUDA.
+This eliminates the complexity in using the graphics API and allows the user to directly define threads that are run on the processing cores of the GPU.
 
 \section{Experiment, results and discussions}
 \paragraph{}
-An experiment was set up to compare the performance of a middle-range GPU---the NVIDIA GeForce GTX 1060---and a similarly priced CPU---the Intel Core i7-7700, for the following operations:
-\begin{itemize}
-    \item Addition of two random vectors of size $N$, which has a time complexity of $O(N)$ if done without parallelism, as described in the previous section.
-    \item Multiplication of two random matrices of dimension $N \times N$, which has a time complexity of $O(N^3)$ if done without parallelism (and without using special algorithms such as the Coppersmith-Winograd algorithm).
-\end{itemize}
-Ten test samples were taken for each set of parameters and the average results are shown in Fig. \ref{Test GPU and CPU}. As can be seen, the GPU provides a significant improvement on calculation speeds when there are a few millions of elements to be processed (which is typical in image processing).
-
-This has allowed the development of a real-time diagnostic tool for the SEM with useful framerates, which is discussed in the next chapter.
+An experiment was conducted to determine the gain in computation speeds that can be obtained by using CUDA. A middle-range GPU---the NVIDIA GeForce GTX 1060---and a similarly priced CPU---the Intel Core i7-7700HQ---are used to perform addition of two random vectors of size $N$, which has a time complexity of $O(N)$ if done without parallelism.
 
 \begin{figure*}[htbp]
     \centering
-    \begin{subfigure}{0.8\textwidth}
+    \begin{subfigure}{0.7\textwidth}
         \centering
-        \includegraphics[width=1\textwidth]{Figures/Test GPU and CPU vector addition.png}
-        \caption{Vector addition.}
-        \label{Test GPU and CPU vector addition}
+        \includegraphics[width=1\textwidth]{Figures/Test vector addition GPU and CPU.png}
+        \caption{Results of both the GPU and the CPU.}
+        \label{Test vector addition GPU and CPU}
     \end{subfigure}
-    \begin{subfigure}{0.8\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
-        \includegraphics[width=1\textwidth]{Figures/Test GPU and CPU matrix multiplication.png}
-        \caption{Matrix multiplication.}
-        \label{Test GPU and CPU matrix multiplication}
+        \includegraphics[width=1\textwidth]{Figures/Test vector addition GPU.png}
+        \caption{Results of the GPU.}
+        \label{Test vector addition GPU}
     \end{subfigure}
-    \caption{Performance test results of the GPU and CPU}
-    \label{Test GPU and CPU}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Test vector addition CPU.png}
+        \caption{Results of the CPU.}
+        \label{Test vector addition CPU}
+    \end{subfigure}
+    \caption{Performance on vector addition of the GPU and the CPU}
+    \label{Test vector addition}
 \end{figure*}
+
+\paragraph{}
+Fig. \ref{Test vector addition} gives the results of the test. Measuring the gradient of the best-fit lines shows that the GPU is 12000 times faster, which agrees with the fact that the GPU is capable of running 20480 parallel threads while the CPU was only allowed to use one. It is possible to improve the performance of the CPU by making it use all of its 32 parallel threads, but it will still be hundreds of times slower. The maximum resolution of the GTX 1060 is 7680 $\times$ 4320 at 60 Hz, which means it can calculate two billion values within each second; if the Core i7 is used, that will take 200 minutes with one thread or 6 minutes with 32 threads.
+
+\paragraph{}
+Fig. \ref{Test vector addition GPU} shows that the computation time of the GPU does not scale linearly with the size of the vectors, but increases with steps. This confirms that the GPU can achieve time complexity of $O(1)$ within a limit, as described in the previous section.
 
 \chapter{A real-time diagnostic tool for SEMs}
 \section{Design of the software}

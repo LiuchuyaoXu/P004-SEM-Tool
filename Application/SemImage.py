@@ -73,27 +73,6 @@ class SemImage:
             if updateAll:
                 self.updateAll()
 
-        # start = time.time()
-        # col = cp.hanning(self.array.shape[0])
-        # row = cp.hanning(self.array.shape[1])
-        # window = cp.sqrt(cp.outer(col, row))
-        # array = cp.multiply(window, cp.asarray(self.array))
-        # self.array = cp.asnumpy(array)
-        # end = time.time()
-        # print("Time taken to apply Hanning window using GPU: ", end - start)
-
-        # start = time.time()
-        # col = np.hanning(self.array.shape[0])
-        # row = np.hanning(self.array.shape[1])
-        # window = np.sqrt(np.outer(col, row))
-        # array = np.multiply(window, self.array)
-        # self.array = array
-        # end = time.time()
-        # print("Time taken to apply Hanning window using CPU: ", end - start)
-        
-        # if updateAll:
-        #     self.updateAll()
-
     def applyHistogramEqualisation(self, updateAll=True):
         try:
             transFunc = cp.cumsum(self.histogram)
@@ -116,32 +95,6 @@ class SemImage:
             if updateAll:
                 self.updateAll()
 
-        # start = time.time()
-        # transFunc = cp.cumsum(self.histogram)
-        # transFunc = transFunc * 255 / transFunc.max()
-        # transFunc = transFunc.astype(int)
-        # gpuMap = cp.ElementwiseKernel(
-        #     'T x, raw T y', 'T z',
-        #     'z = y[x]',
-        #     'gpuMap'
-        # )
-        # array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
-        # self.array = cp.asnumpy(array)
-        # end = time.time()
-        # print("Time taken to perform histogram equalisation using GPU: ", end - start)
-
-        # start = time.time()
-        # transFunc = np.cumsum(self.histogram)
-        # transFunc = transFunc * 255 / transFunc.max()
-        # transFunc = transFunc.astype(int)
-        # array = np.array(list(map(lambda x: transFunc[x], self.array)))
-        # self.array = array
-        # end = time.time()
-        # print("Time taken to perform histogram equalisation using CPU: ", end - start)
-
-        # if updateAll:
-        #     self.updateAll()
-
     def updateFft(self):
         try:
             array = cp.asarray(self.array)
@@ -155,23 +108,6 @@ class SemImage:
             fft = np.abs(fft)
             self._fft = fft
 
-        # start = time.time()
-        # array = cp.asarray(self.array)
-        # fft = cp.fft.fft2(array)
-        # fft = cp.fft.fftshift(fft)
-        # fft = cp.abs(fft)
-        # self._fft = cp.asnumpy(fft)
-        # end = time.time()
-        # print("Time taken to update FFT using GPU: ", end - start)
-
-        # start = time.time()
-        # fft = np.fft.fft2(self.array)
-        # fft = np.fft.fftshift(fft)
-        # fft = np.abs(fft)
-        # self._fft = fft
-        # end = time.time()
-        # print("Time taken to update FFT using CPU: ", end - start)
-
     def updateHistogram(self):
         try:
             array = cp.asarray(self.array)
@@ -180,19 +116,6 @@ class SemImage:
         except:
             hist = np.histogram(self.array, bins=np.arange(257))
             self._histogram = hist[0]
-
-        # start = time.time()
-        # array = cp.asarray(self.array)
-        # hist = cp.histogram(array, bins=cp.arange(257))
-        # self._histogram = cp.asnumpy(hist[0])
-        # end = time.time()
-        # print("Time taken to update histogram using cupy:", end - start)
-
-        # start = time.time()
-        # hist = np.histogram(self.array, bins=np.arange(257))
-        # self._histogram = hist[0]
-        # end = time.time()
-        # print("Time taken to update histogram using numpy:", end - start)
 
     def updateAll(self):
         self.updateFft()

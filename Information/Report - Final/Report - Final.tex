@@ -172,13 +172,11 @@ Considering that the tool may serve as the foundation stone for many further pro
 NVIDIA developed CUDA and provides an API for programmers to use it. The API is written in C and thus makes it a candidate programming language for developing the tool. Being a relatively low-level compiled language makes C extremely fast and useful for speed-critical applications. However, it also means that it has a complex syntax, which could significantly slow down development if the user does not have enough experience with it. Taking into account the time scale of the project and to make development easier for people who will continue the work, Python was used instead of C. It has a much simpler syntax and is widely supported; with careful design, it has proved to be able to produce useful results despite its slower speed.
 
 \paragraph{}
-% The software is highly modularised for maximising readability and maintainability. This also makes it easier to translate the program into C++ later if faster speed is needed since C++ is mostly used in an object-oriented manner. The software is divided into six main classes as shown in Fig. \ref{Software class diagram}:
 To maximise quality, the software is highly modularised containing the following main classes:
 \begin{itemize}
     \item \textit{SEM\_API}. This is a Python wrapper for the native SEM API written by Luyang Han, which allows the user to directly control the SEM and grab images from it in Python.
     \item \textit{SemImage}. This class encapsulates variables and methods that are directly relevant to SEM images. For example, it provides a function for applying a Hann window on the image, and a function for calculating the FFT of the image.
     \item \textit{SemImageGrabber}. This class provides a function for grabbing images from the SEM and creating instances of \textit{SemImage} from them. When an SEM can be detected, images are obtained by reading the memory of the SEM; otherwise, they are taken from a local folder specified by the user.
-    % \item \textit{SemTool}. This class handles the rendering of the graphical user interface (GUI). Fig. \ref{Software GUI} shows a screenshot of the control panel. The pushbuttons open a window for the corresponding plot and the radio buttons select algorithms to be performed on the image. The plots are shown on different windows and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. There are two ways for updating the plots, and the first one is to re-render the whole window. This wastes time since some components are always the same and do not need to be re-rendered, such as the window title and the axes. Therefore, \textit{SemTool} uses the second method, where only the data to be plotted are updated. This directly modifies the relevant data in the memory of the GPU, thereby avoiding re-rendering the whole window. Tests have shown that if the first method is used, the time taken to update each frame when there is only one plot opened will be 90 ms instead of 60 ms.
     \item \textit{SemTool}. This class handles the rendering of the graphical user interface (GUI); it is the entry point of the software. The user uses the GUI to specify which algorithms to be performed on the SEM images and what diagnostic information to be displayed.
     \item \textit{SemCorrector}. This class implements an automatic focusing and astigmatism correction algorithm for SEMs; it uses the \textit{Masker} class to ensure fast computing [see chapter \ref{An automatic focusing and astigmatism correction algorithm for SEMs}].
 \end{itemize}
@@ -207,13 +205,6 @@ image = semImageGrabber()
     \caption{Class diagram of the software in unified modelling language (UML).}
     \label{Software class diagram}
 \end{figure}
-
-% \begin{figure}[htbp]
-%     \centering
-%     \includegraphics[width=0.45\textwidth]{Figures/Software screenshot.jpg}
-%     \caption{Screenshot of the GUI.}
-%     \label{Software GUI}
-% \end{figure}
 
 \section{Real-time histogram computation}
 \subsection{Theory of the histogram}
@@ -451,20 +442,60 @@ The FFT can aid operators by providing an alternative way of evaluating the focu
 \paragraph{}
 To use the FFT for this purpose, the computation has to be real-time since operators need to cycle the image between being under-focused and over-focused. Too much time will be wasted if they have to wait for the FFT each time after adjusting the settings.
 
-\section{Performance tests of the tool}
+\section{Demonstration and performance of the tool}
 \paragraph{}
-Experiments were conducted to test the performance of the tool with the NVIDIA GeForce GTX 1060 and the Intel Core i7. The following algorithms were performed on a set of 8-bit 1024 $\times$ 768 SEM images and the average results are shown in table \ref{Software performance test}. If all the algorithms need to be performed on each image, using the CPU will limit the framerate to about 9 fps. The use of GPU changes the number to 42 fps, which gives margin to other processes such as the rendering of the GUI.
+Fig. \ref{Software control panel} shows the control panel of the software. The pushbuttons open a window for the corresponding plot and the radio buttons select algorithms to bo be performed on the image. The plots are shown in different windows and can be opened and closed individually. This improves framerate by allowing the user to close unneeded windows, and also makes it easier to add other plots later. The software updates the plots by directly modifying relevant data in the memory of the GPU, thereby avoiding re-rendering other components of the windows which do not need to be refreshed. Fig. \ref{Software plots} shows some plots generated by the software.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Figures/Software screenshot.jpg}
+    \caption{Control panel of the tool.}
+    \label{Software control panel}
+\end{figure}
+
+\begin{figure*}[htbp]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Software initial image.jpg}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Software final image.jpg}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Software initial histogram.jpg}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Software final histogram.jpg}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Software initial image FFT.jpg}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{Figures/Software final image FFT.jpg}
+    \end{subfigure}
+    \caption{Demonstration of the tool. The left column shows the plot of an image, its histogram, and its FFT. The right column shows the plots after applying histogram equalisation to the image.}
+    \label{Software plots}
+\end{figure*}
+
+\paragraph{}
+Experiments were conducted to test the performance of the tool with the NVIDIA GeForce GTX 1060 and the Intel Core i7-7700HQ. Algorithms supported by the tool were performed on a set of 8-bit 1024 $\times$ 768 images and the average results are given in table \ref{Software performance test}. If all of the algorithms need to be performed on each image, using the CPU will limit the framerate to about 9 fps. CUDA increases the number to 42 fps, which gives margin to other processes such as rendering the plots.
 
 \begin{table}[htbp]
     \caption{Results of performance tests of the diagnostic tool}
     \begin{center}
     \begin{tabular}{|c|c|c|}
     \hline
-    \textbf{Algorithm} & \textbf{CPU} & \textbf{GPU} \\
+    \textbf{Algorithm} & \textbf{CPU} & \textbf{CUDA} \\
     \hline
     Apply Hanning window & 16 ms & 9 ms \\
     \hline
-    Calculating histogram & 30 ms & 2 ms \\
+    Computing histogram & 30 ms & 2 ms \\
     \hline
     Histogram equalisation & 9 ms & 5 ms \\
     \hline
@@ -474,6 +505,12 @@ Experiments were conducted to test the performance of the tool with the NVIDIA G
     \label{Software performance test}
     \end{center}
 \end{table}
+
+\paragraph{}
+Rendering the plots is the only process of the software that takes a significant amount of time, after the computation of the algorithms is optimised by CUDA. Tests have shown that it takes about 50 ms to render each frame for each plot.
+
+\paragraph{}
+Overall, the tool has a framerate of about 13 fps if only one plot is opened, and 8 fps if two are opened. The best way to improve the performance is to translate the software into C++ code. The modularity of the software makes it easy to do so since C++ is mostly used in an object-oriented manner.
 
 \chapter{An automatic focusing and astigmatism correction algorithm for SEMs} \label{An automatic focusing and astigmatism correction algorithm for SEMs}
 \section{Theory of the algorithm}

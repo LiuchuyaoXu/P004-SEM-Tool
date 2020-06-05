@@ -101,17 +101,11 @@ class SemImage:
             fft = cp.fft.fft2(array)
             fft = cp.fft.fftshift(fft)
             fft = cp.abs(fft)
-            threshold = 2 * fft.sum() / 1024 / 768
-            fft = fft > threshold
-            fft = fft * 255
             self._fft = cp.asnumpy(fft)
         except:
             fft = np.fft.fft2(self.array)
             fft = np.fft.fftshift(fft)
             fft = np.abs(fft)
-            threshold = 2 * fft.sum() / 1024 / 768
-            fft = fft > threshold
-            fft = fft * 255
             self._fft = fft
 
     def updateHistogram(self):

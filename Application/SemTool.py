@@ -48,9 +48,6 @@ class FftPlot(MplCanvas):
     
     def updateData(self, semImage):
         data = semImage.fft
-        threshold = 2 * data.sum() / 1024 / 768
-        data = data > threshold
-        data = data * 255
         self.plot.set_data(data)
         self.figure.canvas.draw()
 

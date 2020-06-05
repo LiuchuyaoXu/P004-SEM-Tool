@@ -24,7 +24,6 @@ class SemCorrector:
 
         self.sem.UpdateImage_Start()
 
-        self.fftThreshold = 50000
         self.focusStep = 0.02
         self.focusOffset = 0.10     # In mm.
         self.focusThreshold = 0.002  # In percentage.
@@ -157,8 +156,6 @@ class SemCorrector:
             return
 
     def getFftSegments(self, masker, fft):
-        # fft = fft > self.fftThreshold
-        # fft = fft.astype(int) * 255
         P = fft.sum()
         r1 = ma.array(fft, mask=masker.r1).sum()
         r2 = ma.array(fft, mask=masker.r2).sum()

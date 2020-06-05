@@ -13,6 +13,7 @@ class SemImageGrabber():
     def __init__(self, sem=None, imageDir=None):
         if sem:
             self.sem = sem
+            self.sem.UpdateImage_Start()
         else:
             self.sem = None
             self.dir = imageDir
@@ -30,3 +31,4 @@ class SemImageGrabber():
             image = np.asarray(image)
             self.index += 1
             return SemImage(image)
+            

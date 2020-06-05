@@ -29,7 +29,7 @@ class SemCorrector:
         self.focusThreshold = 0.02 # In percentage.
         self.stigmaStep = 0.50
         self.stigmaThreshold = 0.02 # In percentage.
-        self.stigmaDiffThreshold = 0.02 # In percentage.
+        self.stigmaDiffThreshold = 0.05 # In percentage.
 
         self.masker = Masker([1024, 768])
 
@@ -109,12 +109,12 @@ class SemCorrector:
         print("Ps34of: ", Ps34of)
 
         dP = (Pof - Puf) / (Pof + Puf)
-        dPr12 = Pr12of - Pr12uf
-        dPr34 = Pr34of - Pr34uf
-        dPs12 = Ps12of - Ps12uf
-        dPs34 = Ps34of - Ps34uf
-        Ax = abs(dPr12 - dPr34) / 2
-        Ay = abs(dPs12 - dPs34) / 2
+        dPr12 = Pr12of - Pr12uf / (Pr12of + Pr12uf)
+        dPr34 = Pr34of - Pr34uf / (Pr34of + Pr34uf)
+        dPs12 = Ps12of - Ps12uf / (Ps12of + Ps12uf)
+        dPs34 = Ps34of - Ps34uf / (Ps34of + Ps34uf)
+        Ax = abs(dPr12 - dPr34)
+        Ay = abs(dPs12 - dPs34)
         print(" ")
         print("Differences:")
         print("dP: ", dP)
@@ -139,16 +139,16 @@ class SemCorrector:
 
         if not stigmaXCorrected:
             if stigmaYCorrected:
-                self.adjuststigmaX(dPr12, dPr34, Sx)
+                self.adjustStigmaX(dPr12, dPr34, Sx)
                 return
             elif Ax >= Ay:
-                self.adjuststigmaX(dPr12, dPr34, Sx)
+                self.adjustStigmaX(dPr12, dPr34, Sx)
                 return
             else:
-                self.adjuststigmaY(dPs12, dPs34, Sy)
+                self.adjustStigmaY(dPs12, dPs34, Sy)
                 return
         elif not stigmaYCorrected:
-                self.adjuststigmaY(dPs12, dPs34, Sy)
+                self.adjustStigmaY(dPs12, dPs34, Sy)
                 return
         else:
             self.sem.SetValue("AP_WD", str(F))
@@ -179,7 +179,7 @@ class SemCorrector:
         else:
             self.sem.SetValue("AP_WD", str(F - self.focusStep))
 
-    def adjuststigmaX(self, dPr12, dPr34, Sx):
+    def adjustStigmaX(self, dPr12, dPr34, Sx):
         print(" ")
         print("Adjust stigma x.")
         if dPr12 > 0 and dPr34 < 0:
@@ -187,7 +187,7 @@ class SemCorrector:
         elif dPr12 < 0 and dPr34 > 0:
             self.sem.SetValue("AP_STIG_X", str(Sx + self.stigmaStep))
 
-    def adjuststigmaY(self, dPs12, dPs34, Sy):
+    def adjustStigmaY(self, dPs12, dPs34, Sy):
         print(" ")
         print("Adjust stigma y.")
         if dPs12 > 0 and dPs34 < 0:

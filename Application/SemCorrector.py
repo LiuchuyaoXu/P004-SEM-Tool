@@ -25,11 +25,11 @@ class SemCorrector:
         self.sem.UpdateImage_Start()
 
         self.focusStep = 0.02
-        self.focusOffset = 0.10     # In mm.
-        self.focusThreshold = 0.002  # In percentage.
-        self.astigmaStep = 0.50
-        self.astigmaThreshold = 0.005
-        self.astigmaDiffThreshold = 0.005
+        self.focusOffset = 0.10 # In mm.
+        self.focusThreshold = 0.02 # In percentage.
+        self.stigmaStep = 0.50
+        self.stigmaThreshold = 0.02 # In percentage.
+        self.stigmaDiffThreshold = 0.02 # In percentage.
 
         self.masker = Masker([1024, 768])
 
@@ -127,28 +127,28 @@ class SemCorrector:
             self.adjustFocus(dP, F)
             return
         
-        if abs(dPr12) < self.astigmaThreshold and abs(dPr34) < self.astigmaThreshold and Ax < self.astigmaDiffThreshold:
-            astigmaXCorrected = True
+        if abs(dPr12) < self.stigmaThreshold and abs(dPr34) < self.stigmaThreshold and Ax < self.stigmaDiffThreshold:
+            stigmaXCorrected = True
         else:
-            astigmaXCorrected = False
+            stigmaXCorrected = False
 
-        if abs(dPs12) < self.astigmaThreshold and abs(dPs34) < self.astigmaThreshold and Ay < self.astigmaDiffThreshold:
-            astigmaYCorrected = True
+        if abs(dPs12) < self.stigmaThreshold and abs(dPs34) < self.stigmaThreshold and Ay < self.stigmaDiffThreshold:
+            stigmaYCorrected = True
         else:
-            astigmaYCorrected = False
+            stigmaYCorrected = False
 
-        if not astigmaXCorrected:
-            if astigmaYCorrected:
-                self.adjustAstigmaX(dPr12, dPr34, Sx)
+        if not stigmaXCorrected:
+            if stigmaYCorrected:
+                self.adjuststigmaX(dPr12, dPr34, Sx)
                 return
             elif Ax >= Ay:
-                self.adjustAstigmaX(dPr12, dPr34, Sx)
+                self.adjuststigmaX(dPr12, dPr34, Sx)
                 return
             else:
-                self.adjustAstigmaY(dPs12, dPs34, Sy)
+                self.adjuststigmaY(dPs12, dPs34, Sy)
                 return
-        elif not astigmaYCorrected:
-                self.adjustAstigmaY(dPs12, dPs34, Sy)
+        elif not stigmaYCorrected:
+                self.adjuststigmaY(dPs12, dPs34, Sy)
                 return
         else:
             self.sem.SetValue("AP_WD", str(F))
@@ -179,21 +179,21 @@ class SemCorrector:
         else:
             self.sem.SetValue("AP_WD", str(F - self.focusStep))
 
-    def adjustAstigmaX(self, dPr12, dPr34, Sx):
+    def adjuststigmaX(self, dPr12, dPr34, Sx):
         print(" ")
-        print("Adjust astigma x.")
+        print("Adjust stigma x.")
         if dPr12 > 0 and dPr34 < 0:
-            self.sem.SetValue("AP_STIG_X", str(Sx - self.astigmaStep))
+            self.sem.SetValue("AP_STIG_X", str(Sx - self.stigmaStep))
         elif dPr12 < 0 and dPr34 > 0:
-            self.sem.SetValue("AP_STIG_X", str(Sx + self.astigmaStep))
+            self.sem.SetValue("AP_STIG_X", str(Sx + self.stigmaStep))
 
-    def adjustAstigmaY(self, dPs12, dPs34, Sy):
+    def adjuststigmaY(self, dPs12, dPs34, Sy):
         print(" ")
-        print("Adjust astigma y.")
+        print("Adjust stigma y.")
         if dPs12 > 0 and dPs34 < 0:
-            self.sem.SetValue("AP_STIG_Y", str(Sy - self.astigmaStep))
+            self.sem.SetValue("AP_STIG_Y", str(Sy - self.stigmaStep))
         elif dPs12 < 0 and dPs34 > 0:
-            self.sem.SetValue("AP_STIG_Y", str(Sy + self.astigmaStep))
+            self.sem.SetValue("AP_STIG_Y", str(Sy + self.stigmaStep))
 
 if __name__ == "__main__":
     import SEM_API

@@ -44,7 +44,7 @@ class SemCorrector:
         image.save("initial.png")
 
         iters = np.arange(0, 20)
-        for iter in iters:
+        for i in iters:
             self.start()
 
         plt.figure()

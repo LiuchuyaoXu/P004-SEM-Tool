@@ -66,7 +66,9 @@ class FftDistPlot(MplCanvas):
         data = semImage.fft.flatten()
         print(data.max())
         self.axes.clear()
-        self.axes.hist(data, bins=1000, range=(0, 100000))
+        self.plot = self.axes.hist(data, bins=1000, range=(0, 100000))
+        self.axes.set_xlabel("FFT Magnitude")
+        self.axes.set_ylabel("Number of pixels")
         self.figure.canvas.draw()
 
 class HistPlot(MplCanvas):

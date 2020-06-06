@@ -166,10 +166,10 @@ class SemCorrector:
         s2 = ma.array(fft, mask=masker.s2).sum()
         s3 = ma.array(fft, mask=masker.s3).sum()
         s4 = ma.array(fft, mask=masker.s4).sum()
-        Pr12 = (r1 + r2) / P
-        Pr34 = (r3 + r4) / P
-        Ps12 = (s1 + s2) / P
-        Ps34 = (s3 + s4) / P
+        Pr12 = r1 + r2
+        Pr34 = r3 + r4
+        Ps12 = s1 + s2
+        Ps34 = s3 + s4
         return P, Pr12, Pr34, Ps12, Ps34
 
     def adjustFocus(self, dP, F):

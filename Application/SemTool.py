@@ -54,6 +54,20 @@ class FftPlot(MplCanvas):
         self.plot.set_data(data)
         self.figure.canvas.draw()
 
+class FftDistPlot(MplCanvas):
+    def __init__(self):
+        super().__init__(MplFigure())
+
+        self.setWindowTitle("Image FFT Distribution")
+
+        self.axes = self.figure.add_subplot()
+
+    def updateData(self, semImage):
+        data = semImage.fft.flatten()
+        self.axes.clear()
+        self.axes.hist(data, bins=100, range=(0, 50000))
+        self.figure.canvas.draw()
+
 class HistPlot(MplCanvas):
     def __init__(self):
         super().__init__(MplFigure())
@@ -80,6 +94,7 @@ class SemTool(QtWidgets.QMainWindow):
 
         self.imagePlot = ImagePlot()
         self.fftPlot = FftPlot()
+        self.fftDistPlot = FftDistPlot()
         self.histPlot = HistPlot()
 
         self.initPanel()
@@ -97,12 +112,15 @@ class SemTool(QtWidgets.QMainWindow):
         imagePlotButton.clicked.connect(self.openImagePlot)
         fftPlotButton = QtWidgets.QPushButton("FFT Plot")
         fftPlotButton.clicked.connect(self.openFftPlot)
+        fftDistPlotButton = QtWidgets.QPushButton("FFT Distribution Plot")
+        fftDistPlotButton.clicked.connect(self.openFftDistPlot)
         histPlotButton = QtWidgets.QPushButton("Histogram Plot")
         histPlotButton.clicked.connect(self.openHistPlot)
 
         buttonBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
         buttonBox.addButton(imagePlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(fftPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
+        buttonBox.addButton(fftDistPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(histPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
 
         self.hanningButton = QtWidgets.QRadioButton("Hanning Window")
@@ -124,6 +142,9 @@ class SemTool(QtWidgets.QMainWindow):
     def openFftPlot(self):
         self.fftPlot.show()
 
+    def openFftDistPlot(self):
+        self.fftDistPlot.show()
+
     def openHistPlot(self):
         self.histPlot.show()
 
@@ -142,6 +163,8 @@ class SemTool(QtWidgets.QMainWindow):
                 self.imagePlot.updateData(image)
             if self.fftPlot.isVisible():
                 self.fftPlot.updateData(image)
+            if self.fftDistPlot.isVisible():
+                self.fftDistPlot.updateData(image)
             if self.histPlot.isVisible():
                 self.histPlot.updateData(image)
 

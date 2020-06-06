@@ -64,8 +64,9 @@ class FftDistPlot(MplCanvas):
 
     def updateData(self, semImage):
         data = semImage.fft.flatten()
+        print(data.max())
         self.axes.clear()
-        self.axes.hist(data, bins=100, range=(0, 50000))
+        self.axes.hist(data, bins=1000, range=(0, 100000))
         self.figure.canvas.draw()
 
 class HistPlot(MplCanvas):
@@ -149,7 +150,7 @@ class SemTool(QtWidgets.QMainWindow):
         self.histPlot.show()
 
     def updatePlots(self):
-        if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible():
+        if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible() or self.fftDistPlot.isVisible():
             start = time.time()
 
             image = self.imageGrabber()

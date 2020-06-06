@@ -24,12 +24,12 @@ class SemCorrector:
 
         self.sem.UpdateImage_Start()
 
-        self.focusStep = 0.02
+        self.focusStep = 0.02 # In mm
         self.focusOffset = 0.10 # In mm.
-        self.focusThreshold = 0.02 # In percentage.
+        self.focusThreshold = 0.002
         self.stigmaStep = 0.50
-        self.stigmaThreshold = 0.02 # In percentage.
-        self.stigmaDiffThreshold = 0.05 # In percentage.
+        self.stigmaThreshold = 0.02
+        self.stigmaDiffThreshold = 0.05
 
         self.masker = Masker([1024, 768])
 

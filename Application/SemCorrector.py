@@ -156,6 +156,7 @@ class SemCorrector:
             return
 
     def getFftSegments(self, masker, fft):
+        fft = fft > 50000
         P = fft.sum()
         r1 = ma.array(fft, mask=masker.r1).sum()
         r2 = ma.array(fft, mask=masker.r2).sum()

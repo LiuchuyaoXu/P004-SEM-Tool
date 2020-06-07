@@ -1,11 +1,11 @@
 #   File:   SemImageGrabber.py
 #
-#   Brief:  Implement the SemImageGrabber class which helps grab images from the SEM.
-# 
 #   Author: Liuchuyao Xu, 2020
+# 
+#   Brief:  Implement the SemImageGrabber class.
+#           The class helps grab images from either the SEM or a local folder.
 
 import os
-import numpy as np
 from PIL import Image
 from SemImage import SemImage
 
@@ -17,18 +17,16 @@ class SemImageGrabber():
         else:
             self.sem = None
             self.dir = imageDir
-            self.list = os.listdir(imageDir)
-            self.index = 1
+            self.items = os.listdir(imageDir)
+            self.index = 0
 
     def __call__(self):
         if self.sem:
-            image = np.asarray(self.sem.img_array)
-            return SemImage(image)
+            return SemImage.create(self.sem.img_array)
         else:
-            if self.index >= len(self.list):
-                self.index = 0
-            image = Image.open(os.path.join(self.dir, self.list[self.index]))
-            image = np.asarray(image)
+            image = Image.open(os.path.join(self.dir, self.items[self.index]))
             self.index += 1
-            return SemImage(image)
+            if self.index >= len(self.items):
+                self.index = 0
+            return SemImage.create(image)
             

@@ -1,122 +1,144 @@
+#   File:   SemImage.py   
+#
 #   Author: Liuchuyao Xu, 2020
 # 
-#   Brief:  Implement the SemImage class, each SemImage encapsulates all data and methods relevant to an 8-bit greyscale image.
+#   Brief:  Implement the SemImage class.
+#           The class encapsulates all data and methods relevant to an SEM image.
 
-import time
-import numpy as np
+from abc import ABC
+from abc import abstractmethod
 
 try:
     import cupy as cp
 except:
-    print("Warning, could not import cupy, GPU acceleration will be disabled.")
+    import numpy as np
+    cp = False
+    print('Warning, could not import CuPy, GPU acceleration will be disabled.')
 
-class SemImage:
-    def __init__(self, array):
-        self._fft = None
-        self._histogram = None
+class SemImage(ABC):
+    _image = None
+    bitDepth = None
+    maxLevel = None
 
-        self.array = array
-        self.updateAll()
+    fft = None
+    histogram = None
 
-    @property
-    def array(self):
-        return self._array
-
-    @array.setter
-    def array(self, array):
-        array = np.asarray(array, int)
-        if len(array.shape) != 2:
-            raise TypeError("SemImage was initialised with a wrong data type.")
-        if array.max() > 255 or array.min() < 0:
-            raise TypeError("SemImage was initialised with a wrong data type.")
-        self._array = array
-
-    @property
-    def fft(self):
-        return self._fft
-
-    @property
-    def histogram(self):
-        return self._histogram
-
-    def applyHamming(self, updateAll=True):
-        try:
-            col = cp.hamming(self.array.shape[0])
-            row = cp.hamming(self.array.shape[1])
-            window = cp.sqrt(cp.outer(col, row))
-            array = cp.multiply(window, cp.asarray(self.array))
-            self.array = cp.asnumpy(array)
-        except:
-            col = np.hamming(self.array.shape[0])
-            row = np.hamming(self.array.shape[1])
-            window = np.sqrt(np.outer(col, row))
-            array = np.multiply(window, self.array)
-            self.array = array
-        finally:
-            if updateAll:
-                self.updateAll()
-
-    def applyHanning(self, updateAll=True):
-        try:
-            col = cp.hanning(self.array.shape[0])
-            row = cp.hanning(self.array.shape[1])
-            window = cp.sqrt(cp.outer(col, row))
-            array = cp.multiply(window, cp.asarray(self.array))
-            self.array = cp.asnumpy(array)
-        except:
-            col = np.hanning(self.array.shape[0])
-            row = np.hanning(self.array.shape[1])
-            window = np.sqrt(np.outer(col, row))
-            array = np.multiply(window, self.array)
-            self.array = array
-        finally:
-            if updateAll:
-                self.updateAll()
-
-    def applyHistogramEqualisation(self, updateAll=True):
-        try:
-            transFunc = cp.cumsum(self.histogram)
-            transFunc = transFunc * 255 / transFunc.max()
-            transFunc = transFunc.astype(int)
-            gpuMap = cp.ElementwiseKernel(
-                'T x, raw T y', 'T z',
-                'z = y[x]',
-                'gpuMap'
-            )
-            array = cp.array(gpuMap(cp.asarray(self.array), transFunc))
-            self.array = cp.asnumpy(array)
-        except:
-            transFunc = np.cumsum(self.histogram)
-            transFunc = transFunc * 255 / transFunc.max()
-            transFunc = transFunc.astype(int)
-            array = np.array(list(map(lambda x: transFunc[x], self.array)))
-            self.array = array
-        finally:
-            if updateAll:
-                self.updateAll()
-
-    def updateFft(self):
-        try:
-            array = cp.asarray(self.array)
-            fft = cp.fft.fft2(array)
-            fft = cp.fft.fftshift(fft)
-            fft = cp.abs(fft)
-            self._fft = cp.asnumpy(fft)
-        except:
-            fft = np.fft.fft2(self.array)
-            fft = np.fft.fftshift(fft)
-            fft = np.abs(fft)
-            self._fft = fft
-
-    def updateHistogram(self):
-        try:
-            array = cp.asarray(self.array)
-            hist = cp.histogram(array, bins=cp.arange(257))
-            self._histogram = cp.asnumpy(hist[0])
-        except:
-            hist = np.histogram(self.array, bins=np.arange(257))
-            self._histogram = hist[0]
-
-    def updateAll(self):
+    def __init__(self, image):
+        self.image = image
+        self.bitDepth = 8
+        self.maxLevel = 2**self.bitDepth
         self.updateFft()
         self.updateHistogram()
+
+    @property
+    def image(self):
+        return self._image
+
+    @image.setter
+    @abstractmethod
+    def image(self, image):
+        ...
+
+    @abstractmethod
+    def applyHanning(self):
+        ...
+
+    @abstractmethod
+    def applyHistogramEqualisation(self):
+        ...
+
+    @abstractmethod
+    def updateFft(self):
+        ...
+    
+    @abstractmethod
+    def updateHistogram(self):
+        ...
+
+    @classmethod
+    def create(self, image):
+        if cp:
+            return SemImageCuPy(image)
+        else:
+            return SemImageNumPy(image)
+
+class SemImageNumPy(SemImage):
+
+    @SemImage.image.setter
+    def image(self, image):
+        self._image = np.asarray(image)
+
+    def applyHanning(self):
+        col = np.hanning(self._image.shape[0])
+        row = np.hanning(self._image.shape[1])
+        window = np.sqrt(np.outer(col, row))
+        self._image = np.multiply(window, self._image)
+
+    def applyHistogramEqualisation(self):
+        transFunc = np.cumsum(self.histogram)
+        transFunc = transFunc / transFunc.max()
+        transFunc = transFunc * self.maxLevel
+        transFunc = transFunc.round()
+        self._image = np.asarray(map(lambda x: transFunc[x], self._image))
+
+    def updateFft(self):
+        fft = np.fft.fft2(self._image)
+        fft = np.fft.fftshift(fft)
+        fft = np.abs(fft)
+        self.fft = fft
+
+    def updateHistogram(self):
+        self.histogram = np.histogram(self._image, bins=np.arange(self.maxLevel+1))
+
+class SemImageCuPy(SemImage):
+
+    @SemImage.image.setter
+    def image(self, image):
+        self._image = cp.asarray(image)
+
+    def applyHanning(self):
+        col = cp.hanning(self._image.shape[0])
+        row = cp.hanning(self._image.shape[1])
+        window = cp.sqrt(cp.outer(col, row))
+        self._image = cp.multiply(window, self._image)
+
+    def applyHistogramEqualisation(self):
+        transFunc = cp.cumsum(self.histogram)
+        transFunc = transFunc / transFunc.max()
+        transFunc = transFunc * self.maxLevel
+        transFunc = transFunc.round()
+        gpuMap = cp.ElementwiseKernel(
+            'T x, raw T y', 'T z',
+            'z = y[x]',
+            'gpuMap'
+        )
+        self._image = cp.asarray(gpuMap(self._image, transFunc))
+
+    def updateFft(self):
+        fft = cp.fft.fft2(self._image)
+        fft = cp.fft.fftshift(fft)
+        fft = cp.abs(fft)
+        self.fft = fft
+
+    def updateHistogram(self):
+        self.histogram = cp.histogram(self._image, bins=cp.arange(self.maxLevel+1))
+
+if __name__ == '__main__':
+    import os
+    import time
+    from PIL import Image
+    
+    imageDir = './Sample Images'
+    imageList = os.listdir(imageDir)
+    image = Image.open(os.path.join(imageDir, imageList[0]))
+    semImage = SemImage.create(image)
+
+    start = time.time()
+    semImage = SemImage.create(image)
+    end = time.time()
+    print(end-start, ' seconds')
+
+    print(type(semImage))
+    print(type(semImage.image))
+    print(type(semImage.fft))
+    print(type(semImage.histogram))

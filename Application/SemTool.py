@@ -33,7 +33,7 @@ class ImagePlot(MplCanvas):
         self.plot = self.axes.imshow(np.zeros([768, 1024]), cmap="gray", vmin=0, vmax=255)
 
     def updateData(self, semImage):
-        data = semImage.array
+        data = semImage.image
         self.plot.set_data(data)
         self.figure.canvas.draw()
 
@@ -81,7 +81,7 @@ class HistPlot(MplCanvas):
         self.plot = self.axes.bar(np.arange(256), np.ones(256), width=1)
 
     def updateData(self, semImage):
-        hist = semImage.histogram
+        hist = semImage.histogram[0]
         hist = hist / hist.max()
         for bar, h in zip(self.plot, hist):
             bar.set_height(h)
@@ -157,18 +157,20 @@ class SemTool(QtWidgets.QMainWindow):
 
             image = self.imageGrabber()
             if self.hanningButton.isChecked():
-                image.applyHanning(updateAll=False)
+                image.applyHanning()
             if self.histEquButton.isChecked():
-                image.applyHistogramEqualisation(updateAll=False)
-            image.updateAll()
+                image.applyHistogramEqualisation()
 
             if self.imagePlot.isVisible():
                 self.imagePlot.updateData(image)
             if self.fftPlot.isVisible():
+                image.updateFft()
                 self.fftPlot.updateData(image)
             if self.fftDistPlot.isVisible():
+                image.updateFft()
                 self.fftDistPlot.updateData(image)
             if self.histPlot.isVisible():
+                image.updateHistogram()
                 self.histPlot.updateData(image)
 
             end = time.time()

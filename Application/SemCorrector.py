@@ -84,7 +84,7 @@ class SemCorrector:
 
         self.sem.SetValue("AP_WD", str(F - self.focusOffset))
         time.sleep(Ft/1000)
-        imageUF = SemImage(np.asarray(self.sem.img_array))
+        imageUF = SemImage.create(self.sem.img_array)
         imageUF.applyHanning()
         Puf, Pr12uf, Pr34uf, Ps12uf, Ps34uf = self.getFftSegments(self.masker, imageUF.fft)
         print(" ")
@@ -97,7 +97,7 @@ class SemCorrector:
 
         self.sem.SetValue("AP_WD", str(F + self.focusOffset))
         time.sleep(Ft/1000)       
-        imageOF = SemImage(np.asarray(self.sem.img_array))
+        imageOF = SemImage.create(self.sem.img_array)
         imageOF.applyHanning()
         Pof, Pr12of, Pr34of, Ps12of, Ps34of = self.getFftSegments(self.masker, imageOF.fft)
         print(" ")

@@ -89,6 +89,7 @@ class HistPlot(MplCanvas):
 
 class SemTool(QtWidgets.QMainWindow):
     frameUpdated = QtCore.Signal()
+    semCorrectorRan = QtCore.Signal()
 
     def __init__(self, imageGrabber):
         super().__init__()
@@ -155,9 +156,8 @@ class SemTool(QtWidgets.QMainWindow):
         self.histPlot.show()
 
     def initSemCorrector(self):
-        self.semCorrector = SemCorrector(self.imageGrabber.sem)
-        self.semCorrectorRan = QtCore.Signal()
         self.semCorrectorRan.connect(self.runSemCorrector, QtCore.Qt.QueuedConnection)
+        self.semCorrector = SemCorrector(self.imageGrabber.sem)
         self.runSemCorrector()
         # self.frameTimer = QtCore.QTimer()
         # self.semCorrectorTimer.timeout.connect(self.semCorrector.start)

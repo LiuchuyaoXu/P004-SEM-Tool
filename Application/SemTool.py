@@ -156,16 +156,17 @@ class SemTool(QtWidgets.QMainWindow):
         self.histPlot.show()
 
     def initSemCorrector(self):
-        self.semCorrectorRan.connect(self.runSemCorrector, QtCore.Qt.QueuedConnection)
+        # self.semCorrectorRan.connect(self.runSemCorrector, QtCore.Qt.QueuedConnection)
         self.semCorrector = SemCorrector(self.imageGrabber.sem)
-        self.runSemCorrector()
+        self.semCorrector.run()
+        # self.runSemCorrector()
         # self.frameTimer = QtCore.QTimer()
         # self.semCorrectorTimer.timeout.connect(self.semCorrector.start)
         # self.semCorrectorTimer.start(10000)
 
-    def runSemCorrector(self):
-        self.semCorrector.start()
-        self.semCorrectorRan.emit()
+    # def runSemCorrector(self):
+    #     self.semCorrector.start()
+    #     self.semCorrectorRan.emit()
 
     def updatePlots(self):
         if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible() or self.fftDistPlot.isVisible():

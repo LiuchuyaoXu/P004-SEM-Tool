@@ -6,13 +6,14 @@ import time
 import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
+import threading
 
 from PIL import Image
 
 from Masker import Masker
 from SemImage import SemImage
 
-class SemCorrector:
+class SemCorrector(threading.Thread):
     def __init__(self, sem):
         try:
             self.sem = sem
@@ -39,7 +40,7 @@ class SemCorrector:
         self.stigmaXIters = []
         self.stigmaYIters = []
 
-    def correct(self):
+    def run(self):
         image = Image.fromarray(np.asarray(self.sem.img_array), 'L')
         image.save("initial.png")
 
@@ -202,6 +203,6 @@ if __name__ == "__main__":
     with SEM_API.SEM_API("remote") as sem:
         semCorrector = SemCorrector(sem)
         start = time.time()
-        semCorrector.correct()
+        semCorrector.run()
         end = time.time()
         print("Execution time: ", end - start, "s")

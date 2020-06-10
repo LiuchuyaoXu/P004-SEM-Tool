@@ -81,7 +81,7 @@ class SemImageNumPy(SemImage):
 
     @image.setter
     def image(self, image):
-        self._image = np.asarray(image)
+        self._image = np.array(image)
 
     @property
     def fft(self):
@@ -102,7 +102,7 @@ class SemImageNumPy(SemImage):
         transFunc = transFunc / transFunc.max()
         transFunc = transFunc * self.maxLevel
         transFunc = transFunc.round()
-        self._image = np.asarray(map(lambda x: transFunc[x], self._image))
+        self._image = np.array(map(lambda x: transFunc[x], self._image))
 
     def updateFft(self):
         fft = np.fft.fft2(self._image)
@@ -121,7 +121,7 @@ class SemImageCuPy(SemImage):
 
     @image.setter
     def image(self, image):
-        self._image = cp.asarray(image)
+        self._image = cp.array(image)
 
     @property
     def fft(self):
@@ -147,7 +147,7 @@ class SemImageCuPy(SemImage):
             'z = y[x]',
             'gpuMap'
         )
-        self._image = cp.asarray(gpuMap(self._image, transFunc))
+        self._image = cp.array(gpuMap(self._image, transFunc))
 
     def updateFft(self):
         fft = cp.fft.fft2(self._image)

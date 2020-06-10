@@ -49,8 +49,7 @@ class FftPlot(MplCanvas):
     
     def updateData(self, semImage):
         data = semImage.fft
-        threshold = 2 * data.sum() / 1024 / 768
-        data = data > threshold
+        data = data > 50000
         data = data * 255
         self.plot.set_data(data)
         self.figure.canvas.draw()
@@ -120,8 +119,8 @@ class SemTool(QtWidgets.QMainWindow):
         fftDistPlotButton.clicked.connect(self.openFftDistPlot)
         histPlotButton = QtWidgets.QPushButton("Histogram Plot")
         histPlotButton.clicked.connect(self.openHistPlot)
-        semCorrectorButton = QtWidgets.QPushButton("Run SemCorrector")
-        semCorrectorButton.clicked.connect(self.runSemCorrector)
+        semCorrectorButton = QtWidgets.QPushButton("SEM Corrector")
+        semCorrectorButton.clicked.connect(self.initSemCorrector)
 
         buttonBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
         buttonBox.addButton(imagePlotButton, QtWidgets.QDialogButtonBox.ActionRole)
@@ -155,9 +154,18 @@ class SemTool(QtWidgets.QMainWindow):
     def openHistPlot(self):
         self.histPlot.show()
 
+    def initSemCorrector(self):
+        self.semCorrector = SemCorrector(self.imageGrabber.sem)
+        self.semCorrectorRan = QtCore.Signal()
+        self.semCorrectorRan.connect(self.runSemCorrector, QtCore.Qt.QueuedConnection)
+        self.runSemCorrector()
+        # self.frameTimer = QtCore.QTimer()
+        # self.semCorrectorTimer.timeout.connect(self.semCorrector.start)
+        # self.semCorrectorTimer.start(10000)
+
     def runSemCorrector(self):
-        semCorrector = SemCorrector(self.imageGrabber.sem)
-        semCorrector.correct()
+        self.semCorrector.start()
+        self.semCorrectorRan.emit()
 
     def updatePlots(self):
         if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible() or self.fftDistPlot.isVisible():

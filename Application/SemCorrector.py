@@ -46,7 +46,7 @@ class SemCorrector(threading.Thread):
 
         iters = np.arange(0, 20)
         for i in iters:
-            self.start()
+            self.startIteration()
 
         plt.figure()
 
@@ -66,7 +66,7 @@ class SemCorrector(threading.Thread):
         image = Image.fromarray(np.asarray(self.sem.img_array), 'L')
         image.save("final.png")
 
-    def start(self):
+    def startIteration(self):
         print("--------------------")
         print("Start iteration.")
         F = self.sem.GetValue("AP_WD") * 1000   # In mm.

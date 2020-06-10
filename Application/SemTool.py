@@ -158,7 +158,7 @@ class SemTool(QtWidgets.QMainWindow):
     def initSemCorrector(self):
         # self.semCorrectorRan.connect(self.runSemCorrector, QtCore.Qt.QueuedConnection)
         self.semCorrector = SemCorrector(self.imageGrabber.sem)
-        self.semCorrector.run()
+        self.semCorrector.start()
         # self.runSemCorrector()
         # self.frameTimer = QtCore.QTimer()
         # self.semCorrectorTimer.timeout.connect(self.semCorrector.start)

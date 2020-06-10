@@ -16,6 +16,7 @@ from matplotlib.colors import LogNorm as MplLogNorm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MplCanvas
 
 from SemImageGrabber import SemImageGrabber
+from SemCorrector import SemCorrector
 
 try:
     import SEM_API
@@ -119,12 +120,15 @@ class SemTool(QtWidgets.QMainWindow):
         fftDistPlotButton.clicked.connect(self.openFftDistPlot)
         histPlotButton = QtWidgets.QPushButton("Histogram Plot")
         histPlotButton.clicked.connect(self.openHistPlot)
+        semCorrectorButton = QtWidgets.QPushButton("Run SemCorrector")
+        semCorrectorButton.clicked.connect(self.runSemCorrector)
 
         buttonBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
         buttonBox.addButton(imagePlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(fftPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(fftDistPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(histPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
+        buttonBox.addButton(semCorrectorButton, QtWidgets.QDialogButtonBox.ActionRole)
 
         self.hanningButton = QtWidgets.QRadioButton("Hanning Window")
         self.hanningButton.setAutoExclusive(False)
@@ -150,6 +154,10 @@ class SemTool(QtWidgets.QMainWindow):
 
     def openHistPlot(self):
         self.histPlot.show()
+
+    def runSemCorrector(self):
+        semCorrector = SemCorrector(self.imageGrabber.sem)
+        semCorrector.correct()
 
     def updatePlots(self):
         if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible() or self.fftDistPlot.isVisible():

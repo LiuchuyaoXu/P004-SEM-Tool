@@ -40,6 +40,8 @@ class SemCorrector(threading.Thread):
         self.stigmaXIters = []
         self.stigmaYIters = []
 
+        threading.Thread.__init__(self)
+
     def run(self):
         image = Image.fromarray(np.asarray(self.sem.img_array), 'L')
         image.save("initial.png")

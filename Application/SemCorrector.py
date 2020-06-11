@@ -1,210 +1,169 @@
-# Author: Liuchuyao Xu, 2020
+#   File:   SemCorrector.py
+# 
+#   Author: Liuchuyao Xu, 2020
 #
-# Brief: Implement a class for the automatic focusing and astigmatism correction algorithm.
+#   Brief: Implement an automatic focusing and astigmatism correction algorithm.
 
 import time
-import numpy as np
 import numpy.ma as ma
 import matplotlib.pyplot as plt
-import threading
 
-from PIL import Image
-
-from Masker import Masker
+import SEM_API
+from Segmenter import Segmenter
 from SemImage import SemImage
 
-class SemCorrector(threading.Thread):
+class SemCorrector():
+
+    sem = None
+    segmenter = None
+
+    wdIters = []
+    sxIters = []
+    syIters = []
+
+    wdStep = 0.02 # In mm
+    wdOffset = 0.10 # In mm.
+    dP_threshold = 0.002
+    sxyStep = 0.50
+    dP_rs_threshold = 0.02
+
     def __init__(self, sem):
-        try:
-            self.sem = sem
-            sv = self.sem.GetState("SV_VERSION")
-            print("SemCorrector initialised.")
-            print("SEM SV version: ", sv, "\n")
-        except:
-            raise TypeError("SemCorrector was not initialised with an SEM_API instance.")
-
+        self.sem = sem
         self.sem.UpdateImage_Start()
+        self.segmenter = Segmenter([1024, 768])
 
-        self.focusStep = 0.02 # In mm
-        self.focusOffset = 0.10 # In mm.
-        self.focusThreshold = 0.002
-        self.stigmaStep = 0.50
-        self.stigmaThreshold = 0.02
-        self.stigmaDiffThreshold = 0.05
-
-        self.masker = Masker([1024, 768])
-
-        self.finished = False
-
-        self.focusIters = []
-        self.stigmaXIters = []
-        self.stigmaYIters = []
-
-        threading.Thread.__init__(self)
-
-    def run(self):
-        image = Image.fromarray(np.asarray(self.sem.img_array), 'L')
-        image.save("initial.png")
-
-        iters = np.arange(0, 20)
-        for i in iters:
-            self.startIteration()
+    def start(self):
+        iters = range(20)
+        for _ in iters:
+            self.iterate()
 
         plt.figure()
-
         plt.subplot(211)
-        plt.ylabel('Focus')
-        plt.plot(iters, self.focusIters, 'r^')
-
+        plt.plot(iters, self.wdIters, 'r^')
+        plt.ylabel('Working Distance')
         plt.subplot(212)
+        plt.plot(iters, self.sxIters, 'g^', label='Stigmator X')
+        plt.plot(iters, self.syIters, 'b^', label='Stigmator Y')
         plt.xlabel('Iteration')
-        plt.ylabel('Stigma')
-        plt.plot(iters, self.stigmaXIters, 'g^', label='x')
-        plt.plot(iters, self.stigmaYIters, 'b^', label='y')
+        plt.ylabel('Stigmator Setting')
         plt.legend(loc='upper right')
-
         plt.show()
 
-        image = Image.fromarray(np.asarray(self.sem.img_array), 'L')
-        image.save("final.png")
-
-    def startIteration(self):
+    def iterate(self):
         print("--------------------")
+        print(" ")
         print("Start iteration.")
-        F = self.sem.GetValue("AP_WD") * 1000   # In mm.
-        Sx = self.sem.GetValue("AP_STIG_X")
-        Sy = self.sem.GetValue("AP_STIG_Y")
-        Ft = self.sem.GetValue("AP_FRAME_TIME")  #added by Bernie & David
+        wd = self.sem.GetValue("AP_WD") * 1000   # In mm.
+        sx = self.sem.GetValue("AP_STIG_X")
+        sy = self.sem.GetValue("AP_STIG_Y")
+        ft = self.sem.GetValue("AP_FRAME_TIME") / 1000 # In seconds.
         print(" ")
-        print("Initial settings:")
-        print("Focus: ", F)
-        print("Sx: ", Sx)
-        print("Sy ", Sy)
-        print("Cycle time  ", Ft/1000, "seconds")  #added by Bernie & David
-        self.focusIters.append(F)
-        self.stigmaXIters.append(Sx)
-        self.stigmaYIters.append(Sy)
+        print("Initial settings: ")
+        print("Working distance: ", wd, "mm")
+        print("Stigmator X:      ", sx)
+        print("Stigmator Y:      ", sy)
+        print("Frame time:       ", ft, "seconds")
+        self.wdIters.append(wd)
+        self.sxIters.append(sx)
+        self.syIters.append(sy)
 
-        self.sem.SetValue("AP_WD", str(F - self.focusOffset))
-        time.sleep(Ft/1000)
-        imageUF = SemImage.create(np.asarray(self.sem.img_array))
-        imageUF.applyHanning()
-        Puf, Pr12uf, Pr34uf, Ps12uf, Ps34uf = self.getFftSegments(self.masker, imageUF.fft)
+        self.sem.SetValue("AP_WD", wd-self.wdOffset)
+        time.sleep(ft)
+        imageUf = SemImage.create(self.sem.img_array)
+        imageUf.applyHanning()
+        imageUf.updateFft()
+        P_uf, P_r12_uf, P_r34_uf, P_s12_uf, P_s34_uf = self.segmentFft(self.segmenter, imageUf.fft)
         print(" ")
-        print("Underfocus image FFT:")
-        print("Puf: ", Puf)
-        print("Pr12uf: ", Pr12uf)
-        print("Pr34uf: ", Pr34uf)
-        print("Ps12uf: ", Ps12uf)
-        print("Ps34uf: ", Ps34uf)
+        print("Underfocused image FFT:")
+        print("P_uf:     ", P_uf)
+        print("P_r12_uf: ", P_r12_uf)
+        print("P_r34_uf: ", P_r34_uf)
+        print("P_s12_uf: ", P_s12_uf)
+        print("P_s34_uf: ", P_s34_uf)
 
-        self.sem.SetValue("AP_WD", str(F + self.focusOffset))
-        time.sleep(Ft/1000)       
-        imageOF = SemImage.create(np.asarray(self.sem.img_array))
-        imageOF.applyHanning()
-        Pof, Pr12of, Pr34of, Ps12of, Ps34of = self.getFftSegments(self.masker, imageOF.fft)
+        self.sem.SetValue("AP_WD", wd+self.wdOffset)
+        time.sleep(ft)       
+        imageOf = SemImage.create(self.sem.img_array)
+        imageOf.applyHanning()
+        imageOf.updateFft()
+        P_of, P_r12_of, P_r34_of, P_s12_of, P_s34_of = self.segmentFft(self.segmenter, imageOf.fft)
         print(" ")
-        print("Overfocus image FFT:")
-        print("Pof: ", Pof)
-        print("Pr12of: ", Pr12of)
-        print("Pr34of: ", Pr34of)
-        print("Ps12of: ", Ps12of)
-        print("Ps34of: ", Ps34of)
+        print("Overfocused image FFT:")
+        print("P_of:     ", P_of)
+        print("P_r12_of: ", P_r12_of)
+        print("P_r34_of: ", P_r34_of)
+        print("P_s12_of: ", P_s12_of)
+        print("P_s34_of: ", P_s34_of)
 
-        dP = (Pof - Puf) / (Pof + Puf)
-        dPr12 = (Pr12of - Pr12uf) / (Pr12of + Pr12uf)
-        dPr34 = (Pr34of - Pr34uf) / (Pr34of + Pr34uf)
-        dPs12 = (Ps12of - Ps12uf) / (Ps12of + Ps12uf)
-        dPs34 = (Ps34of - Ps34uf) / (Ps34of + Ps34uf)
-        Ax = abs(dPr12 - dPr34)
-        Ay = abs(dPs12 - dPs34)
+        self.sem.SetValue("AP_WD", wd)
+
+        dP = (P_of - P_uf) / (P_of + P_uf)
+        dP_r12 = (P_r12_of - P_r12_uf) / (P_r12_of + P_r12_uf)
+        dP_r34 = (P_r34_of - P_r34_uf) / (P_r34_of + P_r34_uf)
+        dP_s12 = (P_s12_of - P_s12_uf) / (P_s12_of + P_s12_uf)
+        dP_s34 = (P_s34_of - P_s34_uf) / (P_s34_of + P_s34_uf)
         print(" ")
-        print("Differences:")
-        print("dP: ", dP)
-        print("dPr12: ", dPr12)
-        print("dPr34: ", dPr34)
-        print("dPs12: ", dPs12)
-        print("dPs34: ", dPs34)
+        print("Image FFT differences:")
+        print("dP:     ", dP)
+        print("dP_r12: ", dP_r12)
+        print("dP_r34: ", dP_r34)
+        print("dP_s12: ", dP_s12)
+        print("dP_s34: ", dP_s34)
 
-        if abs(dP) > self.focusThreshold:
-            self.adjustFocus(dP, F)
-            return
-        
-        if abs(dPr12) < self.stigmaThreshold and abs(dPr34) < self.stigmaThreshold and Ax < self.stigmaDiffThreshold:
-            stigmaXCorrected = True
-        else:
-            stigmaXCorrected = False
+        if abs(dP) > self.dP_threshold:
+            self.adjustFocus(dP, wd)        
+        elif abs(dP_r12) > self.dP_rs_threshold and abs(dP_r34) > self.dP_rs_threshold:
+            self.adjustStigmaX(dP_r12, dP_r34, sx)
+        elif abs(dP_s12) > self.dP_rs_threshold and abs(dP_s34) > self.dP_rs_threshold:
+            self.adjustStigmaX(dP_s12, dP_s34, sy)
 
-        if abs(dPs12) < self.stigmaThreshold and abs(dPs34) < self.stigmaThreshold and Ay < self.stigmaDiffThreshold:
-            stigmaYCorrected = True
-        else:
-            stigmaYCorrected = False
-
-        if not stigmaXCorrected:
-            if stigmaYCorrected:
-                self.adjustStigmaX(dPr12, dPr34, Sx)
-                return
-            elif Ax >= Ay:
-                self.adjustStigmaX(dPr12, dPr34, Sx)
-                return
-            else:
-                self.adjustStigmaY(dPs12, dPs34, Sy)
-                return
-        elif not stigmaYCorrected:
-                self.adjustStigmaY(dPs12, dPs34, Sy)
-                return
-        else:
-            self.sem.SetValue("AP_WD", str(F))
-            self.finished = True
-            return
-
-    def getFftSegments(self, masker, fft):
+    def segmentFft(self, segmenter, fft):
         fft = fft > 50000
         P = fft.sum()
-        r1 = ma.array(fft, mask=masker.r1).sum()
-        r2 = ma.array(fft, mask=masker.r2).sum()
-        r3 = ma.array(fft, mask=masker.r3).sum()
-        r4 = ma.array(fft, mask=masker.r4).sum()
-        s1 = ma.array(fft, mask=masker.s1).sum()
-        s2 = ma.array(fft, mask=masker.s2).sum()
-        s3 = ma.array(fft, mask=masker.s3).sum()
-        s4 = ma.array(fft, mask=masker.s4).sum()
-        Pr12 = r1 + r2
-        Pr34 = r3 + r4
-        Ps12 = s1 + s2
-        Ps34 = s3 + s4
-        return P, Pr12, Pr34, Ps12, Ps34
+        P_r1 = ma.array(fft, segmenter.r1).sum()
+        P_r2 = ma.array(fft, segmenter.r2).sum()
+        P_r3 = ma.array(fft, segmenter.r3).sum()
+        P_r4 = ma.array(fft, segmenter.r4).sum()
+        P_s1 = ma.array(fft, segmenter.s1).sum()
+        P_s2 = ma.array(fft, segmenter.s2).sum()
+        P_s3 = ma.array(fft, segmenter.s3).sum()
+        P_s4 = ma.array(fft, segmenter.s4).sum()
+        P_r12 = P_r1 + P_r2
+        P_r34 = P_r3 + P_r4
+        P_s12 = P_s1 + P_s2
+        P_s34 = P_s3 + P_s4
+        return P, P_r12, P_r34, P_s12, P_s34
 
-    def adjustFocus(self, dP, F):
+    def adjustFocus(self, dP, wd):
         print(" ")
-        print("Adjust focus.")
         if dP > 0:
-            self.sem.SetValue("AP_WD", str(F + self.focusStep))
+            self.sem.SetValue("AP_WD", wd+self.wdStep)
+            print("Increased working distance.")
         else:
-            self.sem.SetValue("AP_WD", str(F - self.focusStep))
+            self.sem.SetValue("AP_WD", wd-self.wdStep)
+            print("Decreased working distance.")
 
-    def adjustStigmaX(self, dPr12, dPr34, Sx):
-        print(" ")
-        print("Adjust stigma x.")
-        if dPr12 > 0 and dPr34 < 0:
-            self.sem.SetValue("AP_STIG_X", str(Sx - self.stigmaStep))
-        elif dPr12 < 0 and dPr34 > 0:
-            self.sem.SetValue("AP_STIG_X", str(Sx + self.stigmaStep))
+    def adjustStigmaX(self, dP_r12, dP_r34, sx):
+        if dP_r12 > 0 and dP_r34 < 0:
+            self.sem.SetValue("AP_STIG_X", sx-self.sxyStep)
+            print(" ")
+            print("Decreased stigmator X.")
+        elif dP_r12 < 0 and dP_r34 > 0:
+            self.sem.SetValue("AP_STIG_X", sx+self.sxyStep)
+            print(" ")
+            print("Increased stigmator X.")
 
-    def adjustStigmaY(self, dPs12, dPs34, Sy):
-        print(" ")
-        print("Adjust stigma y.")
-        if dPs12 > 0 and dPs34 < 0:
-            self.sem.SetValue("AP_STIG_Y", str(Sy - self.stigmaStep))
-        elif dPs12 < 0 and dPs34 > 0:
-            self.sem.SetValue("AP_STIG_Y", str(Sy + self.stigmaStep))
+    def adjustStigmaY(self, dP_s12, dP_s34, sy):
+        if dP_s12 > 0 and dP_s34 < 0:
+            self.sem.SetValue("AP_STIG_Y", sy-self.sxyStep)
+            print(" ")
+            print("Decreased stigmator Y.")
+        elif dP_s12 < 0 and dP_s34 > 0:
+            self.sem.SetValue("AP_STIG_Y", sy+self.sxyStep)
+            print(" ")
+            print("Increased stigmator Y.")
 
 if __name__ == "__main__":
-    import SEM_API
-    
     with SEM_API.SEM_API("remote") as sem:
         semCorrector = SemCorrector(sem)
-        start = time.time()
-        semCorrector.run()
-        end = time.time()
-        print("Execution time: ", end - start, "s")
+        semCorrector.start()

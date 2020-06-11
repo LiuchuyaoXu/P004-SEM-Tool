@@ -27,8 +27,6 @@ class SemImage(ABC):
         self.image = image
         self.bitDepth = 8
         self.maxLevel = 2**self.bitDepth
-        self.updateFft()
-        self.updateHistogram()
 
     @property
     @abstractmethod

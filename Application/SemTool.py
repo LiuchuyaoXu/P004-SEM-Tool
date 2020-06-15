@@ -1,8 +1,8 @@
 #   File:   SemTool.py
 #
-#   Brief:  Implement classes related to the GUI of the diagnostic tool.
-# 
 #   Author: Liuchuyao Xu, 2020
+# 
+#   Brief:  Implement classes related to the GUI of the SEM diagnostic tool.
 
 import os
 import sys
@@ -12,11 +12,10 @@ from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from matplotlib.figure import Figure as MplFigure
-from matplotlib.colors import LogNorm as MplLogNorm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MplCanvas
 
-from SemImageGrabber import SemImageGrabber
 from SemCorrector import SemCorrector
+from SemImageGrabber import SemImageGrabber
 
 try:
     import SEM_API
@@ -156,17 +155,7 @@ class SemTool(QtWidgets.QMainWindow):
         self.histPlot.show()
 
     def initSemCorrector(self):
-        # self.semCorrectorRan.connect(self.runSemCorrector, QtCore.Qt.QueuedConnection)
         self.semCorrector = SemCorrector(self.imageGrabber.sem)
-        self.semCorrector.start()
-        # self.runSemCorrector()
-        # self.frameTimer = QtCore.QTimer()
-        # self.semCorrectorTimer.timeout.connect(self.semCorrector.start)
-        # self.semCorrectorTimer.start(10000)
-
-    # def runSemCorrector(self):
-    #     self.semCorrector.start()
-    #     self.semCorrectorRan.emit()
 
     def updatePlots(self):
         if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible() or self.fftDistPlot.isVisible():

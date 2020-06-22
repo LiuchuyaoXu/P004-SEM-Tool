@@ -65,7 +65,7 @@ class SemImage(ABC):
         ...
 
     @classmethod
-    def create(self, image):
+    def create(cls, image):
         if cp:
             return SemImageCuPy(image)
         else:

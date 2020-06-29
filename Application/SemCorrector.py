@@ -36,7 +36,6 @@ class SemCorrector():
 
     def __init__(self):
         self.sem = SemController()
-        self.sem().UpdateImage_Start()
         self.segmenter = Segmenter([self.width, self.height])
 
         self.sem().Execute("CMD_MODE_REDUCED")
@@ -66,10 +65,10 @@ class SemCorrector():
         print("--------------------")
         print(" ")
         print("Start iteration.")
-        wd = self.sem().GetValue("AP_WD") * 1000   # In mm.
-        sx = self.sem().GetValue("AP_STIG_X")
-        sy = self.sem().GetValue("AP_STIG_Y")
-        ft = self.sem().GetValue("AP_FRAME_TIME") / 1000 # In seconds.
+        wd = self.sem().Get("AP_WD") * 1000   # In mm.
+        sx = self.sem().Get("AP_STIG_X")
+        sy = self.sem().Get("AP_STIG_Y")
+        ft = self.sem().Get("AP_FRAME_TIME") / 1000 # In seconds.
         print(" ")
         print("Initial settings: ")
         print("Working distance: ", wd, "mm")

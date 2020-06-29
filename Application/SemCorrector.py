@@ -65,10 +65,10 @@ class SemCorrector():
         print("--------------------")
         print(" ")
         print("Start iteration.")
-        wd = self.sem().Get("AP_WD") * 1000   # In mm.
-        sx = self.sem().Get("AP_STIG_X")
-        sy = self.sem().Get("AP_STIG_Y")
-        ft = self.sem().Get("AP_FRAME_TIME") / 1000 # In seconds.
+        wd = self.sem().Get("AP_WD", 0.0)[1] * 1000   # In mm.
+        sx = self.sem().Get("AP_STIG_X", 0.0)[1]
+        sy = self.sem().Get("AP_STIG_Y", 0.0)[1]
+        ft = self.sem().Get("AP_FRAME_TIME", 0.0)[1] / 1000 # In seconds.
         print(" ")
         print("Initial settings: ")
         print("Working distance: ", wd, "mm")
@@ -79,7 +79,7 @@ class SemCorrector():
         self.sxIters.append(sx)
         self.syIters.append(sy)
 
-        self.sem().SetValue("AP_WD", wd-self.wdOffset)
+        self.sem().Set("AP_WD", str(wd-self.wdOffset))
         time.sleep(3*ft)
         imageUf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
         imageUf.applyHanning()
@@ -93,7 +93,7 @@ class SemCorrector():
         print("P_s12_uf: ", P_s12_uf)
         print("P_s34_uf: ", P_s34_uf)
 
-        self.sem().SetValue("AP_WD", wd+self.wdOffset)
+        self.sem().Set("AP_WD", str(wd+self.wdOffset))
         time.sleep(3*ft)       
         imageOf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
         imageOf.applyHanning()
@@ -107,7 +107,7 @@ class SemCorrector():
         print("P_s12_of: ", P_s12_of)
         print("P_s34_of: ", P_s34_of)
 
-        self.sem().SetValue("AP_WD", wd)
+        self.sem().Set("AP_WD", str(wd))
 
         dP = (P_of - P_uf) / (P_of + P_uf)
         dP_r12 = (P_r12_of - P_r12_uf) / (P_r12_of + P_r12_uf)

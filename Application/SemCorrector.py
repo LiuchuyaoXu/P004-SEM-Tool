@@ -139,14 +139,14 @@ class SemCorrector():
     def segmentFft(self, fft):
         fft = fft > 3000
         P = fft.sum()
-        P_r1 = ma.array(fft, self.segmenter.r1).sum()
-        P_r2 = ma.array(fft, self.segmenter.r2).sum()
-        P_r3 = ma.array(fft, self.segmenter.r3).sum()
-        P_r4 = ma.array(fft, self.segmenter.r4).sum()
-        P_s1 = ma.array(fft, self.segmenter.s1).sum()
-        P_s2 = ma.array(fft, self.segmenter.s2).sum()
-        P_s3 = ma.array(fft, self.segmenter.s3).sum()
-        P_s4 = ma.array(fft, self.segmenter.s4).sum()
+        P_r1 = ma.array(fft, mask=self.segmenter.r1).sum()
+        P_r2 = ma.array(fft, mask=self.segmenter.r2).sum()
+        P_r3 = ma.array(fft, mask=self.segmenter.r3).sum()
+        P_r4 = ma.array(fft, mask=self.segmenter.r4).sum()
+        P_s1 = ma.array(fft, mask=self.segmenter.s1).sum()
+        P_s2 = ma.array(fft, mask=self.segmenter.s2).sum()
+        P_s3 = ma.array(fft, mask=self.segmenter.s3).sum()
+        P_s4 = ma.array(fft, mask=self.segmenter.s4).sum()
         P_r12 = P_r1 + P_r2
         P_r34 = P_r3 + P_r4
         P_s12 = P_s1 + P_s2

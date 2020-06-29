@@ -14,23 +14,17 @@ from PyQt5 import QtWidgets
 from matplotlib.figure import Figure as MplFigure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as MplCanvas
 
-from SemCorrector import SemCorrector
-from SemImageGrabber import SemImageGrabber
-
-try:
-    import SEM_API
-except:
-    SEM_API = None
-    print("Warning, could not import SEM_API, SEM images will be read from a local folder.")
+from SemImage import SemImage
+from SemController import SemController
 
 class ImagePlot(MplCanvas):
-    def __init__(self):
+    def __init__(self, size):
         super().__init__(MplFigure())
 
         self.setWindowTitle("Image")
 
         self.axes = self.figure.add_subplot()
-        self.plot = self.axes.imshow(np.zeros([768, 1024]), cmap="gray", vmin=0, vmax=255)
+        self.plot = self.axes.imshow(np.zeros(size), cmap="gray", vmin=0, vmax=255)
 
     def updateData(self, semImage):
         data = semImage.image
@@ -38,13 +32,13 @@ class ImagePlot(MplCanvas):
         self.figure.canvas.draw()
 
 class FftPlot(MplCanvas):
-    def __init__(self):
+    def __init__(self, size):
         super().__init__(MplFigure())
 
         self.setWindowTitle("Image FFT")
 
         self.axes = self.figure.add_subplot()
-        self.plot = self.axes.imshow(np.zeros([768, 1024]), cmap="gray", vmin=0, vmax=255)
+        self.plot = self.axes.imshow(np.zeros(size), cmap="gray", vmin=0, vmax=255)
     
     def updateData(self, semImage):
         data = semImage.fft
@@ -90,13 +84,24 @@ class SemTool(QtWidgets.QMainWindow):
     frameUpdated = QtCore.Signal()
     semCorrectorRan = QtCore.Signal()
 
-    def __init__(self, imageGrabber):
+    xOffset = 512
+    yOffset = 256
+    width = 256
+    height = 256
+
+    def __init__(self):
         super().__init__()
 
-        self.imageGrabber = imageGrabber
+        self.sem = SemController()
 
-        self.imagePlot = ImagePlot()
-        self.fftPlot = FftPlot()
+        self.sem().Execute("CMD_MODE_REDUCED")
+        self.sem().Set("AP_RED_RASTER_POSN_X", str(self.xOffset))
+        self.sem().Set("AP_RED_RASTER_POSN_Y", str(self.yOffset))
+        self.sem().Set("AP_RED_RASTER_W", str(self.width))
+        self.sem().Set("AP_RED_RASTER_H", str(self.height))
+
+        self.imagePlot = ImagePlot([self.width, self.height])
+        self.fftPlot = FftPlot([self.width, self.height])
         self.fftDistPlot = FftDistPlot()
         self.histPlot = HistPlot()
 
@@ -119,15 +124,12 @@ class SemTool(QtWidgets.QMainWindow):
         fftDistPlotButton.clicked.connect(self.openFftDistPlot)
         histPlotButton = QtWidgets.QPushButton("Histogram Plot")
         histPlotButton.clicked.connect(self.openHistPlot)
-        semCorrectorButton = QtWidgets.QPushButton("SEM Corrector")
-        semCorrectorButton.clicked.connect(self.initSemCorrector)
 
         buttonBox = QtWidgets.QDialogButtonBox(QtCore.Qt.Vertical)
         buttonBox.addButton(imagePlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(fftPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(fftDistPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
         buttonBox.addButton(histPlotButton, QtWidgets.QDialogButtonBox.ActionRole)
-        buttonBox.addButton(semCorrectorButton, QtWidgets.QDialogButtonBox.ActionRole)
 
         self.hanningButton = QtWidgets.QRadioButton("Hanning Window")
         self.hanningButton.setAutoExclusive(False)
@@ -154,14 +156,11 @@ class SemTool(QtWidgets.QMainWindow):
     def openHistPlot(self):
         self.histPlot.show()
 
-    def initSemCorrector(self):
-        self.semCorrector = SemCorrector(self.imageGrabber.sem)
-
     def updatePlots(self):
         if self.imagePlot.isVisible() or self.fftPlot.isVisible() or self.histPlot.isVisible() or self.fftDistPlot.isVisible():
             start = time.time()
 
-            image = self.imageGrabber()
+            image = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
             if self.hanningButton.isChecked():
                 image.applyHanning()
             if self.histEquButton.isChecked():
@@ -184,14 +183,7 @@ class SemTool(QtWidgets.QMainWindow):
         self.frameUpdated.emit()
 
 if __name__ == "__main__":
-    if SEM_API:
-        with SEM_API.SEM_API("remote") as sem:
-            app = QtWidgets.QApplication(sys.argv)
-            gui = SemTool(SemImageGrabber(sem=sem))
-            gui.show()
-            sys.exit(app.exec_())
-    else:
         app = QtWidgets.QApplication(sys.argv)
-        gui = SemTool(SemImageGrabber(imageDir="./Sample Images"))
+        gui = SemTool()
         gui.show()
         sys.exit(app.exec_())

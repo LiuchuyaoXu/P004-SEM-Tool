@@ -42,8 +42,7 @@ class FftPlot(MplCanvas):
     
     def updateData(self, semImage):
         data = semImage.fft
-        data = data > 50000
-        data = data * 255
+        data = 100 * np.log(1 + data)
         self.plot.set_data(data)
         self.figure.canvas.draw()
 

@@ -111,7 +111,7 @@ class SemTool(QtWidgets.QWidget):
 
     def startFrameUpdate(self):
         if not self.localImageFolder:
-            print('Please specify the local folder.')
+            print('Please specify a local folder.')
             return
 
         self.toggleFrameUpdateButton.setText('Stop Updating Frames')

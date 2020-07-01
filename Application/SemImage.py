@@ -40,6 +40,11 @@ class SemImage(ABC):
 
     @property
     @abstractmethod
+    def imageStr(self):
+        ...
+
+    @property
+    @abstractmethod
     def fft(self):
         ...
 
@@ -82,6 +87,10 @@ class SemImageNumPy(SemImage):
         self._image = numpy.array(image)
 
     @property
+    def imageStr(self):
+        return numpy.array_str(self._image.flatten())
+
+    @property
     def fft(self):
         return self._fft
 
@@ -120,6 +129,10 @@ class SemImageCuPy(SemImage):
     @image.setter
     def image(self, image):
         self._image = cupy.array(image)
+
+    @property
+    def imageStr(self):
+        return cupy.array_str(self._image.flatten())
 
     @property
     def fft(self):

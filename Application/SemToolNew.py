@@ -20,6 +20,7 @@ class ImagePlot(QtWidgets.QLabel):
     def __init__(self):
         super().__init__()
 
+        self.setMinimumSize(512, 384)
         self.setWindowTitle('Image')
 
     def update(self, semImage):
@@ -38,6 +39,7 @@ class HistogramPlot(QtWidgets.QLabel):
     def __init__(self):
         super().__init__()
 
+        self.setMinimumSize(512, 384)
         self.setWindowTitle('Histogram')
 
     def closeEvent(self, event):
@@ -50,6 +52,7 @@ class FftPlot(QtWidgets.QLabel):
     def __init__(self):
         super().__init__()
 
+        self.setMinimumSize(512, 384)
         self.setWindowTitle('FFT')
 
     def closeEvent(self, event):
@@ -62,6 +65,7 @@ class FftDistributionPlot(QtWidgets.QLabel):
     def __init__(self):
         super().__init__()
 
+        self.setMinimumSize(512, 384)
         self.setWindowTitle('FFT Distribution')
 
     def closeEvent(self, event):

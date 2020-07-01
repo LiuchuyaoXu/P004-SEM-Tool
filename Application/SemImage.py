@@ -13,20 +13,23 @@ try:
 except:
     import numpy
     cupy = None
-    print('Warning, could not import CuPy, GPU acceleration will be disabled.')
+    print('Could not import CuPy, GPU acceleration will be disabled.')
 
 class SemImage(ABC):
     _image = None
     bitDepth = None
+    dataType = None
     maxLevel = None
 
     _fft = None
     _histogram = None
 
     def __init__(self, image, bitDepth=8):
-        self.image = image
         self.bitDepth = bitDepth
+        self.dataType = 'uint{}'.format(self.bitDepth)
         self.maxLevel = 2**self.bitDepth - 1
+
+        self.image = image
 
     @property
     @abstractmethod
@@ -36,11 +39,6 @@ class SemImage(ABC):
     @image.setter
     @abstractmethod
     def image(self, image):
-        ...
-
-    @property
-    @abstractmethod
-    def imageStr(self):
         ...
 
     @property
@@ -84,11 +82,7 @@ class SemImageNumPy(SemImage):
 
     @image.setter
     def image(self, image):
-        self._image = numpy.array(image)
-
-    @property
-    def imageStr(self):
-        return numpy.array_str(self._image.flatten())
+        self._image = numpy.array(image, dtype=numpy.dtype(self.dataType))
 
     @property
     def fft(self):
@@ -103,13 +97,16 @@ class SemImageNumPy(SemImage):
         row = numpy.hanning(self._image.shape[1])
         window = numpy.sqrt(numpy.outer(col, row))
         self._image = numpy.multiply(window, self._image)
+        self._image = self._image.astype(self.dataType)
 
     def applyHistogramEqualisation(self):
-        transFunc = numpy.cumsum(self._histogram)
+        transFunc = numpy.cumsum(self._histogram[0])
         transFunc = transFunc / transFunc.max()
         transFunc = transFunc * self.maxLevel
         transFunc = transFunc.round()
-        self._image = numpy.array(map(lambda x: transFunc[x], self._image))
+        # transFunc = transFunc.astype(self.dataType)
+        self._image = numpy.array(list(map(lambda x: transFunc[x], self._image)))
+        self._image = self._image.astype(self.dataType)
 
     def updateFft(self):
         fft = numpy.fft.fft2(self._image)
@@ -128,11 +125,7 @@ class SemImageCuPy(SemImage):
 
     @image.setter
     def image(self, image):
-        self._image = cupy.array(image)
-
-    @property
-    def imageStr(self):
-        return cupy.array_str(self._image.flatten())
+        self._image = cupy.array(image, dtype=cupy.dtype(self.dataType))
 
     @property
     def fft(self):
@@ -147,18 +140,21 @@ class SemImageCuPy(SemImage):
         row = cupy.hanning(self._image.shape[1])
         window = cupy.sqrt(cupy.outer(col, row))
         self._image = cupy.multiply(window, self._image)
+        self._image = self._image.astype(self.dataType)
 
     def applyHistogramEqualisation(self):
-        transFunc = cupy.cumsum(self._histogram)
+        transFunc = cupy.cumsum(self._histogram[0])
         transFunc = transFunc / transFunc.max()
         transFunc = transFunc * self.maxLevel
         transFunc = transFunc.round()
+        transFunc = transFunc.astype(self.dataType)
         gpuMap = cupy.ElementwiseKernel(
             'T x, raw T y', 'T z',
             'z = y[x]',
             'gpuMap'
         )
         self._image = cupy.array(gpuMap(self._image, transFunc))
+        self._image = self._image.astype(self.dataType)
 
     def updateFft(self):
         fft = cupy.fft.fft2(self._image)

@@ -14,8 +14,6 @@ from PySide2 import QtWidgets
 from SemImage import SemImage
 
 class SemTool(QtWidgets.QWidget):
-    localImageFolder = None
-
     frameUpdated = QtCore.Signal()
 
     def __init__(self):
@@ -111,9 +109,10 @@ class SemTool(QtWidgets.QWidget):
 
     def startFrameUpdate(self):
         if not self.localImageFolder:
-            print('Please specify a local folder.')
+            print('Please specify the local folder.')
             return
 
+        self.imageSourceBox.setEnabled(False)
         self.toggleFrameUpdateButton.setText('Stop Updating Frames')
         self.toggleFrameUpdateButton.clicked.disconnect(self.startFrameUpdate)
         self.toggleFrameUpdateButton.clicked.connect(self.stopFrameUpdate)
@@ -121,6 +120,7 @@ class SemTool(QtWidgets.QWidget):
         self.updateFrame()
 
     def stopFrameUpdate(self):
+        self.imageSourceBox.setEnabled(True)
         self.toggleFrameUpdateButton.setText('Start Updating Frames')
         self.toggleFrameUpdateButton.clicked.disconnect(self.stopFrameUpdate)
         self.toggleFrameUpdateButton.clicked.connect(self.startFrameUpdate)

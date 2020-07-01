@@ -12,8 +12,11 @@ from PySide2 import QtCore
 from PySide2 import QtWidgets
 
 from SemImage import SemImage
+from SemController import SemController
 
 class SemTool(QtWidgets.QWidget):
+    localImageFolder = None
+    
     frameUpdated = QtCore.Signal()
 
     def __init__(self):
@@ -32,6 +35,12 @@ class SemTool(QtWidgets.QWidget):
         layout.insertWidget(1, self.processingAlgorithmsBox)
         layout.insertWidget(2, self.plotsBox)
         layout.insertWidget(3, self.commandBox)
+
+        try:
+            self.sem = SemController()
+        except:
+            self.semButton.setEnabled(False)
+            print('Could not initialise communication with the SEM, it cannot be used as the image source.')
 
     def initImageSourceBox(self):
         self.imageSourceBox = QtWidgets.QGroupBox('Image Source')
@@ -92,10 +101,11 @@ class SemTool(QtWidgets.QWidget):
 
     def browseForImageFolder(self):
         folder = QtWidgets.QFileDialog.getExistingDirectory()
-        self.folderText.setText(folder)
-        self.localImageFolder = QtCore.QDir(folder)
-        self.localImages = self.localImageFolder.entryList(['*.tif'])
-        self.localImagesIndex = 0
+        if folder:
+            self.folderText.setText(folder)
+            self.localImageFolder = QtCore.QDir(folder)
+            self.localImages = self.localImageFolder.entryList(['*.tif'])
+            self.localImagesIndex = 0
 
     def onSelectFolderAsImageSource(self, checked):
         if checked:
@@ -133,6 +143,8 @@ class SemTool(QtWidgets.QWidget):
             self.localImagesIndex += 1
             if self.localImagesIndex >= len(self.localImages):
                 self.localImagesIndex = 0
+        else:
+            image = SemImage.create(self.sem.grabImage())
 
         self.frameUpdated.emit()
 

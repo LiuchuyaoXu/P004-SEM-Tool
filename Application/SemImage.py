@@ -104,14 +104,18 @@ class SemImageNumPy(SemImage):
         transFunc = transFunc / transFunc.max()
         transFunc = transFunc * self.maxLevel
         transFunc = transFunc.round()
-        # transFunc = transFunc.astype(self.dataType)
         self._image = numpy.array(list(map(lambda x: transFunc[x], self._image)))
         self._image = self._image.astype(self.dataType)
+
+    def thresholdFft(self):
+        noiseLevel = numpy.sum(self._fft[0][0:10]) / 10
+        self._fft = self._fft > noiseLevel
+        self._fft = self._fft.astype('uint8')
 
     def updateFft(self):
         fft = numpy.fft.fft2(self._image)
         fft = numpy.fft.fftshift(fft)
-        fft = numpy.abs(fft)
+        fft = numpy.abs(fft, order='C')
         self._fft = fft
 
     def updateHistogram(self):
@@ -129,7 +133,7 @@ class SemImageCuPy(SemImage):
 
     @property
     def fft(self):
-        return cupy.asnumpy(self._fft)
+        return cupy.asnumpy(self._fft, order=u'C')
 
     @property
     def histogram(self):
@@ -155,6 +159,11 @@ class SemImageCuPy(SemImage):
         )
         self._image = cupy.array(gpuMap(self._image, transFunc))
         self._image = self._image.astype(self.dataType)
+
+    def thresholdFft(self):
+        noiseLevel = cupy.sum(self._fft[0][0:100]) / 100
+        self._fft = self._fft > noiseLevel
+        self._fft = self._fft.astype('uint8')
 
     def updateFft(self):
         fft = cupy.fft.fft2(self._image)

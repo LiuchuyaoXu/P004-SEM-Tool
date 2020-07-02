@@ -277,6 +277,13 @@ class SemTool(QtWidgets.QWidget):
 
         self.frameUpdated.emit()
 
+    def closeEvent(self, event):
+        self.imagePlot.close()
+        self.histogramPlot.close()
+        self.fftPlot.close()
+        self.fftDistributionPlot.close()
+        event.accept()
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     gui = SemTool()

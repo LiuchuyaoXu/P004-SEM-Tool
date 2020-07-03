@@ -165,12 +165,12 @@ class SemTool(QtWidgets.QWidget):
     def initProcessingAlgorithmsBox(self):
         self.processingAlgorithmsBox = QtWidgets.QGroupBox('Image Processing Algorithms')
 
-        hannWindowBox = QtWidgets.QCheckBox('Hann Window')
-        histogramEqualisationBox = QtWidgets.QCheckBox('Histogram Equalisation')
+        self.hannWindowBox = QtWidgets.QCheckBox('Hann Window')
+        self.histogramEqualisationBox = QtWidgets.QCheckBox('Histogram Equalisation')
 
         layout = QtWidgets.QGridLayout()
-        layout.addWidget(hannWindowBox, 0, 0)
-        layout.addWidget(histogramEqualisationBox, 0, 1)
+        layout.addWidget(self.hannWindowBox, 0, 0)
+        layout.addWidget(self.histogramEqualisationBox, 0, 1)
         self.processingAlgorithmsBox.setLayout(layout)
 
     def initPlotsBox(self):
@@ -284,6 +284,12 @@ class SemTool(QtWidgets.QWidget):
                 self.localImagesIndex = 0
         else:
             image = SemImage.create(self.sem.grabImage())
+
+        if self.hannWindowBox.isChecked():
+            image.applyHanning()
+        if self.histogramEqualisationBox.isChecked():
+            image.updateHistogram()
+            image.applyHistogramEqualisation()
 
         if self.imagePlot.isVisible():
             self.imagePlot.update(image)

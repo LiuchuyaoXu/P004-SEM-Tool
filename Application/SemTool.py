@@ -14,6 +14,7 @@ from PySide2 import QtCore
 from PySide2 import QtWidgets
 
 from SemImage import SemImage
+from SemCorrector import SemCorrector
 from SemController import SemController
 
 class ImagePlot(QtWidgets.QLabel):
@@ -108,6 +109,7 @@ class SemTool(QtWidgets.QWidget):
     localImageFolder = None
     
     frameUpdated = QtCore.Signal()
+    corrected = QtCore.Signal()
 
     def __init__(self):
         super().__init__()
@@ -198,8 +200,12 @@ class SemTool(QtWidgets.QWidget):
         self.toggleFrameUpdateButton = QtWidgets.QPushButton('Start Updating Frames')
         self.toggleFrameUpdateButton.clicked.connect(self.startFrameUpdate)
         
+        self.toggleCorrectionButton = QtWidgets.QPushButton('Start Automatic Correction')
+        self.toggleCorrectionButton.clicked.connect(self.startCorrection)
+
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.toggleFrameUpdateButton, 0, 0, alignment=QtCore.Qt.AlignCenter)
+        layout.addWidget(self.toggleCorrectionButton, 1, 0, alignment=QtCore.Qt.AlignCenter)
         self.commandBox.setLayout(layout)
 
     def browseForImageFolder(self):
@@ -257,11 +263,6 @@ class SemTool(QtWidgets.QWidget):
         self.fftDistributionBox.setChecked(False)
 
     def startFrameUpdate(self):
-        if not self.localImageFolder:
-            print('Please specify the local folder.')
-            return
-
-        self.imageSourceBox.setEnabled(False)
         self.toggleFrameUpdateButton.setText('Stop Updating Frames')
         self.toggleFrameUpdateButton.clicked.disconnect(self.startFrameUpdate)
         self.toggleFrameUpdateButton.clicked.connect(self.stopFrameUpdate)
@@ -269,27 +270,53 @@ class SemTool(QtWidgets.QWidget):
         self.updateFrame()
 
     def stopFrameUpdate(self):
-        self.imageSourceBox.setEnabled(True)
         self.toggleFrameUpdateButton.setText('Start Updating Frames')
         self.toggleFrameUpdateButton.clicked.disconnect(self.stopFrameUpdate)
         self.toggleFrameUpdateButton.clicked.connect(self.startFrameUpdate)
         self.frameUpdated.disconnect(self.updateFrame)
 
-    def updateFrame(self):
+    def startCorrection(self):
+        self.toggleCorrectionButton.setText('Stop Automatic Correction')
+        self.toggleCorrectionButton.clicked.disconnect(self.startCorrection)
+        self.toggleCorrectionButton.clicked.connect(self.stopCorrection)
+        self.corrected.connect(self.correct, QtCore.Qt.QueuedConnection)
+        self.corrector = SemCorrector(self.sem)
+        self.correct()
+        
+    def stopCorrection(self):
+        self.toggleCorrectionButton.setText('Start Automatic Correction')
+        self.toggleCorrectionButton.clicked.disconnect(self.stopCorrection)
+        self.toggleCorrectionButton.clicked.connect(self.startCorrection)
+        self.corrected.disconnect(self.correct)
+
+    def getImage(self):
         if self.folderButton.isChecked():
+            if not self.localImageFolder:
+                print('Please specify the local folder.')
+                self.stopFrameUpdate()
+                return
             path = os.path.join(self.localImageFolder.path(), self.localImages[self.localImagesIndex])
             image = SemImage.create(Image.open(path))
             self.localImagesIndex += 1
             if self.localImagesIndex >= len(self.localImages):
                 self.localImagesIndex = 0
         else:
-            image = SemImage.create(self.sem.grabImage())
+            try:
+                image = SemImage.create(self.sem.grabImage())
+            except:
+                self.stopFrameUpdate()
+                return
 
         if self.hannWindowBox.isChecked():
             image.applyHanning()
         if self.histogramEqualisationBox.isChecked():
             image.updateHistogram()
             image.applyHistogramEqualisation()
+
+        return image
+
+    def updateFrame(self):
+        image = self.getImage()
 
         if self.imagePlot.isVisible():
             self.imagePlot.update(image)
@@ -301,6 +328,10 @@ class SemTool(QtWidgets.QWidget):
             self.fftPlot.update(image)
 
         self.frameUpdated.emit()
+
+    def correct(self):
+        self.corrector.iterate()
+        self.corrected.emit()
 
     def closeEvent(self, event):
         self.imagePlot.close()

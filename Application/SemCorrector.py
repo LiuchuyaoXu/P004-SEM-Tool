@@ -9,12 +9,9 @@ import numpy.ma as ma
 import matplotlib.pyplot as plt
 
 from Segmenter import Segmenter
-from SemController import SemController
 from SemImage import SemImage
 
-class SemCorrector():
-
-    segmenter = None
+class SemCorrector:
 
     wdIters = []
     sxIters = []
@@ -34,8 +31,8 @@ class SemCorrector():
     focusCorrected = False
     stigmaCorrected = False
 
-    def __init__(self):
-        self.sem = SemController()
+    def __init__(self, semController):
+        self.sem = semController
         self.segmenter = Segmenter([self.width, self.height])
 
         self.sem().Execute("CMD_MODE_REDUCED")
@@ -80,10 +77,11 @@ class SemCorrector():
         self.syIters.append(sy)
 
         self.sem().Set("AP_WD", str(wd-self.wdOffset))
-        time.sleep(3*ft)
+        time.sleep(3 * ft)
         imageUf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
         imageUf.applyHanning()
         imageUf.updateFft()
+        imageUf.thresholdFft()
         P_uf, P_r12_uf, P_r34_uf, P_s12_uf, P_s34_uf = self.segmentFft(imageUf.fft)
         print(" ")
         print("Underfocused image FFT:")
@@ -94,10 +92,11 @@ class SemCorrector():
         print("P_s34_uf: ", P_s34_uf)
 
         self.sem().Set("AP_WD", str(wd+self.wdOffset))
-        time.sleep(3*ft)       
+        time.sleep(3 * ft)       
         imageOf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
         imageOf.applyHanning()
         imageOf.updateFft()
+        imageOf.thresholdFft()
         P_of, P_r12_of, P_r34_of, P_s12_of, P_s34_of = self.segmentFft(imageOf.fft)
         print(" ")
         print("Overfocused image FFT:")
@@ -137,7 +136,6 @@ class SemCorrector():
         time.sleep(3 * ft)
 
     def segmentFft(self, fft):
-        fft = fft > 3000
         P = fft.sum()
         P_r1 = ma.array(fft, mask=self.segmenter.r1).sum()
         P_r2 = ma.array(fft, mask=self.segmenter.r2).sum()
@@ -186,6 +184,8 @@ class SemCorrector():
             print(" ")
             print("Increased stigmator Y.")
 
-if __name__ == "__main__":
-    semCorrector = SemCorrector()
-    semCorrector.start()
+if __name__ == '__main__':
+    from SemController import SemController
+
+    corrector = SemCorrector(SemController())
+    corrector.start()

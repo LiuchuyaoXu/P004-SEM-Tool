@@ -22,6 +22,7 @@ class ImagePlot(QtWidgets.QLabel):
     def __init__(self):
         super().__init__()
 
+        self.setAlignment(QtCore.Qt.AlignCenter)
         self.setMinimumSize(512, 384)
         self.setWindowTitle('Image')
 
@@ -29,7 +30,8 @@ class ImagePlot(QtWidgets.QLabel):
         width = semImage.image.shape[1]
         height = semImage.image.shape[0]
         image = QtGui.QImage(semImage.image, width, height, QtGui.QImage.Format_Grayscale8)
-        self.setPixmap(QtGui.QPixmap(image))
+        image = QtGui.QPixmap(image)
+        self.setPixmap(image.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
 
     def closeEvent(self, event):
         event.accept()
@@ -45,6 +47,7 @@ class HistogramPlot(QtCharts.QChartView):
 
         self.reduction = reduction
 
+        self.setAlignment(QtCore.Qt.AlignCenter)
         self.setMinimumSize(512, 384)
         self.setWindowTitle('Histogram')
 
@@ -68,8 +71,21 @@ class FftPlot(QtWidgets.QLabel):
     def __init__(self):
         super().__init__()
 
+        self.setAlignment(QtCore.Qt.AlignCenter)
         self.setMinimumSize(512, 384)
         self.setWindowTitle('FFT')
+
+    def update(self, semImage):
+        semImage.updateFft()
+        semImage.thresholdFft()
+        fft = 255 * semImage.fft
+        width = semImage.fft.shape[1]
+        height = semImage.fft.shape[0]
+        if semImage.__class__.__name__ == 'SemImageCuPy':
+            fft = fft.tobytes(order='C')    
+        fft = QtGui.QImage(fft, width, height, QtGui.QImage.Format_Grayscale8)
+        fft = QtGui.QPixmap(fft)
+        self.setPixmap(fft.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
 
     def closeEvent(self, event):
         event.accept()
@@ -123,7 +139,7 @@ class SemTool(QtWidgets.QWidget):
             self.sem = SemController()
         except:
             self.semButton.setEnabled(False)
-            print('Could not initialise communication with the SEM, using it as the image source will not be available.')
+            print('Could not initialise communication with the SEM, it will not be available as image source.')
 
     def initImageSourceBox(self):
         self.imageSourceBox = QtWidgets.QGroupBox('Image Source')
@@ -274,6 +290,9 @@ class SemTool(QtWidgets.QWidget):
         if self.histogramPlot.isVisible():
             image.updateHistogram()
             self.histogramPlot.update(image)
+        if self.fftPlot.isVisible():
+            image.updateFft()
+            self.fftPlot.update(image)
 
         self.frameUpdated.emit()
 

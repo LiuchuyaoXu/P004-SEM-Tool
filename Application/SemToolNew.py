@@ -8,7 +8,7 @@ import os
 import sys
 import time
 from PIL import Image
-from PySide2.QtCharts import QtCharts
+from PySide2 import QtCharts
 from PySide2 import QtGui
 from PySide2 import QtCore
 from PySide2 import QtWidgets
@@ -37,7 +37,7 @@ class ImagePlot(QtWidgets.QLabel):
         event.accept()
         self.closed.emit()
 
-class HistogramPlot(QtCharts.QChartView):
+class HistogramPlot(QtCharts.QtCharts.QChartView):
     closed = QtCore.Signal()
 
     reduction = None
@@ -51,11 +51,11 @@ class HistogramPlot(QtCharts.QChartView):
         self.setMinimumSize(512, 384)
         self.setWindowTitle('Histogram')
 
-        self.chart = QtCharts.QChart()
+        self.chart = QtCharts.QtCharts.QChart()
         self.setChart(self.chart)
 
     def update(self, semImage):
-        series = QtCharts.QLineSeries()
+        series = QtCharts.QtCharts.QLineSeries()
         for i in range(round(2**semImage.bitDepth / self.reduction)):
             series.append(semImage.histogram[1][self.reduction*i], semImage.histogram[0][self.reduction*i])
         self.chart.removeAllSeries()

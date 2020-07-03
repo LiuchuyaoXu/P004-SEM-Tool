@@ -161,8 +161,11 @@ class SemImageCuPy(SemImage):
         self._image = self._image.astype(self.dataType)
 
     def thresholdFft(self):
-        noiseLevel = cupy.sum(self._fft[0][0:100]) / 100
-        self._fft = self._fft > noiseLevel
+        width = round(0.1 * self._fft.shape[1])
+        height = round(0.1 * self._fft.shape[0])
+        highFrequencyRegion = self._fft[0:height, 0:width]
+        noiseThreshold = highFrequencyRegion.max()
+        self._fft = self._fft > noiseThreshold
         self._fft = self._fft.astype('uint8')
 
     def updateFft(self):

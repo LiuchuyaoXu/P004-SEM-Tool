@@ -108,6 +108,8 @@ class FftDistributionPlot(QtWidgets.QLabel):
 class SemTool(QtWidgets.QWidget):
     localImageFolder = None
     
+    currentImage = None
+
     frameUpdated = QtCore.Signal()
     corrected = QtCore.Signal()
 
@@ -296,34 +298,38 @@ class SemTool(QtWidgets.QWidget):
                 self.stopFrameUpdate()
                 return
             path = os.path.join(self.localImageFolder.path(), self.localImages[self.localImagesIndex])
-            image = SemImage.create(Image.open(path))
+            if not self.currentImage:
+                self.currentImage = SemImage.create(Image.open(path))
+            else:
+                self.currentImage.image = Image.open(path)
             self.localImagesIndex += 1
             if self.localImagesIndex >= len(self.localImages):
                 self.localImagesIndex = 0
         else:
             try:
-                image = SemImage.create(self.sem.grabImage())
+                if not self.currentImage:
+                    self.currentImage = SemImage.create(self.sem.grabImage())
+                else:
+                    self.currentImage.image = self.sem.grabImage()
             except:
                 self.stopFrameUpdate()
                 return
 
         if self.hannWindowBox.isChecked():
-            image.applyHanning()
+            self.currentImage.applyHanning()
         if self.histogramEqualisationBox.isChecked():
-            image.updateHistogram()
-            image.applyHistogramEqualisation()
-
-        return image
+            self.currentImage.updateHistogram()
+            self.currentImage.applyHistogramEqualisation()
 
     def updateFrame(self):
-        image = self.getImage()
+        self.getImage()
 
         if self.imagePlot.isVisible():
-            self.imagePlot.updateFrame(image)
+            self.imagePlot.updateFrame(self.currentImage)
         if self.histogramPlot.isVisible():
-            self.histogramPlot.updateFrame(image)
+            self.histogramPlot.updateFrame(self.currentImage)
         if self.fftPlot.isVisible():
-            self.fftPlot.updateFrame(image)
+            self.fftPlot.updateFrame(self.currentImage)
 
         self.frameUpdated.emit()
 

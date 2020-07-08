@@ -7,6 +7,7 @@
 import os
 import sys
 import time
+import numpy as np
 from PIL import Image
 from PySide2 import QtCharts
 from PySide2 import QtGui
@@ -27,12 +28,12 @@ class ImagePlot(QtWidgets.QLabel):
         self.setMinimumSize(512, 384)
         self.setWindowTitle('Image')
 
-    def update(self, semImage):
+    def updateFrame(self, semImage):
         width = semImage.image.shape[1]
         height = semImage.image.shape[0]
         image = QtGui.QImage(semImage.image, width, height, QtGui.QImage.Format_Grayscale8)
-        image = QtGui.QPixmap(image)
-        self.setPixmap(image.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
+        pixmap = QtGui.QPixmap(image)
+        self.setPixmap(pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
 
     def closeEvent(self, event):
         event.accept()
@@ -55,7 +56,8 @@ class HistogramPlot(QtCharts.QtCharts.QChartView):
         self.chart = QtCharts.QtCharts.QChart()
         self.setChart(self.chart)
 
-    def update(self, semImage):
+    def updateFrame(self, semImage):
+        semImage.updateHistogram()
         series = QtCharts.QtCharts.QLineSeries()
         for i in range(round(2**semImage.bitDepth / self.reduction)):
             series.append(semImage.histogram[1][self.reduction*i], semImage.histogram[0][self.reduction*i])
@@ -65,7 +67,7 @@ class HistogramPlot(QtCharts.QtCharts.QChartView):
     def closeEvent(self, event):
         event.accept()
         self.closed.emit()
-    
+
 class FftPlot(QtWidgets.QLabel):
     closed = QtCore.Signal()
 
@@ -76,17 +78,15 @@ class FftPlot(QtWidgets.QLabel):
         self.setMinimumSize(512, 384)
         self.setWindowTitle('FFT')
 
-    def update(self, semImage):
+    def updateFrame(self, semImage):
         semImage.updateFft()
-        semImage.thresholdFft()
-        fft = 255 * semImage.fft
-        width = semImage.fft.shape[1]
-        height = semImage.fft.shape[0]
-        if semImage.__class__.__name__ == 'SemImageCuPy':
-            fft = fft.tobytes(order='C')    
-        fft = QtGui.QImage(fft, width, height, QtGui.QImage.Format_Grayscale8)
-        fft = QtGui.QPixmap(fft)
-        self.setPixmap(fft.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
+        semImage.clipFft(min=0, max=65535)
+        fft = semImage.fft.astype('uint16')
+        width = fft.shape[1]
+        height = fft.shape[0]
+        image = QtGui.QImage(fft, width, height, QtGui.QImage.Format_Grayscale16)
+        pixmap = QtGui.QPixmap(image)
+        self.setPixmap(pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
 
     def closeEvent(self, event):
         event.accept()
@@ -319,13 +319,11 @@ class SemTool(QtWidgets.QWidget):
         image = self.getImage()
 
         if self.imagePlot.isVisible():
-            self.imagePlot.update(image)
+            self.imagePlot.updateFrame(image)
         if self.histogramPlot.isVisible():
-            image.updateHistogram()
-            self.histogramPlot.update(image)
+            self.histogramPlot.updateFrame(image)
         if self.fftPlot.isVisible():
-            image.updateFft()
-            self.fftPlot.update(image)
+            self.fftPlot.updateFrame(image)
 
         self.frameUpdated.emit()
 

@@ -60,6 +60,14 @@ class SemImage(ABC):
         ...
 
     @abstractmethod
+    def clipFft(self):
+        ...
+
+    @abstractmethod
+    def thresholdFft(self):
+        ...
+
+    @abstractmethod
     def updateFft(self):
         ...
     
@@ -106,6 +114,9 @@ class SemImageNumPy(SemImage):
         transFunc = transFunc.round()
         self._image = numpy.array(list(map(lambda x: transFunc[x], self._image)))
         self._image = self._image.astype(self.dataType)
+
+    def clipFft(self, min, max):
+        self._fft = numpy.clip(self._fft, a_min=min, a_max=max)
 
     def thresholdFft(self):
         noiseLevel = numpy.sum(self._fft[0][0:10]) / 10
@@ -159,6 +170,9 @@ class SemImageCuPy(SemImage):
         )
         self._image = cupy.array(gpuMap(self._image, transFunc))
         self._image = self._image.astype(self.dataType)
+
+    def clipFft(self, min, max):
+        self._fft = cupy.clip(self._fft, a_min=min, a_max=max)
 
     def thresholdFft(self):
         width = round(0.1 * self._fft.shape[1])

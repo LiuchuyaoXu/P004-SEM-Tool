@@ -18,7 +18,7 @@ class SemCorrector:
     syIters = []
 
     wdStep = 0.02 # In mm
-    wdOffset = 0.10 # In mm.
+    wdOffset = 0.02 # In mm.
     dP_threshold = 0.05
     sxyStep = 5
     dP_rs_threshold = 0.002
@@ -42,7 +42,7 @@ class SemCorrector:
         self.sem().Set("AP_RED_RASTER_H", str(self.height))
 
     def start(self):
-        iters = range(20)
+        iters = range(10)
         for _ in iters:
             self.iterate()
 
@@ -81,7 +81,7 @@ class SemCorrector:
         imageUf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
         imageUf.applyHanning()
         imageUf.updateFft()
-        imageUf.thresholdFft()
+        imageUf.clipFft(min=0, max=65535)
         P_uf, P_r12_uf, P_r34_uf, P_s12_uf, P_s34_uf = self.segmentFft(imageUf.fft)
         print(" ")
         print("Underfocused image FFT:")
@@ -96,7 +96,7 @@ class SemCorrector:
         imageOf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
         imageOf.applyHanning()
         imageOf.updateFft()
-        imageOf.thresholdFft()
+        imageOf.clipFft(min=0, max=65535)
         P_of, P_r12_of, P_r34_of, P_s12_of, P_s34_of = self.segmentFft(imageOf.fft)
         print(" ")
         print("Overfocused image FFT:")
@@ -108,11 +108,11 @@ class SemCorrector:
 
         self.sem().Set("AP_WD", str(wd))
 
-        dP = (P_of - P_uf) / (P_of + P_uf)
-        dP_r12 = (P_r12_of - P_r12_uf) / (P_r12_of + P_r12_uf)
-        dP_r34 = (P_r34_of - P_r34_uf) / (P_r34_of + P_r34_uf)
-        dP_s12 = (P_s12_of - P_s12_uf) / (P_s12_of + P_s12_uf)
-        dP_s34 = (P_s34_of - P_s34_uf) / (P_s34_of + P_s34_uf)
+        dP = (P_of - P_uf)
+        dP_r12 = (P_r12_of - P_r12_uf)
+        dP_r34 = (P_r34_of - P_r34_uf)
+        dP_s12 = (P_s12_of - P_s12_uf)
+        dP_s34 = (P_s34_of - P_s34_uf)
         print(" ")
         print("Image FFT differences:")
         print("dP:     ", dP)
@@ -121,15 +121,15 @@ class SemCorrector:
         print("dP_s12: ", dP_s12)
         print("dP_s34: ", dP_s34)
 
-        if not self.focusCorrected:
-            if abs(dP) > self.dP_threshold:
-                self.adjustFocus(dP, wd)        
-            else:
-                self.focusCorrected = True
+        # if not self.focusCorrected:
+        #     if abs(dP) > self.dP_threshold:
+        #         self.adjustFocus(dP, wd)        
+        #     else:
+        #         self.focusCorrected = True
 
-        if self.focusCorrected:
-            if abs(dP_r12) > self.dP_rs_threshold or abs(dP_r34) > self.dP_rs_threshold:
-                self.adjustStigmaX(dP_r12, dP_r34, sx)
+        # if self.focusCorrected:
+        #     if abs(dP_r12) > self.dP_rs_threshold or abs(dP_r34) > self.dP_rs_threshold:
+        #         self.adjustStigmaX(dP_r12, dP_r34, sx)
             # elif abs(dP_s12) > self.dP_rs_threshold or abs(dP_s34) > self.dP_rs_threshold:
             #     self.adjustStigmaY(dP_s12, dP_s34, sy)
 

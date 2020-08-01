@@ -154,8 +154,8 @@ class SemImageCuPy(SemImage):
         col = cupy.hanning(self._image.shape[0])
         row = cupy.hanning(self._image.shape[1])
         window = cupy.sqrt(cupy.outer(col, row))
-        self._image = cupy.multiply(window, self._image)
-        self._image = self._image.astype(self.dataType)
+        image = cupy.multiply(window, self._image).astype(self.dataType)
+        self._image = image
 
     def applyHistogramEqualisation(self):
         transFunc = cupy.cumsum(self._histogram[0])
@@ -168,8 +168,8 @@ class SemImageCuPy(SemImage):
             'z = y[x]',
             'gpuMap'
         )
-        self._image = cupy.array(gpuMap(self._image, transFunc))
-        self._image = self._image.astype(self.dataType)
+        image = cupy.array(gpuMap(self._image, transFunc)).astype(self.dataType)
+        self._image = image
 
     def clipFft(self, min, max):
         self._fft = cupy.clip(self._fft, a_min=min, a_max=max)
@@ -179,8 +179,8 @@ class SemImageCuPy(SemImage):
         height = round(0.1 * self._fft.shape[0])
         highFrequencyRegion = self._fft[0:height, 0:width]
         noiseThreshold = highFrequencyRegion.max()
-        self._fft = self._fft > noiseThreshold
-        self._fft = self._fft.astype('uint8')
+        fft = (self._fft > noiseThreshold).astype('uint8')
+        self._fft = fft
 
     def updateFft(self):
         fft = cupy.fft.fft2(self._image)

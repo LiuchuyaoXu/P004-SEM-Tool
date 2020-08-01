@@ -322,6 +322,7 @@ class SemTool(QtWidgets.QWidget):
             self.currentImage.applyHistogramEqualisation()
 
     def updateFrame(self):
+        start = time.time()
         self.getImage()
 
         if self.imagePlot.isVisible():
@@ -331,6 +332,8 @@ class SemTool(QtWidgets.QWidget):
         if self.fftPlot.isVisible():
             self.fftPlot.updateFrame(self.currentImage)
 
+        end = time.time()
+        print('Updating frame took {:.2f} s.'.format(end - start))
         self.frameUpdated.emit()
 
     def correct(self):

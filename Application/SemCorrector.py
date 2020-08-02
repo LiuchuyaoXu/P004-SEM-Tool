@@ -2,190 +2,180 @@
 # 
 #   Author: Liuchuyao Xu, 2020
 #
-#   Brief:  Implement an automatic focusing and astigmatism correction algorithm.
+#   Brief:  Implement an algorithm for automatically correcting the focusing and astigmatism of an SEM.
 
 import time
-import numpy.ma as ma
-import matplotlib.pyplot as plt
 
-from Segmenter import Segmenter
 from SemImage import SemImage
+from Segmenter import Segmenter
 
 class SemCorrector:
 
-    wdIters = []
-    sxIters = []
-    syIters = []
+    rasterX = 512
+    rasterY = 256
+    rasterWidth = 256
+    rasterHeight = 256
 
-    wdStep = 0.02 # In mm
-    wdOffset = 0.02 # In mm.
+    stigmatorStep = 5 # In per cent.
+    workingDistanceStep = 0.02 # In mm.
+    workingDistanceOffset = 0.02 # In mm.
+
+    stigmatorIterationsX = []
+    stigmatorIterationsY = []
+    workingDistanceIterations = []
+
     dP_threshold = 0.05
-    sxyStep = 5
-    dP_rs_threshold = 0.002
+    dP_r_s_threshold = 0.002
 
-    xOffset = 512
-    yOffset = 256
-    width = 256
-    height = 256
+    stigmatorCorrected = False
+    workingDistanceCorrected = False
 
-    focusCorrected = False
-    stigmaCorrected = False
-
-    def __init__(self, semController):
+    def __init__(self, semController, validFftRegion):
         self.sem = semController
-        self.segmenter = Segmenter([self.width, self.height])
+        self.validFftRegion = validFftRegion
+        self.segmenter = Segmenter([validFftRegion.width, validFftRegion.height])
 
         self.sem().Execute("CMD_MODE_REDUCED")
-        self.sem().Set("AP_RED_RASTER_POSN_X", str(self.xOffset))
-        self.sem().Set("AP_RED_RASTER_POSN_Y", str(self.yOffset))
-        self.sem().Set("AP_RED_RASTER_W", str(self.width))
-        self.sem().Set("AP_RED_RASTER_H", str(self.height))
-
-    def start(self):
-        iters = range(10)
-        for _ in iters:
-            self.iterate()
-
-        plt.figure()
-        plt.subplot(211)
-        plt.plot(iters, self.wdIters, 'r^')
-        plt.ylabel('Working Distance')
-        plt.subplot(212)
-        plt.plot(iters, self.sxIters, 'g^', label='Stigmator X')
-        plt.plot(iters, self.syIters, 'b^', label='Stigmator Y')
-        plt.xlabel('Iteration')
-        plt.ylabel('Stigmator Setting')
-        plt.legend(loc='upper right')
-        plt.show()
+        self.sem().Set("AP_RED_RASTER_POSN_X", str(self.rasterX))
+        self.sem().Set("AP_RED_RASTER_POSN_Y", str(self.rasterY))
+        self.sem().Set("AP_RED_RASTER_W", str(self.rasterWidth))
+        self.sem().Set("AP_RED_RASTER_H", str(self.rasterHeight))
 
     def iterate(self):
         print("--------------------")
-        print(" ")
-        print("Start iteration.")
-        wd = self.sem().Get("AP_WD", 0.0)[1] * 1000   # In mm.
-        sx = self.sem().Get("AP_STIG_X", 0.0)[1]
-        sy = self.sem().Get("AP_STIG_Y", 0.0)[1]
-        ft = self.sem().Get("AP_FRAME_TIME", 0.0)[1] / 1000 # In seconds.
-        print(" ")
-        print("Initial settings: ")
-        print("Working distance: ", wd, "mm")
-        print("Stigmator X:      ", sx)
-        print("Stigmator Y:      ", sy)
-        print("Frame time:       ", ft, "seconds")
-        self.wdIters.append(wd)
-        self.sxIters.append(sx)
-        self.syIters.append(sy)
 
-        self.sem().Set("AP_WD", str(wd-self.wdOffset))
-        time.sleep(3 * ft)
-        imageUf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
+        print(" ")
+        print("Start a new iteration.")
+        wd = self.sem().Get("AP_WD", 0.0)[1] * 1000 # In mm.
+        sx = self.sem().Get("AP_STIG_X", 0.0)[1] # In per cent.
+        sy = self.sem().Get("AP_STIG_Y", 0.0)[1] # In per cent.
+        ft = self.sem().Get("AP_FRAME_TIME", 0.0)[1] / 1000 # In s.
+        self.workingDistanceIterations.append(wd)
+        self.stigmatorIterationsX.append(sx)
+        self.stigmatorIterationsY.append(sy)
+        print("Initial settings: ")
+        print("Working distance: ${} mm.".format(wd))
+        print("Stigmator X:      ${}.".format(sx))
+        print("Stigmator Y:      ${}.".format(sy))
+        print("Frame time:       ${} s.".format(ft))
+
+        self.sem().Set("AP_WD", str(wd-self.workingDistanceOffset))
+        time.sleep(2*ft)
+        imageUf = SemImage.create(self.sem.grabImage(self.rasterX, self.rasterY, self.rasterWidth, self.rasterHeight))
         imageUf.applyHanning()
         imageUf.updateFft()
         imageUf.clipFft(min=0, max=65535)
-        P_uf, P_r12_uf, P_r34_uf, P_s12_uf, P_s34_uf = self.segmentFft(imageUf.fft)
+        x = self.validFftRegion.x
+        y = self.validFftRegion.y
+        width = self.validFftRegion.width
+        height = self.validFftRegion.height
+        fft = imageUf.fft[x:x+width, y:y+height]
+        P_uf, P_uf_r12, P_uf_r34, P_uf_s12, P_uf_s34 = self.segmenter.calculateSums(fft)
         print(" ")
-        print("Underfocused image FFT:")
+        print("FFT of the underfocused image:")
         print("P_uf:     ", P_uf)
-        print("P_r12_uf: ", P_r12_uf)
-        print("P_r34_uf: ", P_r34_uf)
-        print("P_s12_uf: ", P_s12_uf)
-        print("P_s34_uf: ", P_s34_uf)
+        print("P_uf_r12: ", P_uf_r12)
+        print("P_uf_r34: ", P_uf_r34)
+        print("P_uf_s12: ", P_uf_s12)
+        print("P_uf_s34: ", P_uf_s34)
 
-        self.sem().Set("AP_WD", str(wd+self.wdOffset))
-        time.sleep(3 * ft)       
-        imageOf = SemImage.create(self.sem.grabImage(self.xOffset, self.yOffset, self.width, self.height))
+        self.sem().Set("AP_WD", str(wd+self.workingDistanceOffset))
+        time.sleep(2*ft)       
+        imageOf = SemImage.create(self.sem.grabImage(self.rasterX, self.rasterY, self.rasterWidth, self.rasterHeight))
         imageOf.applyHanning()
         imageOf.updateFft()
         imageOf.clipFft(min=0, max=65535)
-        P_of, P_r12_of, P_r34_of, P_s12_of, P_s34_of = self.segmentFft(imageOf.fft)
+        x = self.validFftRegion.x
+        y = self.validFftRegion.y
+        width = self.validFftRegion.width
+        height = self.validFftRegion.height
+        fft = imageOf.fft[x:x+width, y:y+height]
+        P_of, P_of_r12, P_of_r34, P_of_s12, P_of_s34 = self.segmenter.calculateSums(fft)
         print(" ")
-        print("Overfocused image FFT:")
+        print("FFT of the overfocused image:")
         print("P_of:     ", P_of)
-        print("P_r12_of: ", P_r12_of)
-        print("P_r34_of: ", P_r34_of)
-        print("P_s12_of: ", P_s12_of)
-        print("P_s34_of: ", P_s34_of)
-
-        self.sem().Set("AP_WD", str(wd))
+        print("P_of_r12: ", P_of_r12)
+        print("P_of_r34: ", P_of_r34)
+        print("P_of_s12: ", P_of_s12)
+        print("P_of_s34: ", P_of_s34)
 
         dP = (P_of - P_uf)
-        dP_r12 = (P_r12_of - P_r12_uf)
-        dP_r34 = (P_r34_of - P_r34_uf)
-        dP_s12 = (P_s12_of - P_s12_uf)
-        dP_s34 = (P_s34_of - P_s34_uf)
+        dP_r12 = (P_of_r12 - P_uf_r12)
+        dP_r34 = (P_of_r34 - P_uf_r34)
+        dP_s12 = (P_of_s12 - P_uf_s12)
+        dP_s34 = (P_of_s34 - P_uf_s34)
         print(" ")
-        print("Image FFT differences:")
+        print("Differences in FFT of the images:")
         print("dP:     ", dP)
         print("dP_r12: ", dP_r12)
         print("dP_r34: ", dP_r34)
         print("dP_s12: ", dP_s12)
         print("dP_s34: ", dP_s34)
+        self.sem().Set("AP_WD", str(wd))
 
-        # if not self.focusCorrected:
-        #     if abs(dP) > self.dP_threshold:
-        #         self.adjustFocus(dP, wd)        
-        #     else:
-        #         self.focusCorrected = True
+        if not self.workingDistanceCorrected:
+            if abs(dP) > self.dP_threshold:
+                self.adjustWorkingDistance(dP, wd)        
+            else:
+                self.workingDistanceCorrected = True
 
-        # if self.focusCorrected:
-        #     if abs(dP_r12) > self.dP_rs_threshold or abs(dP_r34) > self.dP_rs_threshold:
-        #         self.adjustStigmaX(dP_r12, dP_r34, sx)
-            # elif abs(dP_s12) > self.dP_rs_threshold or abs(dP_s34) > self.dP_rs_threshold:
-            #     self.adjustStigmaY(dP_s12, dP_s34, sy)
+        if not self.stigmatorCorrected:
+            if abs(dP_r12) > self.dP_r_s_threshold or abs(dP_r34) > self.dP_r_s_threshold:
+                self.adjustStigmatorX(dP_r12, dP_r34, sx)
+            elif abs(dP_s12) > self.dP_r_s_threshold or abs(dP_s34) > self.dP_r_s_threshold:
+                self.adjustStigmatorY(dP_s12, dP_s34, sy)
+            else:
+                self.stigmatorCorrected = True
 
-        time.sleep(3 * ft)
+        time.sleep(2*ft)
 
-    def segmentFft(self, fft):
-        P = fft.sum()
-        P_r1 = ma.array(fft, mask=self.segmenter.r1).sum()
-        P_r2 = ma.array(fft, mask=self.segmenter.r2).sum()
-        P_r3 = ma.array(fft, mask=self.segmenter.r3).sum()
-        P_r4 = ma.array(fft, mask=self.segmenter.r4).sum()
-        P_s1 = ma.array(fft, mask=self.segmenter.s1).sum()
-        P_s2 = ma.array(fft, mask=self.segmenter.s2).sum()
-        P_s3 = ma.array(fft, mask=self.segmenter.s3).sum()
-        P_s4 = ma.array(fft, mask=self.segmenter.s4).sum()
-        P_r12 = P_r1 + P_r2
-        P_r34 = P_r3 + P_r4
-        P_s12 = P_s1 + P_s2
-        P_s34 = P_s3 + P_s4
-        return P, P_r12, P_r34, P_s12, P_s34
-
-    def adjustFocus(self, dP, wd):
+    def adjustWorkingDistance(self, dP, wd):
         print(" ")
         if dP > 0:
-            self.sem().Set("AP_WD", str(wd+self.wdStep))
+            self.sem().Set("AP_WD", str(wd+self.workingDistanceStep))
             print("Increased working distance.")
         else:
-            self.sem().Set("AP_WD", str(wd-self.wdStep))
+            self.sem().Set("AP_WD", str(wd-self.workingDistanceStep))
             print("Decreased working distance.")
 
-    def adjustStigmaX(self, dP_r12, dP_r34, sx):
-        # if dP_r12 > 0 and dP_r34 < 0:
-        if dP_r12 - dP_r34 > self.dP_rs_threshold:
-            self.sem().Set("AP_STIG_X", str(sx-self.sxyStep))
-            print(" ")
+    def adjustStigmatorX(self, dP_r12, dP_r34, sx):
+        print(" ")
+        if dP_r12 - dP_r34 > self.dP_r_s_threshold:
+            self.sem().Set("AP_STIG_X", str(sx-self.stigmatorStep))
             print("Decreased stigmator X.")
-        # elif dP_r12 < 0 and dP_r34 > 0:
-        elif dP_r34 - dP_r12 > self.dP_rs_threshold:
-            self.sem().Set("AP_STIG_X", str(sx+self.sxyStep))
-            print(" ")
+        elif dP_r34 - dP_r12 > self.dP_r_s_threshold:
+            self.sem().Set("AP_STIG_X", str(sx+self.stigmatorStep))
             print("Increased stigmator X.")
 
-    def adjustStigmaY(self, dP_s12, dP_s34, sy):
-        # if dP_s12 > 0 and dP_s34 < 0:
-        if dP_s12 - dP_s34 > self.dP_rs_threshold:
-            self.sem().Set("AP_STIG_Y", str(sy-self.sxyStep))
-            print(" ")
+    def adjustStigmatorY(self, dP_s12, dP_s34, sy):
+        print(" ")
+        if dP_s12 - dP_s34 > self.dP_r_s_threshold:
+            self.sem().Set("AP_STIG_Y", str(sy-self.stigmatorStep))
             print("Decreased stigmator Y.")
-        # elif dP_s12 < 0 and dP_s34 > 0:
-        elif dP_s34 - dP_s12 > self.dP_rs_threshold:
-            self.sem().Set("AP_STIG_Y", str(sy+self.sxyStep))
-            print(" ")
+        elif dP_s34 - dP_s12 > self.dP_r_s_threshold:
+            self.sem().Set("AP_STIG_Y", str(sy+self.stigmatorStep))
             print("Increased stigmator Y.")
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     from SemController import SemController
 
-    corrector = SemCorrector(SemController())
-    corrector.start()
+    corrector = SemCorrector(SemController(), [0, 0, 1024, 768])
+    iterations = range(10)
+    for _ in iterations:
+        corrector.iterate()
+
+    plt.figure()
+
+    plt.subplot(211)
+    plt.plot(iterations, corrector.workingDistanceIterations, 'r^')
+    plt.ylabel('Working Distance')
+
+    plt.subplot(212)
+    plt.plot(iterations, corrector.stigmatorIterationsX, 'g^', label='Stigmator X')
+    plt.plot(iterations, corrector.stigmatorIterationsY, 'b^', label='Stigmator Y')
+    plt.xlabel('Iteration')
+    plt.ylabel('Stigmator Setting')
+
+    plt.legend(loc='upper right')
+    plt.show()

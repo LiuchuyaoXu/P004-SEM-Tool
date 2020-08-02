@@ -2,21 +2,13 @@
 #
 #   Author: Liuchuyao Xu, 2020
 #
-#   Brief:  Implement a class that helps segment a matrice into 8 regions.
-#           Run this script for a demonstration.
+#   Brief:  Implement a class that helps segment matrices.
+#           Run the script for a demonstration.
 
 import numpy as np
+import numpy.ma as ma
 
 class Segmenter:
-
-    r1 = None
-    r2 = None
-    r3 = None
-    r4 = None
-    s1 = None
-    s2 = None
-    s3 = None
-    s4 = None
 
     def __init__(self, shape):
         self.r1 = np.ones(shape, int)
@@ -28,12 +20,12 @@ class Segmenter:
         self.s3 = np.ones(shape, int)
         self.s4 = np.ones(shape, int)
 
-        xLength = shape[0]
-        yLength = shape[1]
-        xOrigin = np.floor(xLength / 2)
-        yOrigin = np.floor(yLength / 2)
-        for i in range(0, xLength):
-            for j in range(0, yLength):
+        width = shape[0]
+        height = shape[1]
+        xOrigin = np.floor(width/2)
+        yOrigin = np.floor(height/2)
+        for i in range(0, width):
+            for j in range(0, height):
                 x = i - xOrigin
                 y = j - yOrigin
                 if x == 0:
@@ -81,21 +73,45 @@ class Segmenter:
                         else:
                             self.r2[i][j] = 0
 
+    def calculateSums(self, matrix):
+        sum_ = matrix.sum()
+        sum_r1 = ma.array(matrix, mask=self.r1).sum()
+        sum_r2 = ma.array(matrix, mask=self.r2).sum()
+        sum_r3 = ma.array(matrix, mask=self.r3).sum()
+        sum_r4 = ma.array(matrix, mask=self.r4).sum()
+        sum_s1 = ma.array(matrix, mask=self.s1).sum()
+        sum_s2 = ma.array(matrix, mask=self.s2).sum()
+        sum_s3 = ma.array(matrix, mask=self.s3).sum()
+        sum_s4 = ma.array(matrix, mask=self.s4).sum()
+        sum_r12 = sum_r1 + sum_r2
+        sum_r34 = sum_r3 + sum_r4
+        sum_s12 = sum_s1 + sum_s2
+        sum_s34 = sum_s3 + sum_s4
+        return sum_, sum_r12, sum_r34, sum_s12, sum_s34
+
 if __name__ == "__main__":
     segmenter = Segmenter([5, 7])
+    
     print("Region r1:")
     print(segmenter.r1)
+
     print("Region r2:")
     print(segmenter.r2)
+
     print("Region r3:")
     print(segmenter.r3)
+
     print("Region r4:")
     print(segmenter.r4)
+
     print("Region s1:")
     print(segmenter.s1)
+
     print("Region s2:")
     print(segmenter.s2)
+
     print("Region s3:")
     print(segmenter.s3)
+
     print("Region s4:")
     print(segmenter.s4)

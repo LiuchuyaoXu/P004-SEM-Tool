@@ -69,10 +69,19 @@ class HistogramPlot(QtCharts.QtCharts.QChartView):
         self.closed.emit()
 
 class FftPlot(QtWidgets.QLabel):
+
+    selectedX = None
+    selectedY = None
+    selectedWidth = None
+    selectedHeight = None
+
     closed = QtCore.Signal()
+    selectedRegionChanged = QtCore.Signal()
 
     def __init__(self):
         super().__init__()
+
+        self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle, self)
 
         self.setAlignment(QtCore.Qt.AlignCenter)
         self.setMinimumSize(512, 384)
@@ -87,6 +96,24 @@ class FftPlot(QtWidgets.QLabel):
         image = QtGui.QImage(fft, width, height, QtGui.QImage.Format_Grayscale16)
         pixmap = QtGui.QPixmap(image)
         self.setPixmap(pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio))
+
+    def mousePressEvent(self, event):
+        self.rubberBandOrigin = event.pos()
+        self.rubberBand.setGeometry(QtCore.QRect(self.rubberBandOrigin, QtCore.QSize()))
+        self.rubberBand.show()
+
+    def mouseMoveEvent(self, event):
+        self.rubberBand.setGeometry(QtCore.QRect(self.rubberBandOrigin, event.pos()).normalized())
+
+    def mouseButtonReleaseEvent(self, event):
+        self.selectedX = self.rubberBand.geometry().x() / self.width()
+        self.selectedY = self.rubberBand.geometry().y() / self.height()
+        self.selectedWidth = self.rubberBand.geometry().width() / self.width()
+        self.selectedHeight = self.rubberBand.geometry().height() / self.height()
+        self.selectedRegionChanged.emit()
+
+    # def mouseReleaseEvent(self, event):
+    #     self.rubberBand.hide()
 
     def closeEvent(self, event):
         event.accept()
@@ -106,9 +133,10 @@ class FftDistributionPlot(QtWidgets.QLabel):
         self.closed.emit()
 
 class SemTool(QtWidgets.QWidget):
-    localImageFolder = None
-    
+
+    semCorrector = None
     currentImage = None
+    localImageFolder = None
 
     frameUpdated = QtCore.Signal()
     corrected = QtCore.Signal()
@@ -136,6 +164,7 @@ class SemTool(QtWidgets.QWidget):
         self.histogramPlot.closed.connect(self.onHistogramPlotClose)
         self.fftPlot = FftPlot()
         self.fftPlot.closed.connect(self.onFftPlotClose)
+        self.fftPlot.selectedRegionChanged.connect(self.onSelectedRegionChanged)
         self.fftDistributionPlot = FftDistributionPlot()
         self.fftDistributionPlot.closed.connect(self.onFftDistributionPlotClose)
 
@@ -203,7 +232,7 @@ class SemTool(QtWidgets.QWidget):
         self.toggleFrameUpdateButton.clicked.connect(self.startFrameUpdate)
         
         self.toggleCorrectionButton = QtWidgets.QPushButton('Start Automatic Correction')
-        self.toggleCorrectionButton.clicked.connect(self.startCorrection)
+        self.toggleCorrectionButton.clicked.connect(self.correct)
 
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.toggleFrameUpdateButton, 0, 0, alignment=QtCore.Qt.AlignCenter)
@@ -282,7 +311,6 @@ class SemTool(QtWidgets.QWidget):
         self.toggleCorrectionButton.clicked.disconnect(self.startCorrection)
         self.toggleCorrectionButton.clicked.connect(self.stopCorrection)
         self.corrected.connect(self.correct, QtCore.Qt.QueuedConnection)
-        self.corrector = SemCorrector(self.sem)
         self.correct()
         
     def stopCorrection(self):
@@ -333,12 +361,37 @@ class SemTool(QtWidgets.QWidget):
             self.fftPlot.updateFrame(self.currentImage)
 
         end = time.time()
-        print('Updating frame took {:.2f} s.'.format(end - start))
+        # print('Updating frame took {:.2f} s.'.format(end - start))
         self.frameUpdated.emit()
 
+    def onSelectedRegionChanged(self):
+        if self.semCorrector:
+            validFftRegion = {}
+            validFftRegion.x = self.fftPlot.selectedX
+            validFftRegion.y = self.fftPlot.selectedY
+            validFftRegion.width = self.fftPlot.selectedWidth
+            validFftRegion.height = self.fftPlot.selectedHeight
+            self.semCorrector = SemCorrector(self.sem, validFftRegion)
+
     def correct(self):
-        self.corrector.iterate()
-        self.corrected.emit()
+        if self.semCorrector is None:
+            if self.fftPlot.selectedX:
+                validFftRegion = {}
+                validFftRegion.x = self.fftPlot.selectedX
+                validFftRegion.y = self.fftPlot.selectedY
+                validFftRegion.width = self.fftPlot.selectedWidth
+                validFftRegion.height = self.fftPlot.selectedHeight
+                self.semCorrector = SemCorrector(self.sem, validFftRegion)
+            else:
+                validFftRegion = {}
+                validFftRegion.x = 0
+                validFftRegion.y = 0
+                validFftRegion.width = self.currentImage.width
+                validFftRegion.height = self.currentImage.height
+                self.semCorrector = SemCorrector(self.sem, validFftRegion)
+        for _ in range(3):
+            self.corrector.iterate()
+        # self.corrected.emit()
 
     def closeEvent(self, event):
         self.imagePlot.close()

@@ -15,7 +15,7 @@ from PySide2 import QtCore
 from PySide2 import QtWidgets
 
 from SemImage import SemImage
-from SemCorrector import SemCorrector
+# from SemCorrector import SemCorrector
 from SemController import SemController
 
 class ImagePlot(QtWidgets.QLabel):
@@ -89,7 +89,11 @@ class FftPlot(QtWidgets.QLabel):
 
     def updateFrame(self, semImage):
         semImage.updateFft()
-        semImage.clipFft(min=0, max=65535)
+        # semImage.thresholdFft()
+        semImage.clipFft(amin=0, amax=65535)
+        # fft = semImage.fft > 5000
+        # fft = fft.astype('uint16')
+        # fft = fft * 65535
         fft = semImage.fft.astype('uint16')
         width = fft.shape[1]
         height = fft.shape[0]
@@ -105,7 +109,7 @@ class FftPlot(QtWidgets.QLabel):
     def mouseMoveEvent(self, event):
         self.rubberBand.setGeometry(QtCore.QRect(self.rubberBandOrigin, event.pos()).normalized())
 
-    def mouseButtonReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event):
         self.selectedX = self.rubberBand.geometry().x() / self.width()
         self.selectedY = self.rubberBand.geometry().y() / self.height()
         self.selectedWidth = self.rubberBand.geometry().width() / self.width()
@@ -367,30 +371,30 @@ class SemTool(QtWidgets.QWidget):
     def onSelectedRegionChanged(self):
         if self.semCorrector:
             validFftRegion = {}
-            validFftRegion.x = self.fftPlot.selectedX
-            validFftRegion.y = self.fftPlot.selectedY
-            validFftRegion.width = self.fftPlot.selectedWidth
-            validFftRegion.height = self.fftPlot.selectedHeight
+            validFftRegion['x'] = round(self.fftPlot.selectedX * 1024)
+            validFftRegion['y'] = round(self.fftPlot.selectedY * 768)
+            validFftRegion['width'] = round(self.fftPlot.selectedWidth * 1024)
+            validFftRegion['height'] = round(self.fftPlot.selectedHeight * 768)
             self.semCorrector = SemCorrector(self.sem, validFftRegion)
 
     def correct(self):
         if self.semCorrector is None:
             if self.fftPlot.selectedX:
                 validFftRegion = {}
-                validFftRegion.x = self.fftPlot.selectedX
-                validFftRegion.y = self.fftPlot.selectedY
-                validFftRegion.width = self.fftPlot.selectedWidth
-                validFftRegion.height = self.fftPlot.selectedHeight
+                validFftRegion['x'] = round(self.fftPlot.selectedX * 1024)
+                validFftRegion['y'] = round(self.fftPlot.selectedY * 768)
+                validFftRegion['width'] = round(self.fftPlot.selectedWidth * 1024)
+                validFftRegion['height'] = round(self.fftPlot.selectedHeight * 768)
                 self.semCorrector = SemCorrector(self.sem, validFftRegion)
             else:
                 validFftRegion = {}
-                validFftRegion.x = 0
-                validFftRegion.y = 0
-                validFftRegion.width = self.currentImage.width
-                validFftRegion.height = self.currentImage.height
+                validFftRegion['x'] = 0
+                validFftRegion['y'] = 0
+                validFftRegion['width'] = self.currentImage.image.shape[0]
+                validFftRegion['height'] = self.currentImage.image.shape[1]
                 self.semCorrector = SemCorrector(self.sem, validFftRegion)
         for _ in range(3):
-            self.corrector.iterate()
+            self.semCorrector.iterate()
         # self.corrected.emit()
 
     def closeEvent(self, event):

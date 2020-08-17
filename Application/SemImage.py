@@ -1,187 +1,50 @@
-#   File:   SemImage.py   
+#   File:   SemImage.py
 #
 #   Author: Liuchuyao Xu, 2020
-# 
-#   Brief:  Implement the SemImage class.
-#           The class encapsulates data and methods relevant to a monochrome image.
 
-from abc import ABC
-from abc import abstractmethod
+import cupy
 
-try:
-    import cupy
-except:
-    import numpy
-    cupy = None
-    print('Could not import CuPy, GPU acceleration will be disabled.')
+class SemImage:
 
-class SemImage(ABC):
-    _image = None
-    bitDepth = None
-    dataType = None
-    maxLevel = None
-
-    _fft = None
-    _histogram = None
-
-    def __init__(self, image, bitDepth=8):
+    def __init__(self, bitDepth=8, image=None):
         self.bitDepth = bitDepth
-        self.dataType = 'uint{}'.format(self.bitDepth)
-        self.maxLevel = 2**self.bitDepth - 1
 
-        self.image = image
+        self._image = None
+        self._fft = None
+        self._histogram = None
 
-    @property
-    @abstractmethod
-    def image(self):
-        ...
+        if image:
+            self.setImage(image)
 
-    @image.setter
-    @abstractmethod
-    def image(self, image):
-        ...
-
-    @property
-    @abstractmethod
-    def fft(self):
-        ...
-
-    @property
-    @abstractmethod
-    def histogram(self):
-        ...
-
-    @abstractmethod
-    def applyHanning(self):
-        ...
-
-    @abstractmethod
-    def applyHistogramEqualisation(self):
-        ...
-
-    @abstractmethod
-    def clipFft(self):
-        ...
-
-    @abstractmethod
-    def thresholdFft(self):
-        ...
-
-    @abstractmethod
-    def updateFft(self):
-        ...
-    
-    @abstractmethod
-    def updateHistogram(self):
-        ...
-
-    @classmethod
-    def create(cls, image):
-        if cupy:
-            return SemImageCuPy(image)
+    def image(self, returnCupy=False):
+        if returnCupy:
+            return self._image
         else:
-            return SemImageNumPy(image)
+            return cupy.asnumpy(self._image)
 
-class SemImageNumPy(SemImage):
+    def fft(self, returnCupy=False):
+        if self._fft is None:
+            self.updateFft()
+        
+        if returnCupy:
+            return self._fft
+        else:
+            return cupy.asnumpy(self._fft)
 
-    @property
-    def image(self):
-        return self._image
+    def histogram(self, returnCupy=False):
+        if self._histogram is None:
+            self.updateHistogram()
+        
+        if returnCupy:
+            return self._histogram
+        else:
+            return cupy.asnumpy(self._histogram)
 
-    @image.setter
-    def image(self, image):
-        self._image = numpy.array(image, dtype=numpy.dtype(self.dataType))
-
-    @property
-    def fft(self):
-        return self._fft
-
-    @property
-    def histogram(self):
-        return self._histogram
-
-    def applyHanning(self):
-        col = numpy.hanning(self._image.shape[0])
-        row = numpy.hanning(self._image.shape[1])
-        window = numpy.sqrt(numpy.outer(col, row))
-        self._image = numpy.multiply(window, self._image)
-        self._image = self._image.astype(self.dataType)
-
-    def applyHistogramEqualisation(self):
-        transFunc = numpy.cumsum(self._histogram[0])
-        transFunc = transFunc / transFunc.max()
-        transFunc = transFunc * self.maxLevel
-        transFunc = transFunc.round()
-        self._image = numpy.array(list(map(lambda x: transFunc[x], self._image)))
-        self._image = self._image.astype(self.dataType)
-
-    def clipFft(self, min, max):
-        self._fft = numpy.clip(self._fft, a_min=min, a_max=max)
-
-    def thresholdFft(self):
-        noiseLevel = numpy.sum(self._fft[0][0:10]) / 10
-        self._fft = self._fft > noiseLevel
-        self._fft = self._fft.astype('uint8')
-
-    def updateFft(self):
-        fft = numpy.fft.fft2(self._image)
-        fft = numpy.fft.fftshift(fft)
-        fft = numpy.abs(fft, order='C')
-        self._fft = fft
-
-    def updateHistogram(self):
-        self._histogram = numpy.histogram(self._image, bins=numpy.arange(self.maxLevel+2))
-
-class SemImageCuPy(SemImage):
-
-    @property
-    def image(self):
-        return cupy.asnumpy(self._image)
-
-    @image.setter
-    def image(self, image):
-        self._image = cupy.array(image, dtype=cupy.dtype(self.dataType))
-
-    @property
-    def fft(self):
-        return cupy.asnumpy(self._fft, order=u'C')
-
-    @property
-    def histogram(self):
-        return (cupy.asnumpy(self._histogram[0]), cupy.asnumpy(self._histogram[1]))
-
-    def applyHanning(self):
-        col = cupy.hanning(self._image.shape[0])
-        row = cupy.hanning(self._image.shape[1])
-        window = cupy.sqrt(cupy.outer(col, row))
-        image = cupy.multiply(window, self._image).astype(self.dataType)
-        self._image = image
-
-    def applyHistogramEqualisation(self):
-        transFunc = cupy.cumsum(self._histogram[0])
-        transFunc = transFunc / transFunc.max()
-        transFunc = transFunc * self.maxLevel
-        transFunc = transFunc.round()
-        transFunc = transFunc.astype(self.dataType)
-        gpuMap = cupy.ElementwiseKernel(
-            'T x, raw T y', 'T z',
-            'z = y[x]',
-            'gpuMap'
-        )
-        image = cupy.array(gpuMap(self._image, transFunc)).astype(self.dataType)
-        self._image = image
-
-    def clipFft(self, min, max):
-        self._fft = cupy.clip(self._fft, a_min=min, a_max=max)
-
-    def thresholdFft(self):
-        width = round(0.1 * self._fft.shape[1])
-        height = round(0.1 * self._fft.shape[0])
-        highFrequencyRegion = self._fft[0:height, 0:width]
-        noiseThreshold = highFrequencyRegion.max()
-        fft = (self._fft > noiseThreshold).astype('uint8')
-        self._fft = fft
-
+    def setImage(self, image):
+        self._fft = None
+        self._histogram = None
+        self._image = cupy.asarray(image)
+        
     def updateFft(self):
         fft = cupy.fft.fft2(self._image)
         fft = cupy.fft.fftshift(fft)
@@ -189,4 +52,34 @@ class SemImageCuPy(SemImage):
         self._fft = fft
 
     def updateHistogram(self):
-        self._histogram = cupy.histogram(self._image, bins=cupy.arange(self.maxLevel+2))
+        binEdges = cupy.arange(2**self.bitDepth + 1)
+        self._histogram = cupy.histogram(self._image, bins=binEdges)
+
+    def applyHann(self):
+        width = self._image.shape[0]
+        height = self._image.shape[1]
+        row = cupy.hanning(width)
+        col = cupy.hanning(height)
+        window = cupy.outer(row, col)
+        window = cupy.sqrt(window)
+        image = cupy.multiply(window, self._image)
+        self.setImage(image)
+
+    def applyHistogramEqualisation(self):
+        if self._histogram is None:
+            self.updateHistogram()
+
+        maxLevel = 2**self.bitDepth - 1
+        dataType = 'uint{}'.format(self.bitDepth)
+        transferMap = cupy.cumsum(self._histogram[0])
+        transferMap = transferMap / transferMap.max()
+        transferMap = transferMap * maxLevel
+        transferMap = transferMap.round()
+        transferMap = transferMap.astype(dataType)
+        gpuMap = cupy.ElementwiseKernel(
+            'T x, raw T y', 'T z',
+            'z = y[x]',
+            'gpuMap'
+        )
+        image = gpuMap(self._image, transferMap)
+        self.setImage(image)

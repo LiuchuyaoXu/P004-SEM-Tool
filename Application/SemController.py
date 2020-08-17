@@ -9,30 +9,50 @@
 #   Abbreviations:
 #           ole     Microsoft Object Linking and Embedding document
 
-import sys
 import tempfile
-from win32com import client
 from PIL import Image
+from win32com import client
+
+from PySide2 import QtGui
+from PySide2 import QtCore
+from PySide2 import QtWidgets
 
 class SemController:
-    
+
     def __init__(self):
-        ole = 'CZ.EmApiCtrl.1'
-        self.sem = client.Dispatch(ole)
-        self.sem.InitialiseRemoting()
+        self._sem = None
+        self.ole = 'CZ.EmApiCtrl.1'
+        self.semInitialised = False
 
-    def __call__(self):
-        return self.sem
+        self.imageX = 0
+        self.imageY = 0
+        self.imageWidth = 1024
+        self.imageHeight = 768
+        self.imageReduction = 0
 
-    def grabImage(self, xOffset=0, yOffset=0, width=1024, height=768, reduction=0):
+    def sem(self):
+        if not self._sem:
+            self.initSem()
+        return self._sem
+
+    def initSem(self):
+        if self.semInitialised:
+            return
+        self._sem = client.Dispatch(self.ole)
+        self._sem.InitialiseRemoting()
+
+    def grabImage(self):
         filename = tempfile.TemporaryFile(suffix='.bmp').name
-        self.sem.Grab(xOffset, yOffset, width, height, reduction, filename)
-        image = Image.open(filename)
-        return image
+        self._sem.Grab(self.imageX, self.imageY, self.imageWidth, self.imageHeight, self.imageReduction, filename)
+        return Image.open(filename)
+
+class SemControllerGui(QtWidgets.QWidget):
+    ...
 
 if __name__ == '__main__':
-    sem = SemController()
-    for i in range(5):
-        image = sem.grabImage()
-        image.save('img.png', 'PNG')
-        # image.save('img{}.png'.format(i), 'PNG')
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    gui = SemControllerGui(SemController())
+    gui.show()
+    sys.exit(app.exec_())

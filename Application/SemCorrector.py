@@ -157,3 +157,15 @@ class SemCorrector:
         elif dP_s34 - dP_s12 > self.astigmatismThreshold:
             self.sem().Set("AP_STIG_Y", str(sy + self.stigmatorStep))
             print("Increased stigmator Y.")
+
+if __name__ == '__main__':
+    import sys
+    from PySide2 import QtWidgets
+    from SemController import SemController
+    from ObjectInspector import ObjectInspector
+
+    app = QtWidgets.QApplication(sys.argv)
+    semc = ObjectInspector(SemCorrector(SemController()))
+    semc.show()
+    sys.exit(app.exec_())
+    

@@ -26,6 +26,8 @@ class SemController:
         self.imageHeight = 768
         self.imageReduction = 0
 
+        self.initSem()
+
     def initSem(self):
         if self.semInitialised:
             return
@@ -43,8 +45,12 @@ class SemController:
         self.sem().Grab(self.imageX, self.imageY, self.imageWidth, self.imageHeight, self.imageReduction, filename)
         return Image.open(filename)
 
-    def guiInitSem(self):
-        self.initSem()
+if __name__ == '__main__':
+    import sys
+    from PySide2 import QtWidgets
+    from ObjectInspector import ObjectInspector
 
-    def guiPrintAttributes(self):
-        print(vars(self))
+    app = QtWidgets.QApplication(sys.argv)
+    semc = ObjectInspector(SemController())
+    semc.show()
+    sys.exit(app.exec_())

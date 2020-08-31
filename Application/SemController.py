@@ -45,6 +45,10 @@ class SemController:
         self.sem().Grab(self.imageX, self.imageY, self.imageWidth, self.imageHeight, self.imageReduction, filename)
         return Image.open(filename)
 
+    def guiGrabAndSaveImage(self):
+        image = self.grabImage()
+        image.save('image.PNG', format='PNG')
+
 if __name__ == '__main__':
     import sys
     from PySide2 import QtWidgets

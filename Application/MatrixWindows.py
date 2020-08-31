@@ -72,7 +72,7 @@ def segmentMasks(width, height, returnCupy=False):
     if cupy:
         xOrigin = (width - 1) / 2
         yOrigin = (height - 1) / 2
-        xIndices, yIndices = cupy.ogrid[0:width, 0:height]
+        xIndices, yIndices = cupy.ogrid[0:height, 0:width]
         xIndices = xIndices - xOrigin
         yIndices = yIndices - yOrigin
         window = yIndices / xIndices
@@ -93,7 +93,7 @@ def segmentMasks(width, height, returnCupy=False):
     else:
         xOrigin = (width - 1) / 2
         yOrigin = (height - 1) / 2
-        xIndices, yIndices = numpy.ogrid[0:width, 0:height]
+        xIndices, yIndices = numpy.ogrid[0:height, 0:width]
         xIndices = xIndices - xOrigin
         yIndices = yIndices - yOrigin
         window = yIndices / xIndices
